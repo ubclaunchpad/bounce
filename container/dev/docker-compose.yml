@@ -13,6 +13,7 @@ services:
     build:
       context: ../..
       dockerfile: container/dev/Dockerfile
+    command: sh -c "pip install -e . && bounce start"
     volumes:
       - ../..:/opt/bounce
     ports:
