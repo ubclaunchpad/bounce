@@ -1,0 +1,10 @@
+language: python
+python:
+  - "3.6"
+# Install dependencies
+install:
+  - make install-requirements
+  - make install-test-requirements
+# Run tests and linters
+script:
+  - make lint
