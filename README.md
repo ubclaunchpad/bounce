@@ -54,7 +54,7 @@ Now you're ready to run the server.
 bounce start
 ```
 
-To check if your server is running navigate to [localhost:8080](http://localhost:8080/) in your browser. You should see see `Bounce API accepting requests!`.
+To check if your server is running navigate to [localhost:8080](http://localhost:8080/) in your browser. You should see see `Bounce API accepting requests!`. Note that this project directory is mounted to `/opt/bounce` in the `web` development container, so any edits you make to it should be immediately available in the container - no need to rebuild or restart it while developing!
 
 ## Development
 
@@ -74,9 +74,15 @@ $ make requirements
 
 to update [requirements.txt](requirements.txt) accordingly.
 
-### Core Format
+### Code Format
 
-To ensure our code is nicely formatted and documented we use `flake8` and `pylint` through the `lint` Make target. The following command will report any code formatting issues you have.
+To ensure our code is nicely formatted and documented we use `flake8` and `pylint` through the `lint` Make target. To check for code formatting issues, make sure you have the linters installed in your conatiner
+
+```bash
+$ make install-test-requirements
+```
+
+and then run the linters
 
 ```bash
 $ make lint

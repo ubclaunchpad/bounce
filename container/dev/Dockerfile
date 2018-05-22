@@ -11,4 +11,4 @@ WORKDIR /opt/bounce
 RUN pip install --upgrade pip pip-tools
 
 # Install required python packages
-RUN make install-requirements
+RUN make install-requirements && make install-test-requirements

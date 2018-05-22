@@ -12,11 +12,19 @@ dev:
 
 # Update requirements.txt
 requirements:
-	pip-compile
+	pip-compile --output-file requirements.txt requirements.in
 
 # Install all packages in requirements.txt
 install-requirements:
 	pip install -r requirements.txt
+
+# Update test-requirements.txt
+test-requirements:
+	pip-compile --output-file test-requirements.txt test-requirements.in
+
+# Install all packages in test-requirements.txt
+install-test-requirements:
+	pip install -r test-requirements.txt
 
 # Run linters to make sure there are no formatting issues
 lint:

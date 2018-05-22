@@ -6,7 +6,6 @@
 
 _Briefly describe the changes you made and why you made them in bulleted form._
 
-
 ## :traffic_light: Concerns
 
 _If there is anything you want reviewers to pay special attention to, put it here._
