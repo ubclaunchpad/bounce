@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+
+  postgres:
+    image: postgres
+    volumes:
+      - .pgdata:/var/lib/postgresql/data
+    env_file:
+      - ../postgres.env
+
+  web:
+    build:
+      context: ../..
+      dockerfile: container/dev/Dockerfile
+    volumes:
+      - ../..:/opt/bounce
+    ports:
+      - 8080:8080
+    depends_on:
+      - postgres
+    env_file:
+      - ../web.env
