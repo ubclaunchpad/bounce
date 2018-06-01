@@ -21,6 +21,6 @@ setup(
     license='MIT',
     author_email='team@ubclaunchpad.com',
     install_requires=get_requirements(),
-    packages=['server', 'cli'],
-    entry_points={'console_scripts': ['bounce=cli:cli']},
+    packages=['bounce'],
+    entry_points={'console_scripts': ['bounce=bounce.cli:cli']},
 )

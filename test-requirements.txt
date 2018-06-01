@@ -14,3 +14,4 @@ pyflakes==1.6.0           # via flake8
 pylint==1.9.1
 six==1.11.0               # via astroid, pylint
 wrapt==1.10.11            # via astroid
+yapf==0.22.0

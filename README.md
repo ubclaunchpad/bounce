@@ -78,23 +78,21 @@ to update [requirements.txt](requirements.txt) accordingly.
 
 ### Code Format
 
-To ensure our code is nicely formatted and documented we use `flake8` and `pylint` through the `lint` Make target. To check for code formatting issues, make sure you have the linters installed in your conatiner
+To ensure our code is nicely formatted and documented we use `isort`, `flake8`, and `pylint` through the `lint` Make target.
 
-```bash
-$ make install-test-requirements
-```
+Before your commit your code, have `isort` and `yapf` auto-format your code by running `make format` from inside your dev container.
 
-and then run the linters
+To check for code formatting issues, run `make lint` from inside your dev container.
 
-```bash
-$ make lint
-```
-
-Linter configuration can be found in [tox.ini](tox.ini). If you feel that specific lint rules are too restricitve, you can disable them in that file.
+Linter configuration can be found in [setup.cfg](setup.cfg). If you feel that specific lint rules are too restricitve, you can disable them in that file.
 
 ### HTTP Server
 
 We're relying on [Sanic](https://sanic.readthedocs.io/en/latest/) as our HTTP server framework. Our routes and HTTP request handlers can be found in [server/__init__.py](server/__init__.py).
+
+### Interacting with the DB
+
+We're using [SQLAlchemy](http://docs.sqlalchemy.org/en/latest/orm/tutorial.html) for interacting with our Postgres DB. Anything related to the DB, like defining schemas/mappings from Python classes to tables, creating queries, and initialization should be placed in the `db` module.
 
 ### Command-line Interface
 
