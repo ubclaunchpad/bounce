@@ -3,7 +3,7 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
-Base = declarative_base()
+Base = declarative_base()  # pylint: disable=invalid-name
 
 
 class Club(Base):
@@ -13,15 +13,18 @@ class Club(Base):
     """
     __tablename__ = 'clubs'
 
-    id = Column(Integer, primary_key=True)
+    # This is just an example of what a table might look like and should
+    # be updated when the real schema is ready.
+    identifier = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     about = Column(String, nullable=False)
     website_url = Column(String, nullable=True)
 
-    def create_table(engine):
-        """Create this table in the DB if it does not already exist.
 
-        Args:
-            engine (Engine): the engine to use for interacting with the DB
-        """
-        Base.metadata.create_all(engine)
+def create_tables(engine):
+    """Create the Clubs table in the DB if it does not already exist.
+
+    Args:
+        engine (Engine): the engine to use for interacting with the DB
+    """
+    Base.metadata.create_all(engine)

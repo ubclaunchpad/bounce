@@ -1,7 +1,8 @@
 """Utilities for interacting with the DB."""
 
 import sqlalchemy
-from .club import Club
+
+from . import club
 
 
 def create_engine(driver, user, password, host, port, db_name):
@@ -16,8 +17,7 @@ def create_engine(driver, user, password, host, port, db_name):
         db_name (str): the name of the DB
     """
     return sqlalchemy.create_engine(
-        f'{driver}://{user}:{password}@{host}:{port}/{db_name}',
-        echo=True)
+        f'{driver}://{user}:{password}@{host}:{port}/{db_name}', echo=True)
 
 
 def create_missing_tables(engine):
@@ -30,7 +30,7 @@ def create_missing_tables(engine):
             `sqlalchemy.ext.declarative.declarative_base()` that holds table
             metadata and mappings
     """
-    Club.create_table(engine)
+    club.create_tables(engine)
 
 
 def get_session(engine):
