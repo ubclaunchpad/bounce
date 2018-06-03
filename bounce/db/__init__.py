@@ -1,8 +1,7 @@
 """Utilities for interacting with the DB."""
 
 import sqlalchemy
-
-from . import club
+from sqlalchemy.orm import sessionmaker
 
 
 def create_engine(driver, user, password, host, port, db_name):
@@ -20,24 +19,11 @@ def create_engine(driver, user, password, host, port, db_name):
         f'{driver}://{user}:{password}@{host}:{port}/{db_name}', echo=True)
 
 
-def create_missing_tables(engine):
-    """Create any tables that do not already exist in the DB.
-
-    Args:
-        engine (Engine): the engine created using `create_engine()`
-            used to interact with the DB
-        base (declarative_base): the declarative base created using
-            `sqlalchemy.ext.declarative.declarative_base()` that holds table
-            metadata and mappings
-    """
-    club.create_tables(engine)
-
-
-def get_session(engine):
-    """Create a new DB session bound to the given engine.
+def get_sessionmaker(engine):
+    """Create a new DB sessionmaker bound to the given engine.
 
     Args:
         engine (Engine): the engine created using `create_engine`
             used to interact with the DB
     """
-    return sqlalchemy.orm.sessionmaker(bind=engine)
+    return sessionmaker(bind=engine)

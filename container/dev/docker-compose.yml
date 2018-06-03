@@ -6,6 +6,7 @@ services:
     image: postgres
     volumes:
       - .pgdata:/var/lib/postgresql/data
+      - ../../schema:/var/bounce
     env_file:
       - ../postgres.env
 

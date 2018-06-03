@@ -2,6 +2,7 @@
 
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.types import TIMESTAMP
 
 Base = declarative_base()  # pylint: disable=invalid-name
 
@@ -13,18 +14,11 @@ class Club(Base):
     """
     __tablename__ = 'clubs'
 
-    # This is just an example of what a table might look like and should
-    # be updated when the real schema is ready.
-    identifier = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-    about = Column(String, nullable=False)
-    website_url = Column(String, nullable=True)
-
-
-def create_tables(engine):
-    """Create the Clubs table in the DB if it does not already exist.
-
-    Args:
-        engine (Engine): the engine to use for interacting with the DB
-    """
-    Base.metadata.create_all(engine)
+    identifier = Column('id', Integer, primary_key=True)
+    name = Column('name', String, nullable=False)
+    description = Column('description', String, nullable=False)
+    website_url = Column('website_url', String, nullable=True)
+    facebook_url = Column('facebook_url', String, nullable=True)
+    instagram_url = Column('instagram_url', String, nullable=True)
+    twitter_url = Column('twitter_url', String, nullable=True)
+    created_at = Column('created_at', TIMESTAMP)

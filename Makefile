@@ -1,6 +1,9 @@
 # The docker-compose file to use for our dev environment
 DEV := container/dev/docker-compose.yml
 
+# The default SQL file to execute when migrating
+MIGRATION ?= schema
+
 all: dev
 
 # Start Postgres container and run a shell in the web container
@@ -42,3 +45,10 @@ lint:
 	@yapf --diff -r bounce
 	@pylint --rcfile setup.cfg bounce
 	@flake8
+
+# Runs the migration given by MIGRATION, or applies schema.sql if no MIGRATION
+# is specified
+.PHONY: migrate
+migrate:
+	@docker-compose -f ${DEV} exec postgres bash -c \
+		"psql -U \$$POSTGRES_USER -d \$$POSTGRES_DB -f /var/bounce/${MIGRATION}.sql"
