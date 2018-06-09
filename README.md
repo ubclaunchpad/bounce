@@ -86,6 +86,14 @@ To check for code formatting issues, run `make lint` from inside your dev contai
 
 Linter configuration can be found in [setup.cfg](setup.cfg). If you feel that specific lint rules are too restricitve, you can disable them in that file.
 
+### Testing
+
+All tests should go in the `tests` folder. Put any fixtures your tests rely on in [conftest.py](tests/conftest.py). To run tests use:
+
+```bash
+$ make test
+```
+
 ### HTTP Server
 
 We're relying on [Sanic](https://sanic.readthedocs.io/en/latest/) as our HTTP server framework. Our routes and HTTP request handlers can be found in [server/__init__.py](server/__init__.py).

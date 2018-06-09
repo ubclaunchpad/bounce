@@ -52,3 +52,8 @@ lint:
 migrate:
 	@docker-compose -f ${DEV} exec postgres bash -c \
 		"psql -U \$$POSTGRES_USER -d \$$POSTGRES_DB -f /var/bounce/${MIGRATION}.sql"
+
+# Run all tests
+.PHONY: test
+test:
+	@pytest -v
