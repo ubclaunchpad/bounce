@@ -3,8 +3,9 @@ Defines Bounce's command line interface.
 """
 
 import click
-import server
-from server.config import ServerConfig
+
+from .server import Server
+from .server.config import ServerConfig
 
 
 @click.group()
@@ -48,5 +49,5 @@ def start(port, pg_host, pg_port, pg_user, pg_password, pg_database):
     """Starts the Bounce webserver with the given configuration."""
     conf = ServerConfig(port, pg_host, pg_port, pg_user, pg_password,
                         pg_database)
-    serv = server.Server(conf)
+    serv = Server(conf)
     serv.start()
