@@ -2,24 +2,41 @@
   text-align: center;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
+.Form {
+  width: 300px;
+  margin: 0 auto;
 }
 
-.App-header {
-  background-color: #222;
-  height: 150px;
-  padding: 20px;
-  color: white;
+.Form-Button {
+  background-color: lightgray;
 }
 
-.App-title {
-  font-size: 1.5em;
+.Form-Buttom-Picture {
+  display: block;
+  margin-left: 20px;
 }
 
-.App-intro {
-  font-size: large;
+.Form-Input {
+  width: 100%;
+  margin: 5px auto;
+}
+
+.Form-Input-About {
+  height: 100px;
+  resize: none;
+}
+
+.Social-Media-Type {
+  vertical-align: top;
+}
+
+.Social-Media-Type {
+  display: inline-block;
+  margin: 0px 15px;
+}
+
+.Social-Media-Type > p{
+  margin: 0 0 5px 0;
 }
 
 @keyframes App-logo-spin {
