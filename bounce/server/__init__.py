@@ -11,23 +11,39 @@ from sanic import Sanic, response
 from .. import db
 
 DB_DRIVER = 'postgresql'
+ALL_METHODS = [
+    'GET', 'PUT', 'POST', 'DELETE', 'HEAD', 'CONNECT', 'OPTIONS', 'TRACE'
+]
 
 
 class Server:
     """Represents the Bounce webserver."""
 
-    def __init__(self, config):
-        """Creates the server from the given config."""
+    def __init__(self, config, endpoints):
+        """Creates the server from the given config.
+
+        Args:
+            config (ServerConfig): configuration for the server
+            endpoints (list[Endpoint]): list of Endpoints this server serves
+                requests at
+        """
         self._config = config
         self._app = Sanic()
         self._engine = None
         self._sessionmaker = None
 
-        # Register routes
+        # Register routes for all endpoints
         self._app.add_route(self.root_handler, '/', methods=['GET'])
+        for endpoint in endpoints:
+            handler = endpoint(self)
+            self._app.add_route(
+                handler.handle_request, handler.uri, methods=ALL_METHODS)
 
     def start(self):
         """Connects to the DB and starts the HTTP server."""
+        # First make sure this server is not already running
+        assert self._engine is None and self._sessionmaker is None, (
+            'server is already running')
         # Set up engine for interacting with the DB
         self._engine = db.create_engine(
             DB_DRIVER, self._config.postgres_user,
@@ -42,6 +58,8 @@ class Server:
 
     def stop(self):
         """Stops the web server."""
+        # First make sure this server is actually running
+        assert self._engine and self._sessionmaker, 'server was not running'
         self._app.stop()
 
     @property
@@ -54,9 +72,10 @@ class Server:
         """Returns the config for this server."""
         return self._config
 
-    def get_db_session(self):
+    @property
+    def db_session(self):
         """Create a new DB session."""
-        return self._sessionmaker()
+        return self._sessionmaker(autoflush=True)
 
     async def root_handler(self, request):
         """Returns an HTTP 200 reponse containing a simple message."""

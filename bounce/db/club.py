@@ -22,3 +22,16 @@ class Club(Base):
     instagram_url = Column('instagram_url', String, nullable=True)
     twitter_url = Column('twitter_url', String, nullable=True)
     created_at = Column('created_at', TIMESTAMP)
+
+    def to_dict(self):
+        """Returns a dict representation of a club."""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'website_url': self.website_url,
+            'facebook_url': self.facebook_url,
+            'instagram_url': self.instagram_url,
+            'twitter_url': self.twitter_url,
+            'created_at': self.created_at,
+        }

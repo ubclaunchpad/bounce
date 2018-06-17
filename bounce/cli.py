@@ -5,6 +5,7 @@ Defines Bounce's command line interface.
 import click
 
 from .server import Server
+from .server.api.users import UsersEndpoint
 from .server.config import ServerConfig
 
 
@@ -49,5 +50,7 @@ def start(port, pg_host, pg_port, pg_user, pg_password, pg_database):
     """Starts the Bounce webserver with the given configuration."""
     conf = ServerConfig(port, pg_host, pg_port, pg_user, pg_password,
                         pg_database)
-    serv = Server(conf)
+    # Register your new endpoints here
+    endpoints = [UsersEndpoint]
+    serv = Server(conf, endpoints)
     serv.start()
