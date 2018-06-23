@@ -15,7 +15,7 @@ class UserEndpoint(Endpoint):
     __uri__ = "/users/<username:string>"
 
     @validate(None, GetUserResponse)
-    async def get(self, request, username):
+    async def get(self, _, username):
         """Handles a GET /users/<username> request by returning the user with
         the given username."""
         # Fetch user data from DB
@@ -37,7 +37,7 @@ class UserEndpoint(Endpoint):
             email=body.get('email', None))
         return response.json(updated_user, status=200)
 
-    async def delete(self, request, username):
+    async def delete(self, _, username):
         """Handles a DELETE /users/<username> request by deleting the user with
         the given username. """
         user.delete(self.server.db_session, username)
