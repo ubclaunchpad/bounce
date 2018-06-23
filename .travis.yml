@@ -12,3 +12,5 @@ script:
   - make lint
   - make docker-test
   - make clean
+# Report code coverage after success
+after_success: coveralls
