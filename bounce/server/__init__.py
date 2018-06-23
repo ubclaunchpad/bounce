@@ -6,7 +6,10 @@ Sets up Bounce's HTTP server.
 # not use our `request` arguments on some of our HTTP request handlers.
 # pylint: disable=unused-argument
 
+import logging
+
 from sanic import Sanic, response
+from sanic.log import logger
 
 from .. import db
 
@@ -38,6 +41,7 @@ class Server:
             handler = endpoint(self)
             self._app.add_route(
                 handler.handle_request, handler.uri, methods=ALL_METHODS)
+            logger.info('Registered request handler for %s', handler.uri)
 
     def start(self):
         """Connects to the DB and starts the HTTP server."""

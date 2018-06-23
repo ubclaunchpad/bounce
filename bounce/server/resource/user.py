@@ -3,8 +3,8 @@
 from . import ResourceMeta
 
 
-class PutUserRequest(metaclass=ResourceMeta):
-    """Defines the schema for a PUT /users request."""
+class PostUsersRequest(metaclass=ResourceMeta):
+    """Defines the schema for a POST /users request."""
     __body__ = {
         'type': 'object',
         'required': ['full_name', 'username', 'email'],
@@ -13,6 +13,22 @@ class PutUserRequest(metaclass=ResourceMeta):
                 'type': 'string'
             },
             'username': {
+                'type': 'string',
+            },
+            'email': {
+                'type': 'string',
+                'format': 'email',
+            },
+        }
+    }
+
+
+class PutUserRequest(metaclass=ResourceMeta):
+    """Defines the schema for a PUT /users/<username> request."""
+    __body__ = {
+        'type': 'object',
+        'properties': {
+            'full_name': {
                 'type': 'string'
             },
             'email': {
@@ -23,26 +39,8 @@ class PutUserRequest(metaclass=ResourceMeta):
     }
 
 
-class PutUserResponse(metaclass=ResourceMeta):
-    """Defines the schema for a PUT /users response."""
-    pass
-
-
-class GetUserRequest(metaclass=ResourceMeta):
-    """Defines the schema for a GET /users request."""
-    __params__ = {
-        'type': 'object',
-        'required': ['username'],
-        'properties': {
-            'username': {
-                'type': 'string',
-            }
-        }
-    }
-
-
 class GetUserResponse(metaclass=ResourceMeta):
-    """Defines the schema for a GET /users response."""
+    """Defines the schema for a GET /users/<username> response."""
     __body__ = {
         'type': 'object',
         'required': ['full_name', 'username', 'email', 'id', 'created_at'],

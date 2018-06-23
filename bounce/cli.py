@@ -2,10 +2,14 @@
 Defines Bounce's command line interface.
 """
 
+import logging
+
 import click
 
+from sanic.log import logger
+
 from .server import Server
-from .server.api.users import UsersEndpoint
+from .server.api.users import UserEndpoint, UsersEndpoint
 from .server.config import ServerConfig
 
 
@@ -18,7 +22,7 @@ def cli():
 @cli.command()
 @click.option(
     '--port',
-    '-l',
+    '-n',
     help='port the HTTP server should listen on',
     envvar='PORT')
 @click.option(
@@ -46,11 +50,18 @@ def cli():
     '-d',
     help='the name of the Postgres database the server should use',
     envvar='POSTGRES_DB')
-def start(port, pg_host, pg_port, pg_user, pg_password, pg_database):
+@click.option(
+    '--loglevel',
+    '-l',
+    help='the level to log at [critical, error, warning, info, debug]',
+    default='debug')
+def start(port, pg_host, pg_port, pg_user, pg_password, pg_database, loglevel):
     """Starts the Bounce webserver with the given configuration."""
+    # Set log level
+    logger.setLevel(getattr(logging, loglevel.upper()))
     conf = ServerConfig(port, pg_host, pg_port, pg_user, pg_password,
                         pg_database)
     # Register your new endpoints here
-    endpoints = [UsersEndpoint]
+    endpoints = [UsersEndpoint, UserEndpoint]
     serv = Server(conf, endpoints)
     serv.start()
