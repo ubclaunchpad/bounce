@@ -98,6 +98,113 @@ $ make test
 
 We're relying on [Sanic](https://sanic.readthedocs.io/en/latest/) as our HTTP server framework. Our routes and HTTP request handlers can be found in [server/__init__.py](server/__init__.py).
 
+#### Adding routes and resources
+
+Adding a route that serves RESTful requests is best illustrated by example. In this example we'll add a new endpoint for managing Users.
+
+**Step 1: Create request and response schemas**
+
+First we need to figure out what we want our requests and responses to look like on this endpoint. For simplicity our endpoint will only accept GET requests. To make sure that requests and responses on this endpoint fit the required format we'll specify a schema for each, and we'll use these schemas to validate incoming requests and outgoing responses.
+
+We want our GET requests to specify a `username` as we'll use it to retreive information about a user. We create a file in `bounce/server/resource` called `users.py` and put our schema for the `GetUserRequest` in it:
+
+```python
+class GetUserRequest(metaclass=ResourceMeta):
+    """Defines the schema for a GET /users request."""
+    __params__ = {
+        'type': 'object',
+        'required': ['username'],
+        'properties': {
+            'username': {
+                'type': 'string',
+            }
+        }
+    }
+```
+
+The `__params__` field is used to specify the schema that the request parameters must match. Specifically, `GET /users` requests request a `username` field with a `string` value. See [JSONSchema](https://python-jsonschema.readthedocs.io/en/latest/) for more information on schema creation.
+
+We also want our responses to contain the user's full name, email, username, ID, and the time at which they were created, so we specify our `GetUserResponse` in the same file as follows:
+
+```python
+class GetUserResponse(metaclass=ResourceMeta):
+    """Defines the schema for a GET /users response."""
+    __body__ = {
+        'type': 'object',
+        'required': ['full_name', 'username', 'email', 'id', 'createdAt'],
+        'properties': {
+            'full_name': {
+                'type': 'string'
+            },
+            'username': {
+                'type': 'string',
+            },
+            'email': {
+                'type': 'string',
+                'format': 'email',
+            },
+            'id': {
+                'type': 'integer',
+                'minimum': 0,
+            },
+            'createdAt': {
+                'type': 'integer',
+            },
+        }
+    }
+```
+
+The `__body__` field is used to specify the schema that the response body must match. Specifically, the response to a `GET /users` request must contain the user's full name, username, email, ID and the time at which the user was created.
+
+Note that in this example our request resource contained only a schema for params, and our response resource contained only a schema for the body. If you like you can specify neither or both schemas for `__params__` and `__body__` on your resource class.
+
+**Step 2: Create a new Endpoint**
+
+Now we create a new file in `bounce/server/api` called `users.py` and create a `UsersEndpoint` class in `users.py` that will contain all of our HTTP request handlers for the endpoint.
+
+```python
+"""Request handlers for the /users endpoint."""
+
+from sanic import response
+
+from ..resource import validate
+from ..resource.user import GetUserRequest, GetUserResponse
+
+
+class UsersEndpoint(Endpoint):
+    """Handles requests to /users."""
+
+    __uri__ = '/users'
+
+    @validate(GetUserRequest, GetUserResponse)
+    async def get(self, request):
+        """Handles a GET /users request."""
+        return response.json({
+            'full_name': 'Test Boy',
+            'username': 'tester',
+            'email': 'test@test.com',
+            'id': '1234',
+            'created_at': 'some time',
+        }, status=200)
+```
+
+Notice that we're using the `@validate` decorator to validate the request parameters against our `GetUserRequest` schema when the request is passed to the function and to validate the response we return against the `GetUserResponse` schema. In this case we named our method `get` because it serves GET requests. Your method's name should match the HTTP method it handles, otherwise the server will not register it as a request handler.
+
+**Step 3: Add the endpoint to the server**
+
+Now we can add the endpoint to the server by updating `endpoints` in the `start` function in `cli.py`:
+
+```python
+def start(port, pg_host, pg_port, pg_user, pg_password, pg_database):
+    """Starts the Bounce webserver with the given configuration."""
+    conf = ServerConfig(port, pg_host, pg_port, pg_user, pg_password,
+                        pg_database)
+    # Register your new endpoints here
+    endpoints = [UsersEndpoint]
+    serv = Server(conf, endpoints)
+    serv.start()
+```
+
 ### Interacting with the DB
 
 We're using [SQLAlchemy](http://docs.sqlalchemy.org/en/latest/orm/tutorial.html) for interacting with our Postgres DB. Anything related to the DB, like defining schemas/mappings from Python classes to tables, creating queries, and initialization should be placed in the `db` module.

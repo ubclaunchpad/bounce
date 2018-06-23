@@ -36,7 +36,7 @@ install-test-requirements:
 .PHONY: format
 format:
 	@isort -rc bounce
-	@yapf -i -r -v bounce
+	@yapf -i -r -vv bounce
 
 # Run linters to make sure there are no formatting issues
 .PHONY: lint
