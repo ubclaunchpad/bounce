@@ -8,6 +8,7 @@ class PostUsersRequest(metaclass=ResourceMeta):
     __body__ = {
         'type': 'object',
         'required': ['full_name', 'username', 'email'],
+        'additionalProperties': False,
         'properties': {
             'full_name': {
                 'type': 'string'
@@ -27,6 +28,7 @@ class PutUserRequest(metaclass=ResourceMeta):
     """Defines the schema for a PUT /users/<username> request."""
     __body__ = {
         'type': 'object',
+        'additionalProperties': False,
         'properties': {
             'full_name': {
                 'type': 'string'
@@ -44,6 +46,7 @@ class GetUserResponse(metaclass=ResourceMeta):
     __body__ = {
         'type': 'object',
         'required': ['full_name', 'username', 'email', 'id', 'created_at'],
+        'additionalProperties': False,
         'properties': {
             'full_name': {
                 'type': 'string'

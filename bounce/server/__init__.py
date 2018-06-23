@@ -40,8 +40,12 @@ class Server:
                 handler.handle_request, handler.uri, methods=ALL_METHODS)
             logger.info('Registered request handler for %s', handler.uri)
 
-    def start(self):
-        """Connects to the DB and starts the HTTP server."""
+    def start(self, test=False):
+        """Connects to the DB and starts the HTTP server.
+
+        Args:
+            test (bool): whether or not the server is being run in a test
+        """
         # First make sure this server is not already running
         assert self._engine is None and self._sessionmaker is None, (
             'server is already running')
@@ -55,7 +59,8 @@ class Server:
         self._sessionmaker = db.get_sessionmaker(self._engine)
 
         # Start listening on the configured port
-        self._app.run(host='0.0.0.0', port=self._config.server_port)
+        if not test:
+            self._app.run(host='0.0.0.0', port=self._config.server_port)
 
     def stop(self):
         """Stops the web server."""

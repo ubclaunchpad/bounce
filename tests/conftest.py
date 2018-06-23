@@ -3,6 +3,7 @@
 import pytest
 from bounce.server import Server
 from bounce.server.config import ServerConfig
+from bounce.server.api.users import UserEndpoint, UsersEndpoint
 
 
 @pytest.fixture
@@ -15,4 +16,6 @@ def config():
 @pytest.fixture
 def server(config):
     """Returns a test server."""
-    return Server(config)
+    serv = Server(config, [UserEndpoint, UsersEndpoint])
+    serv.start(test=True)
+    return serv

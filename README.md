@@ -132,6 +132,7 @@ class GetUserResponse(metaclass=ResourceMeta):
     __body__ = {
         'type': 'object',
         'required': ['full_name', 'username', 'email', 'id', 'createdAt'],
+        'additionalProperties': False,
         'properties': {
             'full_name': {
                 'type': 'string'
