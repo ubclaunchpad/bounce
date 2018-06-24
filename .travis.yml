@@ -7,10 +7,9 @@ services:
 install:
   - make install-requirements
   - make install-test-requirements
+  - pip install -e .
 # Run tests and linters
 script:
   - make lint
-  - make docker-test
+  - make travis-test
   - make clean
-# Report code coverage after success
-after_success: coveralls

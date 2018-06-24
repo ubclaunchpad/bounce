@@ -17,4 +17,4 @@ RUN make install-requirements && make install-test-requirements
 RUN pip install -e .
 
 # Run tests
-ENTRYPOINT [ "pytest", "-v", "--cov=bounce" ]
+ENTRYPOINT [ "pytest", "-v" ]

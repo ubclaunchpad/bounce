@@ -63,6 +63,14 @@ docker-test:
 	@docker-compose -f ${TEST} up -d postgres
 	@docker-compose -f ${TEST} run --rm web
 
+# Run tests in Travis
+.PHONY: travis-test
+travis-test:
+	@docker-compose -f ${TEST} up -d postgres
+	@docker-compose -f ${TEST} run --rm -e TRAVIS_JOB_ID="${TRAVIS_JOB_ID}" \
+		-e TRAVIS_BRANCH="${TRAVIS_BRANCH}" -e COVERALLS_REPO_TOKEN="${COVERALLS_REPO_TOKEN}" \
+		--entrypoint bash web -c "coverage run --source=bounce -m pytest -v && coveralls"
+
 # Clean up test containers
 .PHONY: clean
 clean:

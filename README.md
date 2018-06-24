@@ -1,6 +1,7 @@
 # :basketball: Bounce
 
 [![Build Status](https://travis-ci.org/ubclaunchpad/bounce.svg?branch=master)](https://travis-ci.org/ubclaunchpad/bounce)
+[![Coverage Status](https://coveralls.io/repos/github/ubclaunchpad/bounce/badge.svg)](https://coveralls.io/github/ubclaunchpad/bounce)
 
 The backend for our application that brings people together based on common interests.
 
