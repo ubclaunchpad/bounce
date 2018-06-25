@@ -92,7 +92,10 @@ Linter configuration can be found in [setup.cfg](setup.cfg). If you feel that sp
 All tests should go in the `tests` folder. Put any fixtures your tests rely on in [conftest.py](tests/conftest.py). To run tests use:
 
 ```bash
-$ make test
+# Run all tests
+$ make docker-test
+# Clean up test containers
+$ make clean
 ```
 
 ### HTTP Server
