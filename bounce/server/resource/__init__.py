@@ -37,7 +37,7 @@ class ResourceMeta(type):
             attributes (dict): a mapping from attribute name to attribute
                 value on the new class
         """
-        if hasattr(attributes, '__params__'):
+        if hasattr(attributes, '__body__'):
             # Check that the body schema is valid
             try:
                 Draft4Validator.check_schema(attributes['__body__'])

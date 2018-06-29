@@ -32,6 +32,15 @@ class User(Base):
         }
 
 
+def select(session, username):
+    """
+    Returns the user with the given username or None if
+    there is no such user.
+    """
+    user = session.query(User).filter(User.username == username).first()
+    return None if user is None else user.to_dict()
+
+
 def insert(session, full_name, username, email):
     """Insert a new user into the Users table."""
     user = User(full_name=full_name, username=username, email=email)
@@ -39,10 +48,19 @@ def insert(session, full_name, username, email):
     session.commit()
 
 
-def select_by_username(session, username):
-    """
-    Returns the user with the given username or None if
-    there is no such user.
-    """
+def update(session, username, full_name=None, email=None):
+    """Updates an existing user in the Users table and returns the
+    updated user."""
     user = session.query(User).filter(User.username == username).first()
-    return None if user is None else user.to_dict()
+    if full_name:
+        user.full_name = full_name
+    if email:
+        user.email = email
+    session.commit()
+    return user.to_dict()
+
+
+def delete(session, username):
+    """Deletes the user with the given username."""
+    session.query(User).filter(User.username == username).delete()
+    session.commit()

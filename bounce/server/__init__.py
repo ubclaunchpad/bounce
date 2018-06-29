@@ -3,10 +3,10 @@ Sets up Bounce's HTTP server.
 """
 
 # Disable pylint's unused argument warnings in this module because we might
-# not use our `request` arguments on some of our HTTP request handlers.
-# pylint: disable=unused-argument
+# not use our `request` arguments on some of our HTTP request handlers.s
 
 from sanic import Sanic, response
+from sanic.log import logger
 
 from .. import db
 
@@ -38,6 +38,7 @@ class Server:
             handler = endpoint(self)
             self._app.add_route(
                 handler.handle_request, handler.uri, methods=ALL_METHODS)
+            logger.info('Registered request handler for %s', handler.uri)
 
     def start(self):
         """Connects to the DB and starts the HTTP server."""
@@ -77,6 +78,6 @@ class Server:
         """Create a new DB session."""
         return self._sessionmaker(autoflush=True)
 
-    async def root_handler(self, request):
+    async def root_handler(self, _):
         """Returns an HTTP 200 reponse containing a simple message."""
         return response.text('Bounce API accepting requests!')

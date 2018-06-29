@@ -122,7 +122,7 @@ class GetUserRequest(metaclass=ResourceMeta):
     }
 ```
 
-The `__params__` field is used to specify the schema that the request parameters must match. Specifically, `GET /users` requests request a `username` field with a `string` value. See [JSONSchema](https://python-jsonschema.readthedocs.io/en/latest/) for more information on schema creation.
+The `__params__` field is used to specify the schema that the request parameters must match. Specifically, `GET /users` requests require a `username` field with a `string` value. See [JSONSchema](https://python-jsonschema.readthedocs.io/en/latest/) for more information on schema creation.
 
 We also want our responses to contain the user's full name, email, username, ID, and the time at which they were created, so we specify our `GetUserResponse` in the same file as follows:
 
@@ -183,12 +183,12 @@ class UsersEndpoint(Endpoint):
             'full_name': 'Test Boy',
             'username': 'tester',
             'email': 'test@test.com',
-            'id': '1234',
-            'created_at': 'some time',
+            'id': 1234,
+            'created_at': 1529785677,
         }, status=200)
 ```
 
-Notice that we're using the `@validate` decorator to validate the request parameters against our `GetUserRequest` schema when the request is passed to the function and to validate the response we return against the `GetUserResponse` schema. In this case we named our method `get` because it serves GET requests. Your method's name should match the HTTP method it handles, otherwise the server will not register it as a request handler.
+Notice that we're using the `@validate` decorator to validate the request parameters against our `GetUserRequest` schema when the request is passed to the function and to validate the response we return against the `GetUserResponse` schema. In this case we named our method `get` because it serves GET requests. Your method's name should match the HTTP method it handles, otherwise the server will not register it as a request handler. Since our `UsersEndpoint` does not have handlers for methods other than GET, it will automatically return an HTTP 405 "Method not allowed" when it sees requests to `/users` that are not GET requests.
 
 **Step 3: Add the endpoint to the server**
 

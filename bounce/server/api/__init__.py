@@ -7,6 +7,7 @@ import asyncio
 import logging
 
 from sanic import response
+from sanic.log import logger
 
 HTTP_METHODS = set(
     ['get', 'put', 'post', 'delete', 'head', 'connect', 'options', 'trace'])
@@ -66,7 +67,7 @@ class Endpoint:
         """Returns the URI for this endpoint."""
         return self.__uri__
 
-    async def handle_request(self, request):
+    async def handle_request(self, request, *args, **kwargs):
         """Routes requests to other handlers on this Endpoint
         based on their HTTP method.
 
@@ -78,17 +79,18 @@ class Endpoint:
             return response.json({'error': 'Method not allowed'}, status=405)
         try:
             # Call the handler with the same name as the request method
-            return await getattr(self, request.method.lower())(request)
+            return await getattr(self, request.method.lower())(request, *args,
+                                                               **kwargs)
         except APIError as err:
             # An error was raised by the handler because there was something
             # wrong with the request
-            self.logger.exception(
+            logger.exception(
                 'An error occurred during the handling of a %s '
                 'request to %s', request.method, self.__class__.__name__)
             return response.json({'error': err.message}, status=err.status)
         except Exception:
             # An error occurred during the handling of this request
-            self.logger.exception(
+            logger.exception(
                 'An error occurred during the handling of a %s '
                 'request to %s', request.method, self.__class__.__name__)
             return response.json(
