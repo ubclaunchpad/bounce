@@ -1,5 +1,9 @@
-# The docker-compose file to use for our dev environment
+# The docker-compose files to use for our different environments
 DEV := container/dev/docker-compose.yml
+TEST := container/test/docker-compose.yml
+
+# Container names
+TEST_CONTAINER := ubclaunchpad/bounce:test
 
 # The default SQL file to execute when migrating
 MIGRATION ?= schema
@@ -53,7 +57,22 @@ migrate:
 	@docker-compose -f ${DEV} exec postgres bash -c \
 		"psql -U \$$POSTGRES_USER -d \$$POSTGRES_DB -f /var/bounce/${MIGRATION}.sql"
 
-# Run all tests
-.PHONY: test
-test:
-	@pytest -v
+# Run tests in a Bounce test container
+.PHONY: docker-test
+docker-test:
+	@docker-compose -f ${TEST} up -d postgres
+	@docker-compose -f ${TEST} run --rm web
+
+# Run tests in Travis
+.PHONY: travis-test
+travis-test:
+	@docker-compose -f ${TEST} up -d postgres
+	@docker-compose -f ${TEST} run --rm -e TRAVIS_JOB_ID="${TRAVIS_JOB_ID}" \
+		-e TRAVIS_BRANCH="${TRAVIS_BRANCH}" -e COVERALLS_REPO_TOKEN="${COVERALLS_REPO_TOKEN}" \
+		--entrypoint bash web -c "coverage run --source=bounce -m pytest -v && coveralls"
+
+# Clean up test containers
+.PHONY: clean
+clean:
+	@docker-compose -f ${TEST} stop
+	@docker-compose -f ${TEST} rm -f

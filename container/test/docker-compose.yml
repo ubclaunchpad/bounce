@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+
+  postgres:
+    image: postgres
+    volumes:
+      - ../../schema/schema.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      - POSTGRES_USER=bounce-test
+      - POSTGRES_PASSWORD=bounce-test
+      - POSTGRES_DB=bounce-test
+
+  web:
+    build:
+      context: ../..
+      dockerfile: container/test/Dockerfile
+    volumes:
+      - ../..:/opt/bounce
+    depends_on:
+      - postgres
+
+

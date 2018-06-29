@@ -1,10 +1,15 @@
 language: python
 python:
   - "3.6"
+services:
+  - docker
 # Install dependencies
 install:
   - make install-requirements
   - make install-test-requirements
+  - pip install -e .
 # Run tests and linters
 script:
   - make lint
+  - make travis-test
+  - make clean

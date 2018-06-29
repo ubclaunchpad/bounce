@@ -1,6 +1,7 @@
 # :basketball: Bounce
 
 [![Build Status](https://travis-ci.org/ubclaunchpad/bounce.svg?branch=master)](https://travis-ci.org/ubclaunchpad/bounce)
+[![Coverage Status](https://coveralls.io/repos/github/ubclaunchpad/bounce/badge.svg)](https://coveralls.io/github/ubclaunchpad/bounce)
 
 The backend for our application that brings people together based on common interests.
 
@@ -91,7 +92,10 @@ Linter configuration can be found in [setup.cfg](setup.cfg). If you feel that sp
 All tests should go in the `tests` folder. Put any fixtures your tests rely on in [conftest.py](tests/conftest.py). To run tests use:
 
 ```bash
-$ make test
+# Run all tests
+$ make docker-test
+# Clean up test containers
+$ make clean
 ```
 
 ### HTTP Server
@@ -132,6 +136,7 @@ class GetUserResponse(metaclass=ResourceMeta):
     __body__ = {
         'type': 'object',
         'required': ['full_name', 'username', 'email', 'id', 'createdAt'],
+        'additionalProperties': False,
         'properties': {
             'full_name': {
                 'type': 'string'
