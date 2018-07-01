@@ -5,7 +5,11 @@ from sanic import response
 from . import APIError, Endpoint, util
 from ...db import user
 from ..resource import validate
+<<<<<<< HEAD
 from ..resource.auth import AuthenticateUserRequest, AuthenticateUserResponse
+=======
+from ..resource.auth import AuthenticateUserRequeset, AuthenticateUserResponse
+>>>>>>> Add user authentication
 
 
 class LoginEndpoint(Endpoint):
@@ -13,7 +17,11 @@ class LoginEndpoint(Endpoint):
 
     __uri__ = '/auth/login'
 
+<<<<<<< HEAD
     @validate(AuthenticateUserRequest, AuthenticateUserResponse)
+=======
+    @validate(AuthenticateUserRequeset, AuthenticateUserResponse)
+>>>>>>> Add user authentication
     async def post(self, request):
         """Handles a POST /auth/login request by validating the user's
         credentials and issuing them a JSON Web Token."""

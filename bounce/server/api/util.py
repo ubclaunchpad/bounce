@@ -5,7 +5,7 @@ import re
 from datetime import datetime, timedelta
 
 import bcrypt
-from jose import jwt
+from jose import jwt, exceptions
 
 # Regexes for validating passwords and usernames
 # pylint: disable=anomalous-backslash-in-string
@@ -126,16 +126,15 @@ def create_jwt(user_id, secret):
 
 
 def check_jwt(token, secret):
-    """Returns the ID of the user to whom the token was issues if it is valid.
-    Returns None if the token is not valid (i.e its content has been
-    tampered with, it was not issued be the Bounce API, or it has expired).
+    """Returns the ID of the user the token was issued to if the token is valid
+    and returns None is the token is not valid.
 
     Args:
         token (str): the token to verify
-        secret (str): the secret used to verify the signature on the token
+        secret (str): the user's secret
     """
     try:
         payload = jwt.decode(token, secret, algorithms=['HS256'])
-    except Exception:
+    except exceptions.JWTError:
         return None
     return payload.get('id', None)

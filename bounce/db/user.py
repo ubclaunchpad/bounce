@@ -23,14 +23,16 @@ class User(Base):
         'created_at', TIMESTAMP, nullable=False, server_default=func.now())
 
     def to_dict(self):
-        """Returns a dict representation of a User."""
-        return {
+        """Returns a dict representation of a User.
+        """
+        user_info = {
             'id': self.identifier,
             'full_name': self.full_name,
             'username': self.username,
             'email': self.email,
             'created_at': self.created_at,
         }
+        return user_info
 
 
 def select(session, username):
@@ -38,7 +40,12 @@ def select(session, username):
     Returns the user with the given username or None if
     there is no such user.
     """
+<<<<<<< HEAD
     return session.query(User).filter(User.username == username).first()
+=======
+    user = session.query(User).filter(User.username == username).first()
+    return None if user is None else user
+>>>>>>> Add user authentication
 
 
 def insert(session, full_name, username, secret, email):
