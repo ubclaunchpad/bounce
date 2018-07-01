@@ -2,6 +2,8 @@
 
 import json
 
+from bounce.server.api import util
+
 
 def test_root_handler(server):
     _, response = server.app.test_client.get('/')
@@ -16,6 +18,7 @@ def test_post_users__success(server):
             'username': 'test',
             'full_name': 'Test Guy',
             'email': 'test@test.com',
+            'password': 'Val1dPassword!'
         }))
     assert response.status == 201
 
@@ -26,20 +29,24 @@ def test_post_users__failure(server):
         data=json.dumps({
             'full_name': 'Test Guy',
             'email': 'test@test.com',
+            'password': 'Val1dPassword!'
         }))
     assert response.status == 400
     assert 'error' in response.json
 
 
 def test_put_user__success(server):
+    username = 'test'
+    token = util.create_jwt(1, server.config.secret)
     _, response = server.app.test_client.put(
-        '/users/test',
+        f'/users/{username}',
         data=json.dumps({
             'full_name': 'New Name',
             'email': 'newemail@test.com',
-        }))
+        }),
+        headers={'Authorization': token})
     assert response.status == 200
-    assert response.json['username'] == 'test'
+    assert response.json['username'] == username
     assert response.json['full_name'] == 'New Name'
     assert response.json['email'] == 'newemail@test.com'
     assert response.json['id'] == 1
@@ -47,10 +54,12 @@ def test_put_user__success(server):
 
 
 def test_put_user__failure(server):
+    username = 'test'
+    token = util.create_jwt(1, server.config.secret)
     _, response = server.app.test_client.put(
-        '/users/test', data=json.dumps({
-            'garbage': True
-        }))
+        f'/users/{username}',
+        data=json.dumps({'garbage': True}),
+        headers={'Authorization': token})
     assert response.status == 400
 
 
@@ -70,5 +79,16 @@ def test_get_user__failure(server):
 
 
 def test_delete_user__success(server):
-    _, response = server.app.test_client.delete('/users/test')
+    token = util.create_jwt(1, server.config.secret)
+    _, response = server.app.test_client.delete(
+        '/users/test',
+        headers={'Authorization': token})
     assert response.status == 204
+
+
+def test_delete_user__failure(server):
+    token = util.create_jwt(1, server.config.secret)
+    _, response = server.app.test_client.delete(
+        '/users/doesnotexist',
+        headers={'Authorization': token})
+    assert response.status == 400

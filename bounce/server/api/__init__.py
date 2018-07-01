@@ -5,9 +5,12 @@ request endpoints.
 
 import asyncio
 import logging
+from functools import wraps
 
 from sanic import response
 from sanic.log import logger
+
+from . import util
 
 HTTP_METHODS = set(
     ['get', 'put', 'post', 'delete', 'head', 'connect', 'options', 'trace'])
@@ -97,3 +100,40 @@ class Endpoint:
                 {
                     'error': 'Internal server error'
                 }, status=500)
+
+
+def verify_token():
+    """Wraps request handlers in with a wrapper that validates
+    JSON web tokens in requests before calling the request handlers. Any
+    request handlers wrapped with this decorator should accept `id_from_token`
+    as a keyword argument. This wrapper will pass a user ID for the
+    authenticated user as the `id_from_token` keyword argument if the token in
+    the request is valid.
+    """
+
+    # pylint: disable=missing-docstring
+    def decorator(coro):
+        @wraps(coro)
+        async def wrapper(endpoint, request, *args, **kwargs):
+            user_id = util.check_jwt(request.token,
+                                     endpoint.server.config.secret)
+            if not user_id:
+                return response.json({'error': 'Unauthorized'}, status=401)
+            kwargs['id_from_token'] = user_id
+
+            # Call the request handler
+            try:
+                return await coro(endpoint, request, *args, **kwargs)
+            except APIError as err:
+                return response.json({'error': err.message}, status=err.status)
+            except Exception:
+                # Return an error response if an error occurred in
+                # the request handler
+                return response.json(
+                    {
+                        'error': 'Internal server error'
+                    }, status=500)
+
+        return wrapper
+
+    return decorator

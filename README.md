@@ -29,6 +29,7 @@ Both the Python backend and Postgres need to be configured before they can run. 
 #### Web Server
 
 * `PORT`: The port our web server will listen on. For development use `8080`, for production use `80`.
+* `BOUNCE_SECRET`: The secret the server uses to issue and validate JSON Web Tokens.
 * `POSTGRES_HOST`: The hostname of the container running our Postgres DB. This should almost always be `postgres`.
 * `POSTGRES_PORT`: The port the Postgres daemon should listen on. The default should be `5432`.
 * `POSTGRES_USER`: Should match the setting by the same name in `postgres.env`.

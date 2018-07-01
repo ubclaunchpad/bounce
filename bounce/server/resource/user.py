@@ -1,4 +1,4 @@
-"""Resources for the /users endpoint."""
+"""Resources for the /users and /user endpoints."""
 
 from . import ResourceMeta
 
@@ -7,13 +7,16 @@ class PostUsersRequest(metaclass=ResourceMeta):
     """Defines the schema for a POST /users request."""
     __body__ = {
         'type': 'object',
-        'required': ['full_name', 'username', 'email'],
+        'required': ['full_name', 'username', 'password', 'email'],
         'additionalProperties': False,
         'properties': {
             'full_name': {
                 'type': 'string'
             },
             'username': {
+                'type': 'string',
+            },
+            'password': {
                 'type': 'string',
             },
             'email': {
@@ -36,7 +39,7 @@ class PutUserRequest(metaclass=ResourceMeta):
             'email': {
                 'type': 'string',
                 'format': 'email'
-            },
+            }
         }
     }
 
