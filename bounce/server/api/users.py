@@ -29,7 +29,7 @@ class UserEndpoint(Endpoint):
     @validate(PutUserRequest, GetUserResponse)
     async def put(self, request, username, id_from_token=None):
         """Handles a PUT /users/<username> request by updating the user with
-        the given username and returning the updated user info. """
+        the given username and returning the updated user info."""
         body = request.json
         # Make sure the ID from the token is for the user we're updating
         user_row = user.select(self.server.db_session, username)

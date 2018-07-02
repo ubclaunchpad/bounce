@@ -25,14 +25,13 @@ class User(Base):
     def to_dict(self):
         """Returns a dict representation of a User.
         """
-        user_info = {
+        return {
             'id': self.identifier,
             'full_name': self.full_name,
             'username': self.username,
             'email': self.email,
             'created_at': self.created_at,
         }
-        return user_info
 
 
 def select(session, username):
@@ -40,8 +39,7 @@ def select(session, username):
     Returns the user with the given username or None if
     there is no such user.
     """
-    user = session.query(User).filter(User.username == username).first()
-    return None if user is None else user
+    return session.query(User).filter(User.username == username).first()
 
 
 def insert(session, full_name, username, secret, email):
