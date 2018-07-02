@@ -225,6 +225,14 @@ def start(port, pg_host, pg_port, pg_user, pg_password, pg_database):
 
 We're using [SQLAlchemy](http://docs.sqlalchemy.org/en/latest/orm/tutorial.html) for interacting with our Postgres DB. Anything related to the DB, like defining schemas/mappings from Python classes to tables, creating queries, and initialization should be placed in the `db` module.
 
+### User Authentication
+
+When a new Bounce user is created, the front-end passes the user's username and password to the Bounce server in an HTTP `POST` request to the `/users` endpoint. If the given username and password match our [security requirements](bounce/server/api/util.py) and the username is not already taken, the user will be added to the database.
+
+Following this the user can log in with their username and password to acquire an access token for making authenticated requests to the API. To do this, the client makes an HTTP `POST` request to `/auth/login` with the user's credentials and the Bounce server validates the credentials and returns a [JSON Web Token](https://jwt.io/). The Bounce client can then use this access token on subsequent calls to the server, and the token will be validated by the server where necessary before serving requests. Access tokens issued be the server will expire after 30 days, at which point the user will have to log in again to acquire a new access token.
+
+Any request handlers that require authentication should use the `@verify_token`. If you're using other decorators on your handler, `@verify_token` should come first (see the [UserEndpoint](bounce/server/api/users.py) for an example). This decorator will pass a `id_from_token` keyword argument to the request handler it's used on. This argument will contain the ID of the user to whom the token was issued, and should be used to verify that the user has access to the resource they're trying to access before the request is served. For example, in [UserEndpoint::put()](bounce/server/api/users.py:30) we use the `id_from_token` to make sure that the user is only trying to edit his/her _own_ information.
+
 #### Migrations
 
 Every so often we'll have to update the DB schema. When you need to make an update, create a new `.sql` migration file under the `schema` folder. Your migration file's name should follow the format `N_verb_qualifiers_subject_qualifiers.sql`. So if you were creating the first migration (`N`=1) that updates the `Clubs` table by adding a `owner_id` column you would call your migration `1_add_owner_id_to_club.sql`.

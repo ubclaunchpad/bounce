@@ -2,9 +2,10 @@
 
 import hashlib
 import re
+from datetime import datetime, timedelta
 
 import bcrypt
-from jose import exceptions, jwt
+from jose import jwt
 
 # Regexes for validating passwords and usernames
 # pylint: disable=anomalous-backslash-in-string
@@ -22,6 +23,9 @@ USERNAME_REGEXES = [UPPERCASE, LOWERCASE, NUMBERS, USERNAME_SYMBOLS]
 MIN_PASSWORD_LENGTH = 8
 MIN_USERNAME_LENGTH = 3
 MAX_USERNAME_LENGTH = 20
+
+# The lifetime of an access token issued by the Bounce API
+TOKEN_LIFETIME = timedelta(days=30)
 
 
 def validate_password(password):
@@ -106,24 +110,32 @@ def check_password(password, hashed_pw):
 
 def create_jwt(user_id, secret):
     """Returns a JSON Web Token that a client can use to authenticate with
-    the Bounce API
+    the Bounce API. The returned token will expire 30 days after it is issued.
 
     Args:
         user_id (int): the ID of the user to whom the token was issued
+        secret (str): the secret with which to sign the token
     """
-    return jwt.encode({'id': user_id}, secret, algorithm='HS256')
+    return jwt.encode(
+        {
+            'id': user_id,
+            'exp': datetime.now() + TOKEN_LIFETIME,
+        },
+        secret,
+        algorithm='HS256')
 
 
 def check_jwt(token, secret):
-    """Returns the ID of the user the token was issued to if the token is valid
-    and returns None is the token is not valid.
+    """Returns the ID of the user to whom the token was issues if it is valid.
+    Returns None if the token is not valid (i.e its content has been
+    tampered with, it was not issued be the Bounce API, or it has expired).
 
     Args:
         token (str): the token to verify
-        secret (str): the user's secret
+        secret (str): the secret used to verify the signature on the token
     """
     try:
         payload = jwt.decode(token, secret, algorithms=['HS256'])
-    except exceptions.JWTError:
+    except Exception:
         return None
     return payload.get('id', None)
