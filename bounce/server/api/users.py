@@ -34,11 +34,7 @@ class UserEndpoint(Endpoint):
         # Make sure the ID from the token is for the user we're updating
         user_row = user.select(self.server.db_session, username)
         if not user_row:
-<<<<<<< HEAD
             raise APIError('No such user', status=404)
-=======
-            raise APIError('No such user', status=400)
->>>>>>> Add user authentication
         if user_row.identifier != id_from_token:
             raise APIError('Forbidden', status=403)
         # Update the user
@@ -57,11 +53,7 @@ class UserEndpoint(Endpoint):
         # Make sure the ID from the token is for the user we're deleting
         user_row = user.select(self.server.db_session, username)
         if not user_row:
-<<<<<<< HEAD
             raise APIError('No such user', status=404)
-=======
-            raise APIError('No such user', status=400)
->>>>>>> Add user authentication
         elif user_row.identifier != id_from_token:
             raise APIError('Forbidden', status=403)
         # Delete the user

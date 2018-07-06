@@ -40,12 +40,7 @@ def select(session, username):
     Returns the user with the given username or None if
     there is no such user.
     """
-<<<<<<< HEAD
     return session.query(User).filter(User.username == username).first()
-=======
-    user = session.query(User).filter(User.username == username).first()
-    return None if user is None else user
->>>>>>> Add user authentication
 
 
 def insert(session, full_name, username, secret, email):

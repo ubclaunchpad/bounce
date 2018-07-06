@@ -5,7 +5,7 @@ import re
 from datetime import datetime, timedelta
 
 import bcrypt
-from jose import jwt, exceptions
+from jose import exceptions, jwt
 
 # Regexes for validating passwords and usernames
 # pylint: disable=anomalous-backslash-in-string
