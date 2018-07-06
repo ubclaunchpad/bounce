@@ -93,5 +93,5 @@ class UsersEndpoint(Endpoint):
             user.insert(self.server.db_session, body['full_name'],
                         body['username'], secret, body['email'])
         except IntegrityError:
-            raise APIError('User already exists', status=400)
+            raise APIError('User already exists', status=409)
         return response.text('', status=201)

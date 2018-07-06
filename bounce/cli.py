@@ -8,6 +8,7 @@ import click
 from sanic.log import logger
 
 from .server import Server
+from .server.api.auth import LoginEndpoint
 from .server.api.users import UserEndpoint, UsersEndpoint
 from .server.config import ServerConfig
 
@@ -55,18 +56,24 @@ def cli():
     help='the name of the Postgres database the server should use',
     envvar='POSTGRES_DB')
 @click.option(
+    '--allowed-origin',
+    '-o',
+    help=('name of the domain that is allowed to access data served '
+          'by this server'),
+    envvar='ALLOWED_ORIGIN')
+@click.option(
     '--loglevel',
     '-l',
     help='the level to log at [critical, error, warning, info, debug]',
     default='debug')
 def start(port, secret, pg_host, pg_port, pg_user, pg_password, pg_database,
-          loglevel):
+          allowed_origin, loglevel):
     """Starts the Bounce webserver with the given configuration."""
     # Set log level
     logger.setLevel(getattr(logging, loglevel.upper()))
     conf = ServerConfig(port, secret, pg_host, pg_port, pg_user, pg_password,
-                        pg_database)
+                        pg_database, allowed_origin)
     # Register your new endpoints here
-    endpoints = [UsersEndpoint, UserEndpoint]
+    endpoints = [UsersEndpoint, UserEndpoint, LoginEndpoint]
     serv = Server(conf, endpoints)
     serv.start()

@@ -12,3 +12,6 @@ RUN pip install --upgrade pip pip-tools
 
 # Install required python packages
 RUN make install-requirements && make install-test-requirements
+
+# Install Bounce for development
+RUN pip install -e .

@@ -78,6 +78,21 @@ def test_get_user__failure(server):
     assert response.status == 404
 
 
+def test_login__success(server):
+    _, response = server.app.test_client.post(
+        '/auth/login',
+        data=json.dumps({'username': 'test', 'password': 'Val1dPassword!'}))
+    assert response.status == 200
+    assert isinstance(response.json['token'], str)
+
+
+def test_login__failure(server):
+    _, response = server.app.test_client.post(
+        '/auth/login',
+        data=json.dumps({'username': 'test', 'password': 'WrongPassword!'}))
+    assert response.status == 401
+
+
 def test_delete_user__success(server):
     token = util.create_jwt(1, server.config.secret)
     _, response = server.app.test_client.delete(
