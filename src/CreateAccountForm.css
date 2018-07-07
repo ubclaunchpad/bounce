@@ -1,0 +1,37 @@
+  .CreateAccountForm {
+    text-align: center;
+  }
+  
+  .formInput {
+    width: 300px;
+    margin: 0 auto;
+  }
+  
+  label {
+    display: block;
+    padding-top: 16px; 
+  }
+
+  .inputLabel {
+    text-align: left;
+  }
+
+  .checkAgreement {
+    margin-top: 16px;
+    user-select: none;
+  }
+
+  #checkboxLabel {
+    display: inline;
+  }
+
+  
+  button {
+    margin-top: 16px;
+  }
+
+  @keyframes App-logo-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
