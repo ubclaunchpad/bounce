@@ -1,16 +1,9 @@
 /* eslint-disable no-unused-vars */
 import React, { Component } from 'react';
 import './App.css';
-<<<<<<< HEAD
 import BounceClient from './Client';
-=======
-import { template } from 'handlebars';
 import fetchAddClub from './utils/FetchAddClub';
-<<<<<<< HEAD
->>>>>>> Add Club Fields to FetchAddClub
-=======
 /* eslint-enable no-unused-vars */
->>>>>>> Format Code
 
 class App extends Component {
     constructor(props) {
@@ -25,23 +18,12 @@ class App extends Component {
             events: '',
         };
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
         this.client = new BounceClient(this.props.url);
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
     }
-=======
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
-  }
->>>>>>> Add Club Fields to FetchAddClub
-=======
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleInputChange = this.handleInputChange.bind(this);
-    }
->>>>>>> Format Code
 
     handleSubmit(event) {
         event.preventDefault();
