@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { Component } from 'react';
 import './App.css';
-import BounceClient from './Client';
 import fetchAddClub from './utils/FetchAddClub';
 /* eslint-enable no-unused-vars */
 
@@ -17,9 +16,6 @@ class App extends Component {
             website: '',
             events: '',
         };
-
-
-        this.client = new BounceClient(this.props.url);
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
