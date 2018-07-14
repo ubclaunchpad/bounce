@@ -5,4 +5,4 @@ import './index.css';
 import App from './App';
 /* eslint-enable no-unused-vars */
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App url='http://localhost:8080'/>, document.getElementById('root'));

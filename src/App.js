@@ -1,6 +1,7 @@
 /* eslint-disable-next-line no-unused-vars */
 import React, { Component } from 'react';
 import './App.css';
+import BounceClient from './Client';
 
 class App extends Component {
     constructor(props) {
@@ -9,6 +10,8 @@ class App extends Component {
             clubName: '',
             about: '',
         };
+
+        this.client = new BounceClient(this.props.url);
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
