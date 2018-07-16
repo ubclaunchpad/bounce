@@ -1,5 +1,9 @@
 # Use the Python 3 image as our base image
+<<<<<<< 58ddae63f22bf2f54edd5143cbf322eef552066b
 FROM python:3.6
+=======
+FROM python:3
+>>>>>>> first commit
 
 # Copy project directory to /opt/bounce
 ADD . /opt/bounce

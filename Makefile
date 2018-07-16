@@ -19,7 +19,11 @@ dev:
 # Update requirements.txt
 .PHONY: requirements
 requirements:
+<<<<<<< 58ddae63f22bf2f54edd5143cbf322eef552066b
 	pip-compile --output-file requirements.txt requirements.in --upgrade
+=======
+	pip-compile --output-file requirements.txt requirements.in
+>>>>>>> first commit
 
 # Install all packages in requirements.txt
 .PHONY: install-requirements
@@ -29,7 +33,11 @@ install-requirements:
 # Update test-requirements.txt
 .PHONY: test-requirements
 test-requirements:
+<<<<<<< 58ddae63f22bf2f54edd5143cbf322eef552066b
 	pip-compile --output-file test-requirements.txt test-requirements.in --upgrade
+=======
+	pip-compile --output-file test-requirements.txt test-requirements.in
+>>>>>>> first commit
 
 # Install all packages in test-requirements.txt
 .PHONY: install-test-requirements
