@@ -1,9 +1,16 @@
 """Defines fixtures for use in our tests."""
 
 import pytest
+<<<<<<< 58ddae63f22bf2f54edd5143cbf322eef552066b
 from bounce.server import Server
 from bounce.server.config import ServerConfig
 from bounce.server.api.users import UserEndpoint, UsersEndpoint
+=======
+
+from bounce.server import Server
+from bounce.server.api.users import UserEndpoint, UsersEndpoint
+from bounce.server.config import ServerConfig
+>>>>>>> first commit
 
 
 @pytest.fixture

@@ -7,6 +7,10 @@ def test_root_handler(server):
     _, response = server.app.test_client.get('/')
     assert response.status == 200
     assert response.body == b'Bounce API accepting requests!'
+<<<<<<< 58ddae63f22bf2f54edd5143cbf322eef552066b
+=======
+    print(_)
+>>>>>>> first commit
 
 
 def test_post_users__success(server):
@@ -72,3 +76,19 @@ def test_get_user__failure(server):
 def test_delete_user__success(server):
     _, response = server.app.test_client.delete('/users/test')
     assert response.status == 204
+<<<<<<< 58ddae63f22bf2f54edd5143cbf322eef552066b
+=======
+
+def test_post_clubs__success(server):
+    _, response = server.app.test_client.post(
+        '/clubs',
+        data=json.dumps({
+            'name': 'test',
+            'description': 'club called test',
+            'website_url': 'club.com',
+            'facebook_url': 'facebook.com/test',
+            'instagram_url': 'instagram.com/test',
+            'twitter_url': 'twitter.com/test',
+        }))
+    assert response.status == 201
+>>>>>>> first commit
