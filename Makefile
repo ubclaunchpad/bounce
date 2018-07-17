@@ -19,7 +19,7 @@ dev:
 # Update requirements.txt
 .PHONY: requirements
 requirements:
-	pip-compile --output-file requirements.txt requirements.in
+	pip-compile --output-file requirements.txt requirements.in --upgrade
 
 # Install all packages in requirements.txt
 .PHONY: install-requirements
@@ -29,7 +29,7 @@ install-requirements:
 # Update test-requirements.txt
 .PHONY: test-requirements
 test-requirements:
-	pip-compile --output-file test-requirements.txt test-requirements.in
+	pip-compile --output-file test-requirements.txt test-requirements.in --upgrade
 
 # Install all packages in test-requirements.txt
 .PHONY: install-test-requirements
