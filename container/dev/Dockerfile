@@ -1,5 +1,5 @@
 # Use the Python 3 image as our base image
-FROM python:3
+FROM python:3.6
 
 # Copy project directory to /opt/bounce
 ADD . /opt/bounce
