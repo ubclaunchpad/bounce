@@ -1,9 +1,7 @@
-/* eslint-disable no-unused-vars */
 import React, { Component } from 'react';
 import './CreateAccountForm.css';
 import BounceClient from './Client';
-// import { template } from 'handlebars';
-/* eslint-enable no-unused-vars */
+
 
 class CreateAccountForm extends Component {
     constructor(props) {
