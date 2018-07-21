@@ -28,13 +28,13 @@ class App extends Component {
         event.preventDefault();
         fetchAddClub(this.state);
 
-        this.club.createClub(clubName, 
-            tags, 
-            about, 
-            meetingLocation, 
-            meetingTimes, 
-            website, 
-            events);
+        this.club.createClub(this.state.clubName, 
+            this.state.tags, 
+            this.state.about, 
+            this.state.meetingLocation, 
+            this.state.meetingTimes, 
+            this.state.website, 
+            this.state.events);
     }
 
     handleInputChange(event) {
