@@ -21,7 +21,10 @@ class CreateAccountForm extends Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        this.userClient.createUser(fullName, userName, userPassword, userEmail);
+        this.userClient.createUser(this.state.fullName, 
+            this.state.userName, 
+            this.state.userPassword, 
+            this.state.userEmail);
     }
 
     handleInputChange(event) {
