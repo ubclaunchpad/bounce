@@ -1,6 +1,7 @@
-/* eslint-disable-next-line no-unused-vars */
+/* eslint-disable no-unused-vars */
 import React from 'react';
 import 'whatwg-fetch';
+/* eslint-enable no-unused-vars */
 
 export default class BounceClub {
     constructor(url) {
@@ -32,7 +33,7 @@ export default class BounceClub {
         return await response.json();
     }
 
-     /**
+    /**
      * Creates a new Bounce user and returns information about the user
      * @param {String} clubName The name of club
      * @param {String} tags The description tag of club

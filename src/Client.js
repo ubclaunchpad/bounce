@@ -1,6 +1,7 @@
-/* eslint-disable-next-line no-unused-vars */
+/* eslint-disable no-unused-vars */
 import React from 'react';
 import 'whatwg-fetch';
+/* eslint-enable no-unused-vars */
 
 export default class BounceClient {
     constructor(url) {
