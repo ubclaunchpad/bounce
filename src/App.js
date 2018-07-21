@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { Component } from 'react';
 import './App.css';
-import fetchAddClub from './utils/FetchAddClub';
 import BounceClubClient from './Club';
 /* eslint-enable no-unused-vars */
 
@@ -26,7 +25,6 @@ class App extends Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        fetchAddClub(this.state);
 
         this.club.createClub(this.state.clubName, 
             this.state.tags, 
