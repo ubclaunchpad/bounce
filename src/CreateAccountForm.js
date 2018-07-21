@@ -1,3 +1,4 @@
+/* eslint-disable-next-line no-unused-vars */
 import React, { Component } from 'react';
 import './CreateAccountForm.css';
 import BounceClient from './Client';
