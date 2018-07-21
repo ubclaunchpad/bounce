@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { Component } from 'react';
 import './CreateAccountForm.css';
+import BounceClient from './Client';
 // import { template } from 'handlebars';
 /* eslint-enable no-unused-vars */
 
@@ -14,13 +15,15 @@ class CreateAccountForm extends Component {
             userPassword: ''
         };
 
+        this.userClient = new BounceClient(this.props.url);
+
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
     }
 
     handleSubmit(event) {
         event.preventDefault();
-        console.log('here');
+        this.userClient.createUser(fullName, userName, userPassword, userEmail);
     }
 
     handleInputChange(event) {
