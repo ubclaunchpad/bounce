@@ -8,6 +8,7 @@ class CreateAccountForm extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            fullName: '',
             userName: '',
             userEmail: '',
             userPassword: ''
@@ -39,6 +40,13 @@ class CreateAccountForm extends Component {
                     <h1 className="formInput">Create an account</h1>
 
                     <label className="inputLabel formInput">Your Name</label>
+                    <input type="text" name="fullName" 
+                        className="formInput"
+                        id="fullName"
+                        value={this.state.fullName}
+                        onChange={this.handleInputChange} />
+
+                    <label className="inputLabel formInput">Your Username</label>
                     <input type="text" name="userName" 
                         className="formInput"
                         id="userName"
