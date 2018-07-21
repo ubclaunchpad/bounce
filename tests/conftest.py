@@ -9,8 +9,8 @@ from bounce.server.api.users import UserEndpoint, UsersEndpoint
 @pytest.fixture
 def config():
     """Returns test config for the server."""
-    return ServerConfig(3131, 'postgres', 5432, 'bounce-test', 'bounce-test',
-                        'bounce-test')
+    return ServerConfig(3131, 'test_secret', 'postgres', 5432, 'bounce-test',
+                        'bounce-test', 'bounce-test')
 
 
 @pytest.fixture

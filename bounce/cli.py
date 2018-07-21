@@ -25,6 +25,11 @@ def cli():
     help='port the HTTP server should listen on',
     envvar='PORT')
 @click.option(
+    '--secret',
+    '-x',
+    help='server secret to salt passwords with',
+    envvar='BOUNCE_SECRET')
+@click.option(
     '--pg-host',
     '-h',
     help='hostname of the Postgres instance the server should rely on',
@@ -54,11 +59,12 @@ def cli():
     '-l',
     help='the level to log at [critical, error, warning, info, debug]',
     default='debug')
-def start(port, pg_host, pg_port, pg_user, pg_password, pg_database, loglevel):
+def start(port, secret, pg_host, pg_port, pg_user, pg_password, pg_database,
+          loglevel):
     """Starts the Bounce webserver with the given configuration."""
     # Set log level
     logger.setLevel(getattr(logging, loglevel.upper()))
-    conf = ServerConfig(port, pg_host, pg_port, pg_user, pg_password,
+    conf = ServerConfig(port, secret, pg_host, pg_port, pg_user, pg_password,
                         pg_database)
     # Register your new endpoints here
     endpoints = [UsersEndpoint, UserEndpoint]

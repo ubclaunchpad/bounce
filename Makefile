@@ -59,7 +59,7 @@ migrate:
 
 # Run tests in a Bounce test container
 .PHONY: docker-test
-docker-test:
+docker-test: clean
 	@docker-compose -f ${TEST} up -d postgres
 	@docker-compose -f ${TEST} run --rm web
 

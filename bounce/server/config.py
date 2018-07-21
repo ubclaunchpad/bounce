@@ -4,9 +4,10 @@
 class ServerConfig:
     """Stores configuration for the server."""
 
-    def __init__(self, port, pg_host, pg_port, pg_user, pg_password,
+    def __init__(self, port, secret, pg_host, pg_port, pg_user, pg_password,
                  pg_database):
         self._server_port = port
+        self._secret = secret
         self._postgres_host = pg_host
         self._postgres_port = pg_port
         self._postgres_user = pg_user
@@ -15,6 +16,11 @@ class ServerConfig:
 
     # Expose attributes as properties so they can't be modified after
     # they've been set.
+
+    @property
+    def secret(self):
+        """Returns the secret for this server."""
+        return self._secret
 
     @property
     def server_port(self):
