@@ -3,7 +3,7 @@
 from . import ResourceMeta
 
 
-class AuthenticateUserRequeset(metaclass=ResourceMeta):
+class AuthenticateUserRequest(metaclass=ResourceMeta):
     """Defines the schema for a POST /auth/login request."""
     __body__ = {
         'type': 'object',

@@ -91,4 +91,4 @@ def test_delete_user__failure(server):
     _, response = server.app.test_client.delete(
         '/users/doesnotexist',
         headers={'Authorization': token})
-    assert response.status == 400
+    assert response.status == 404

@@ -23,8 +23,7 @@ class User(Base):
         'created_at', TIMESTAMP, nullable=False, server_default=func.now())
 
     def to_dict(self):
-        """Returns a dict representation of a User.
-        """
+        """Returns a dict representation of a User."""
         return {
             'id': self.identifier,
             'full_name': self.full_name,

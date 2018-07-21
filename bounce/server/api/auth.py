@@ -5,7 +5,7 @@ from sanic import response
 from . import APIError, Endpoint, util
 from ...db import user
 from ..resource import validate
-from ..resource.auth import AuthenticateUserRequeset, AuthenticateUserResponse
+from ..resource.auth import AuthenticateUserRequest, AuthenticateUserResponse
 
 
 class LoginEndpoint(Endpoint):
@@ -13,7 +13,7 @@ class LoginEndpoint(Endpoint):
 
     __uri__ = '/auth/login'
 
-    @validate(AuthenticateUserRequeset, AuthenticateUserResponse)
+    @validate(AuthenticateUserRequest, AuthenticateUserResponse)
     async def post(self, request):
         """Handles a POST /auth/login request by validating the user's
         credentials and issuing them a JSON Web Token."""
