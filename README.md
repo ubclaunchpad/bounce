@@ -59,7 +59,6 @@ bounce start
 
 To check if your server is running navigate to [localhost:8080](http://localhost:8080/) in your browser. You should see see `Bounce API accepting requests!`. Note that this project directory is mounted to `/opt/bounce` in the `web` development container, so any edits you make to it should be immediately available in the container - no need to rebuild or restart it while developing!
 
-<<<<<<< 58ddae63f22bf2f54edd5143cbf322eef552066b
 ### Ubuntu 16.04
 
 Some packages such as aiohttp > 3.0.0 won't be found in python 3.5's virtualenv. So you can do the following:
@@ -70,8 +69,6 @@ pip3 install package-name
 deactivate # to exit the virtualenv
 ```
 
-=======
->>>>>>> first commit
 ## Development
 
 ### Packaging

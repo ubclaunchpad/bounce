@@ -8,10 +8,7 @@ import click
 from sanic.log import logger
 
 from .server import Server
-<<<<<<< 58ddae63f22bf2f54edd5143cbf322eef552066b
-=======
 from .server.api.clubs import ClubEndpoint, ClubsEndpoint
->>>>>>> first commit
 from .server.api.users import UserEndpoint, UsersEndpoint
 from .server.config import ServerConfig
 
@@ -65,10 +62,6 @@ def start(port, pg_host, pg_port, pg_user, pg_password, pg_database, loglevel):
     conf = ServerConfig(port, pg_host, pg_port, pg_user, pg_password,
                         pg_database)
     # Register your new endpoints here
-<<<<<<< 58ddae63f22bf2f54edd5143cbf322eef552066b
-    endpoints = [UsersEndpoint, UserEndpoint]
-=======
     endpoints = [UsersEndpoint, UserEndpoint, ClubsEndpoint, ClubEndpoint]
->>>>>>> first commit
     serv = Server(conf, endpoints)
     serv.start()

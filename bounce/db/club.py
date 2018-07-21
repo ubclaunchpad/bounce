@@ -35,8 +35,6 @@ class Club(Base):
             'twitter_url': self.twitter_url,
             'created_at': self.created_at,
         }
-<<<<<<< 58ddae63f22bf2f54edd5143cbf322eef552066b
-=======
 
 
 def select(session, name):
@@ -87,4 +85,3 @@ def delete(session, name):
     """Deletes the club with the given name."""
     session.query(Club).filter(Club.name == name).delete()
     session.commit()
->>>>>>> first commit
