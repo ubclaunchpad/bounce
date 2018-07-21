@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import fetchAddClub from './utils/FetchAddClub';
+import BounceClubClient from './Club';
 /* eslint-enable no-unused-vars */
 
 class App extends Component {
@@ -17,6 +18,8 @@ class App extends Component {
             events: '',
         };
 
+        this.club = new BounceClubClient(this.props.url);
+
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
     }
@@ -24,6 +27,14 @@ class App extends Component {
     handleSubmit(event) {
         event.preventDefault();
         fetchAddClub(this.state);
+
+        this.club.createClub(clubName, 
+            tags, 
+            about, 
+            meetingLocation, 
+            meetingTimes, 
+            website, 
+            events);
     }
 
     handleInputChange(event) {
@@ -69,7 +80,7 @@ class App extends Component {
                     <input type="text" name="website" placeholder="website URL" className="Form-Input"/>
                     <input type="text" name="events" placeholder="Events" className="Form-Input"/>
                     <button>
-            submit
+                        submit
                     </button>
                 </form>
             </div>
