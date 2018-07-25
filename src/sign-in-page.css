@@ -1,0 +1,58 @@
+  .UserSignIn {
+    text-align: center;
+  }
+  
+  .signinComponent{
+    width: 300px;
+    margin: 16px auto 0px;
+  }
+
+  input {
+    display: block;
+    height: 25px;
+    font-size: 16px;
+  }
+  
+  button {
+    margin-top: 16px;
+  }
+
+
+  .optionBreak {
+    position: relative;
+  }
+
+  .optionBreak span {
+    z-index: 1;
+    background: white;
+    position: relative;
+    padding: 0px 7px;
+  }
+
+  .lineBreak {
+    width: 100%;
+    height: 1px;
+    border-top: 1px solid darkgray;
+    position: absolute;
+    top: 50%;
+  }
+
+  .signinOption {
+    border: 0.5px gray solid;
+    padding: 7px 0px;
+    letter-spacing: 3px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  .signinOption span{
+    vertical-align: middle;
+  }
+
+
+  @keyframes App-logo-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
