@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React from 'react';
-import 'whatwg-fetch';
 /* eslint-enable no-unused-vars */
+import 'whatwg-fetch';
 
 export default class BounceClient {
     constructor(url) {
@@ -29,8 +29,7 @@ export default class BounceClient {
             // The access token is available so put it in the request header
             requestData.headers['Authorization'] = this.token;
         }
-        const response = await fetch(this.url + endpoint, requestData);
-        return await response.json();
+        return await fetch(this.url + endpoint, requestData);
     }
 
     /**
@@ -40,11 +39,10 @@ export default class BounceClient {
      * @param {String} password
      */
     async authenticate(username, password) {
-        const response = await this._request('POST', '/auth/login', {
+        return await this._request('POST', '/auth/login', {
             username: username,
             password: password,
         });
-        this.token = response.token;
     }
 
     /**
