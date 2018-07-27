@@ -23,14 +23,16 @@ class User(Base):
         'created_at', TIMESTAMP, nullable=False, server_default=func.now())
 
     def to_dict(self):
-        """Returns a dict representation of a User."""
-        return {
+        """Returns a dict representation of a User.
+        """
+        user_info = {
             'id': self.identifier,
             'full_name': self.full_name,
             'username': self.username,
             'email': self.email,
             'created_at': self.created_at,
         }
+        return user_info
 
 
 def select(session, username):

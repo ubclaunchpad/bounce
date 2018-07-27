@@ -2,18 +2,12 @@
 Sets up Bounce's HTTP server.
 """
 
-# Disable pylint's unused argument warnings in this module because we might
-# not use our `request` arguments on some of our HTTP request handlers.s
-
 from sanic import Sanic, response
 from sanic.log import logger
 
 from .. import db
 
 DB_DRIVER = 'postgresql'
-ALL_METHODS = [
-    'GET', 'PUT', 'POST', 'DELETE', 'HEAD', 'CONNECT', 'OPTIONS', 'TRACE'
-]
 
 
 class Server:
@@ -35,9 +29,12 @@ class Server:
         # Register routes for all endpoints
         self._app.add_route(self.root_handler, '/', methods=['GET'])
         for endpoint in endpoints:
-            handler = endpoint(self)
+            handler = endpoint(
+                self, allowed_origin=self._config.allowed_origin)
             self._app.add_route(
-                handler.handle_request, handler.uri, methods=ALL_METHODS)
+                handler.handle_request,
+                handler.uri,
+                methods=handler.allowed_methods)
             logger.info('Registered request handler for %s', handler.uri)
 
     def start(self, test=False):

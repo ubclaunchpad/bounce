@@ -53,22 +53,55 @@ class Endpoint:
 
     logger = logging.getLogger(__name__)
 
-    def __init__(self, server):
+    def __init__(self, server, allowed_origin=None):
         """Create a new endpoint served by the given server.
+
+        If an allowed origin is specified it will be included in the header
+        of all responses.
 
         Args:
             server (Server): the server that serves content for this endpoint
+            allowed_origin (str): the name of a domain that can access
+                this resource
         """
         self.server = server
-        self.allowed_methods = set([
-            mthd for mthd in HTTP_METHODS
+        self._allowed_methods = set([
+            mthd.upper() for mthd in HTTP_METHODS
             if asyncio.iscoroutinefunction(getattr(self, mthd, None))
         ])
+        self._allowed_origin = allowed_origin
 
     @property
     def uri(self):
         """Returns the URI for this endpoint."""
         return self.__uri__
+
+    @property
+    def allowed_methods(self):
+        """Returns a list of HTTP methods allowed on this endpoint."""
+        return list(self._allowed_methods)
+
+    # pylint: disable=unused-argument
+    async def options(self, _, *args, **kwargs):
+        """Default handler for OPTIONS requests.
+
+        This will respond with an HTTP 405 Method not allowed unless an
+        allowed origin was set, in which case this handler will respond with
+        an HTTP 200 with the appropriate headers.
+        """
+        if self._allowed_origin:
+            methods = ','.join(self._allowed_methods)
+            return response.text(
+                '',
+                status=200,
+                headers={
+                    'Access-Control-Allow-Origin': self._allowed_origin,
+                    'Access-Control-Allow-Headers': '*',
+                    'Access-Control-Allow-Methods': methods,
+                })
+        return response.json({'error': 'Method not allowed'}, status=405)
+
+    # pylint: enable=unused-argument
 
     async def handle_request(self, request, *args, **kwargs):
         """Routes requests to other handlers on this Endpoint
@@ -77,13 +110,16 @@ class Endpoint:
         Args:
             request (Request): the incoming request to route
         """
-        if request.method.lower() not in self.allowed_methods:
-            # This endpoint does not accept HTTP requests with the given method
-            return response.json({'error': 'Method not allowed'}, status=405)
         try:
             # Call the handler with the same name as the request method
-            return await getattr(self, request.method.lower())(request, *args,
-                                                               **kwargs)
+            result = await getattr(self, request.method.lower())(
+                request, *args, **kwargs)
+            # Set CORS header if necessary
+            if self._allowed_origin and not hasattr(
+                    result.headers, 'Access-Control-Allow-Origin'):
+                result.headers[
+                    'Access-Control-Allow-Origin'] = self._allowed_origin
+            return result
         except APIError as err:
             # An error was raised by the handler because there was something
             # wrong with the request
