@@ -110,32 +110,35 @@ class Endpoint:
         Args:
             request (Request): the incoming request to route
         """
+        result = None
         try:
             # Call the handler with the same name as the request method
             result = await getattr(self, request.method.lower())(
                 request, *args, **kwargs)
-            # Set CORS header if necessary
-            if self._allowed_origin and not hasattr(
-                    result.headers, 'Access-Control-Allow-Origin'):
-                result.headers[
-                    'Access-Control-Allow-Origin'] = self._allowed_origin
-            return result
         except APIError as err:
             # An error was raised by the handler because there was something
             # wrong with the request
             logger.exception(
                 'An error occurred during the handling of a %s '
                 'request to %s', request.method, self.__class__.__name__)
-            return response.json({'error': err.message}, status=err.status)
+            result = response.json({'error': err.message}, status=err.status)
         except Exception:
             # An error occurred during the handling of this request
             logger.exception(
                 'An error occurred during the handling of a %s '
                 'request to %s', request.method, self.__class__.__name__)
-            return response.json(
+            result = response.json(
                 {
                     'error': 'Internal server error'
                 }, status=500)
+        finally:
+            # Set CORS header if necessary
+            if self._allowed_origin and not hasattr(
+                    result.headers, 'Access-Control-Allow-Origin'):
+                result.headers[
+                    'Access-Control-Allow-Origin'] = self._allowed_origin
+
+        return result
 
 
 def verify_token():

@@ -16,7 +16,7 @@ CREATE TABLE users (
     full_name TEXT NOT NULL,
     username TEXT NOT NULL UNIQUE,
     secret TEXT NOT NULL,
-    email TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT (now() at time zone 'utc')
 );
 
