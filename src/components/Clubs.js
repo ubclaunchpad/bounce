@@ -1,5 +1,6 @@
+/* eslint-disable no-unused-vars */
 import React, { Component } from 'react';
-
+/* eslint-enable no-unused-vars */
 
 class Clubs extends Component {
     constructor(props) {
@@ -8,8 +9,15 @@ class Clubs extends Component {
     }
 
     render() {
+        let welcomeMsg;
+        if (this.props.newAccount) {
+            welcomeMsg = <p>Welcome, {this.props.username}!</p>;
+        }
         return (
-            <p>I'm a cool club</p>
+            <div>
+                {welcomeMsg}
+                <p>I'm a cool club</p>
+            </div>
         );
     }
 }

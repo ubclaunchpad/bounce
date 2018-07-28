@@ -13,14 +13,13 @@ class SignIn extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            username: undefined,
-            password: undefined,
+            username: '',
+            password: '',
             errorMsg: undefined,
             accountCreated: true,
         };
 
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.getErrorSection = this.getErrorSection.bind(this);
         this.handleInput = this.handleInput.bind(this);
         this.handleSignIn = this.handleSignIn.bind(this);
         this.onCreateAccount = this.onCreateAccount.bind(this);
@@ -34,13 +33,14 @@ class SignIn extends Component {
      */
     handleSubmit(event) {
         event.preventDefault();
-        this.handleSignIn();
+        this.handleSignIn(false);
     }
 
     /**
      * Authenticates the user with the back-end.
+    * @param {Boolean} newAccount whether or not this account was just created
      */
-    handleSignIn() {
+    handleSignIn(newAccount) {
         this.props.client.authenticate(
             this.state.username,
             this.state.password
@@ -48,7 +48,7 @@ class SignIn extends Component {
             // Check if authentication was successful
             if (response.ok) {
                 // Trigger a page transition in the parent component
-                this.props.onSignIn();
+                this.props.onSignIn(newAccount, this.state.username);
             } else if (response.status === 401) {
                 // The users's credentials are invalid
                 this.setState({ errorMsg: unauthorizedMsg });
@@ -70,18 +70,7 @@ class SignIn extends Component {
      */
     onCreateAccount(username, password) {
         this.setState({ username: username, password: password });
-        this.handleSignIn();
-    }
-
-    /**
-     * Return a section with an error message in it if the last sign-in was
-     * unsuccessful, otherwise return nothing.
-     */
-    getErrorSection() {
-        if (this.state.errorMsg) {
-            return <p> {this.state.errorMsg} </p>;
-        }
-        return undefined;
+        this.handleSignIn(true);
     }
 
     /**
@@ -99,18 +88,25 @@ class SignIn extends Component {
      * @param {Event} event
      */
     handleCreateAccountClick(event) {
+        event.preventDefault();
         this.setState({ accountCreated: false });
     }
 
     render() {
         if (!this.state.accountCreated) {
-            return <CreateAccount client={this.props.client} />;
+            return <CreateAccount
+                client={this.props.client}
+                onCreateAccount={this.onCreateAccount}
+            />;
         }
+        const error = this.state.errorMsg ? <p>{this.state.errorMsg}</p> : undefined;
+
         return (
             <div className='UserSignIn'>
                 <form onSubmit={this.handleSubmit}>
                     <h1 className='signinComponent'>Sign In</h1>
-                    {this.getErrorSection()}
+
+                    {error}
 
                     <input type='text' name='username'
                         placeholder='Username'

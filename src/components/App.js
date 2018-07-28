@@ -10,6 +10,8 @@ class App extends Component {
         super(props);
         this.state = {
             signedIn: false,
+            newAccount: false,
+            username: undefined,
         };
 
         this.onSignIn = this.onSignIn.bind(this);
@@ -17,14 +19,24 @@ class App extends Component {
 
     /**
      * Updates the state to indicate that the user is signed in.
+     * @param {Boolean} newAccount whether or not this account was just created
+     * @param {String} username
      */
-    onSignIn() {
-        this.setState({ signedIn: true });
+    onSignIn(newAccount, username) {
+        this.setState({
+            signedIn: true,
+            newAccount: newAccount,
+            username: username,
+        });
     }
 
     render() {
         if (this.state.signedIn) {
-            return <Clubs client={this.props.client} />;
+            return <Clubs
+                client={this.props.client}
+                newAccount={this.state.newAccount}
+                username={this.state.username}
+            />;
         }
         return <SignIn onSignIn={this.onSignIn} client={this.props.client} />;
     }

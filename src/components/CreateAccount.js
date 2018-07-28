@@ -24,6 +24,11 @@ class CreateAccount extends Component {
         this.handleInputChange = this.handleInputChange.bind(this);
     }
 
+    /**
+     * Handles the event that occurs when a user hits submit on the "Create
+     * Account" form by attempting to create the new account.
+     * @param {Event} event
+     */
     handleSubmit(event) {
         event.preventDefault();
         this.props.client.createUser(
@@ -39,7 +44,7 @@ class CreateAccount extends Component {
             } else if (response.status === 400) {
                 // The users's info is invalid
                 this.setState({ errorMsg: invalidInfoMsg });
-            } else if (response.status == 409) {
+            } else if (response.status === 409) {
                 // The username or email is already taken
                 this.setState({ errorMsg: usernameOrEmailTaken });
             } else {
@@ -52,13 +57,13 @@ class CreateAccount extends Component {
         });
     }
 
+    /**
+     * Updates the component state when the user types in an input field.
+     * @param {Event} event
+     */
     handleInputChange(event) {
-        const target = event.target;
-        const name = target.name;
-        const value = target.value;
-
         this.setState({
-            [name]: value
+            [event.target.name]: event.target.value
         });
     }
 
@@ -103,7 +108,7 @@ class CreateAccount extends Component {
                         value={this.state.password}
                         onChange={this.handleInputChange} />
 
-                    <button>Sign Up</button>
+                    <button>Create Account</button>
 
                 </form>
             </div>
