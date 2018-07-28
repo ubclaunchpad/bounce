@@ -93,4 +93,68 @@ export default class BounceClient {
     async deleteUser(username) {
         return await this._request('DELETE', '/users/' + username);
     }
+
+    /**
+     * Fetch information about a club
+     * @param {String} name
+     */
+    async getClub(name) {
+        return await this._request('GET', '/clubs/' + name);
+    }
+
+    /**
+     * Create a new club with the given properties
+     * @param {String} name
+     * @param {String} description
+     * @param {String} websiteUrl
+     * @param {String} facebookUrl
+     * @param {String} instagramUrl
+     * @param {String} twitterUrl
+     */
+    async createClub(name, description, websiteUrl, facebookUrl, instagramUrl, twitterUrl) {
+        return await this._request('POST', '/clubs', {
+            name: name,
+            description: description,
+            websiteUrl: websiteUrl,
+            facebookUrl: facebookUrl,
+            instagramUrl: instagramUrl,
+            twitterUrl: twitterUrl,
+        });
+    }
+
+    /**
+     * Update a club's information whatever new information is provided
+     * @param {String} name The name of the club to update
+     * @param {String} newName (optional) The club's new name
+     * @param {String} description (optional) The club's new description
+     * @param {String} websiteUrl (optional) The club's new websiteUrl
+     * @param {String} facebookUrl (optional) The club's new facebookUrl
+     * @param {String} instagramUrl (optional) The club's new instagramUrl
+     * @param {String} twitterUrl (optional) The club's new twitterUrl
+     */
+    async updateClub(name, newName, description, websiteUrl, facebookUrl, instagramUrl, twitterUrl) {
+        const props = {
+            name: newName,
+            description: description,
+            websiteUrl: websiteUrl,
+            facebookUrl: facebookUrl,
+            instagramUrl: instagramUrl,
+            twitterUrl: twitterUrl,
+        };
+        // Remove properties that were not set
+        for (let prop in props) {
+            if (!props[prop]) {
+                delete props[prop];
+            }
+        }
+        return await this._request('PUT', '/clubs/' + name, props);
+    }
+
+    /**
+     * Delete the club with the given name
+     * @param {String} name
+     */
+    async deleteClub(name) {
+        return await this._request('DELETE', '/clubs/' + name);
+    }
 }
