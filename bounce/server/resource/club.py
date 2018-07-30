@@ -5,12 +5,11 @@ from . import ResourceMeta
 
 class PostClubsRequest(metaclass=ResourceMeta):
     """Defines the schema for a POST /clubs request."""
-    __params__ = {
+    __body__ = {
         'type':
         'object',
         'required': [
-            'name', 'description', 'website_url', 'facebook_url',
-            'instagram_url', 'twitter_url'
+            'name', 'description'
         ],
         'additionalProperties':
         False,
@@ -39,7 +38,7 @@ class PostClubsRequest(metaclass=ResourceMeta):
 
 class PutClubRequest(metaclass=ResourceMeta):
     """Defines the schema for a PUT /clubs/<name> request."""
-    __request__ = {
+    __body__ = {
         'type': 'object',
         'required': ['name'],
         'additionalProperties': False,

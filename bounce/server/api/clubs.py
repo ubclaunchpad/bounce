@@ -24,7 +24,7 @@ class ClubEndpoint(Endpoint):
             # Failed to find a club with that name
             raise APIError('No such club', status=404)
         return response.json(club_data, status=200)
-
+    
     @validate(PutClubRequest, GetClubResponse)
     async def put(self, request, name):
         """Handles a PUT /clubs/<name> request by updating the club with
@@ -33,7 +33,7 @@ class ClubEndpoint(Endpoint):
         updated_club = club.update(
             self.server.db_session,
             name,
-            new_name=body.get('new_name', None),
+            new_name=body.get('name', None),
             description=body.get('description', None),
             website_url=body.get('website_url', None),
             facebook_url=body.get('facebook_url', None),
@@ -43,7 +43,7 @@ class ClubEndpoint(Endpoint):
 
     async def delete(self, _, name):
         """Handles a DELETE /clubs/<name> request by deleting the club with
-        the given name. """
+        the given name."""
         club.delete(self.server.db_session, name)
         return response.text('', status=204)
 
@@ -59,10 +59,10 @@ class ClubsEndpoint(Endpoint):
         # Put the club in the DB
         body = request.json
         try:
-            club.insert(self.server.db_session, body['name'],
-                        body['description'], body['website_url'],
-                        body['facebook_url'], body['instagram_url'],
-                        body['twitter_url'])
+            club.insert(self.server.db_session, 
+                        body['name'], body['description'], 
+                        body['website_url'], body['facebook_url'], 
+                        body['instagram_url'], body['twitter_url'])
         except IntegrityError:
             raise APIError('Club already exists', status=400)
         return response.text('', status=201)
