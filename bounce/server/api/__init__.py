@@ -42,7 +42,7 @@ class APIError(Exception):
 
 class Endpoint:
     """
-    Represents and endpoint to which requests can be made in order to manage
+    Represents an endpoint to which requests can be made in order to manage
     a REST resource.
     """
 

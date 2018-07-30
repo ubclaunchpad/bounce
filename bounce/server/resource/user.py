@@ -5,11 +5,7 @@ from . import ResourceMeta
 
 class PostUsersRequest(metaclass=ResourceMeta):
     """Defines the schema for a POST /users request."""
-<<<<<<< 58ddae63f22bf2f54edd5143cbf322eef552066b
     __body__ = {
-=======
-    __body__ = {  #shouldn't it be __params__?
->>>>>>> first commit
         'type': 'object',
         'required': ['full_name', 'username', 'email'],
         'additionalProperties': False,
@@ -30,11 +26,7 @@ class PostUsersRequest(metaclass=ResourceMeta):
 
 class PutUserRequest(metaclass=ResourceMeta):
     """Defines the schema for a PUT /users/<username> request."""
-<<<<<<< 58ddae63f22bf2f54edd5143cbf322eef552066b
     __body__ = {
-=======
-    __body__ = {  #shouldn't it be __params__?
->>>>>>> first commit
         'type': 'object',
         'additionalProperties': False,
         'properties': {

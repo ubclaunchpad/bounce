@@ -73,6 +73,7 @@ def test_delete_user__success(server):
     _, response = server.app.test_client.delete('/users/test')
     assert response.status == 204
 
+
 def test_post_clubs__success(server):
     _, response = server.app.test_client.post(
         '/clubs',
@@ -105,29 +106,29 @@ def test_put_club__success(server):
     _, response = server.app.test_client.put(
         '/clubs/test',
         data=json.dumps({
-            'name': 'new test',
+            'name': 'newtest',
             'description': 'club called new test',
         }))
     assert response.status == 200
-    assert response.json['name'] == 'test'
+    assert response.json['name'] == 'newtest'
+    assert response.json['description'] == 'club called new test'
     assert response.json['id'] == 1
     assert isinstance(response.json['created_at'], int)
 
 
 def test_put_club__failure(server):
     _, response = server.app.test_client.put(
-        '/clubs/test', data=json.dumps({
+        '/clubs/newtest', data=json.dumps({
             'garbage': True
         }))
     assert response.status == 400
 
 
 def test_get_club__success(server):
-    _, response = server.app.test_client.get('/clubs/test')
+    _, response = server.app.test_client.get('/clubs/newtest')
     assert response.status == 200
-    assert response.json['username'] == 'test'
-    assert response.json['full_name'] == 'New Name'
-    assert response.json['email'] == 'newemail@test.com'
+    assert response.json['name'] == 'newtest'
+    assert response.json['description'] == 'club called new test'
     assert response.json['id'] == 1
     assert isinstance(response.json['created_at'], int)
 

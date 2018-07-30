@@ -1,6 +1,9 @@
-"""Defines the schema for the Clubs table in our DB."""
+"""
+Defines the schema for the Clubs table in our DB.
+Also provides methods to access and edit the DB.
+"""
 
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import TIMESTAMP
 
@@ -21,12 +24,13 @@ class Club(Base):
     facebook_url = Column('facebook_url', String, nullable=True)
     instagram_url = Column('instagram_url', String, nullable=True)
     twitter_url = Column('twitter_url', String, nullable=True)
-    created_at = Column('created_at', TIMESTAMP)
+    created_at = Column(
+    'created_at', TIMESTAMP, nullable=False, server_default=func.now())
 
     def to_dict(self):
         """Returns a dict representation of a club."""
         return {
-            'id': self.id,
+            'id': self.identifier,
             'name': self.name,
             'description': self.description,
             'website_url': self.website_url,

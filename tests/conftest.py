@@ -1,16 +1,10 @@
 """Defines fixtures for use in our tests."""
 
 import pytest
-<<<<<<< 58ddae63f22bf2f54edd5143cbf322eef552066b
 from bounce.server import Server
 from bounce.server.config import ServerConfig
 from bounce.server.api.users import UserEndpoint, UsersEndpoint
-=======
-
-from bounce.server import Server
-from bounce.server.api.users import UserEndpoint, UsersEndpoint
-from bounce.server.config import ServerConfig
->>>>>>> first commit
+from bounce.server.api.clubs import ClubEndpoint, ClubsEndpoint
 
 
 @pytest.fixture
@@ -23,6 +17,6 @@ def config():
 @pytest.fixture
 def server(config):
     """Returns a test server."""
-    serv = Server(config, [UserEndpoint, UsersEndpoint])
+    serv = Server(config, [UserEndpoint, UsersEndpoint, ClubEndpoint, ClubsEndpoint])
     serv.start(test=True)
     return serv
