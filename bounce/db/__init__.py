@@ -18,8 +18,10 @@ def create_engine(driver, user, password, host, port, db_name):
     return sqlalchemy.create_engine(
         f'{driver}://{user}:{password}@{host}:{port}/{db_name}', echo=True)
 
+
 def conf_mappers():
     return sqlalchemy.orm.configure_mappers()
+
 
 def get_sessionmaker(engine):
     """Create a new DB sessionmaker bound to the given engine.

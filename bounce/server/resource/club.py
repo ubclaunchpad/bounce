@@ -6,13 +6,9 @@ from . import ResourceMeta
 class PostClubsRequest(metaclass=ResourceMeta):
     """Defines the schema for a POST /clubs request."""
     __body__ = {
-        'type':
-        'object',
-        'required': [
-            'name', 'description'
-        ],
-        'additionalProperties':
-        False,
+        'type': 'object',
+        'required': ['name', 'description'],
+        'additionalProperties': False,
         'properties': {
             'name': {
                 'type': 'string'
