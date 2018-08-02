@@ -64,5 +64,5 @@ class ClubsEndpoint(Endpoint):
                         body['facebook_url'], body['instagram_url'],
                         body['twitter_url'])
         except IntegrityError:
-            raise APIError('Club already exists', status=400)
+            raise APIError('Club already exists', status=409)
         return response.text('', status=201)
