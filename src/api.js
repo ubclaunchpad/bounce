@@ -1,6 +1,3 @@
-/* eslint-disable no-unused-vars */
-import React from 'react';
-/* eslint-enable no-unused-vars */
 import 'whatwg-fetch';
 
 export default class BounceClient {
@@ -133,7 +130,7 @@ export default class BounceClient {
      * @param {String} twitterUrl (optional) The club's new twitterUrl
      */
     async updateClub(name, newName, description, websiteUrl, facebookUrl, instagramUrl, twitterUrl) {
-        const props = {
+        const attrs = {
             name: newName,
             description: description,
             websiteUrl: websiteUrl,
@@ -142,12 +139,12 @@ export default class BounceClient {
             twitterUrl: twitterUrl,
         };
         // Remove properties that were not set
-        for (let prop in props) {
-            if (!props[prop]) {
-                delete props[prop];
+        for (let atte in attrs) {
+            if (!attrs[atte]) {
+                delete attrs[atte];
             }
         }
-        return await this._request('PUT', '/clubs/' + name, props);
+        return await this._request('PUT', '/clubs/' + name, attrs);
     }
 
     /**

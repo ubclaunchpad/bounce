@@ -1,13 +1,12 @@
 /* eslint-disable no-unused-vars */
 import React, { Component } from 'react';
+import {
+    INVALID_INFO,
+    USERNAME_OR_EMAIL_TAKEN,
+    CREATE_ACCOUNT_FAILURE
+} from '../constants';
 import '../css/CreateAccount.css';
 /* eslint-enable no-unused-vars */
-
-// Error messages to display to the user
-const invalidInfoMsg = 'Your information meets the specified requirements.';
-const usernameOrEmailTaken = 'We\'re sorry, that username or email is already taken';
-const createAccountFailureMsg = 'Oops, something went wrong creating your account. ' +
-    'Please try again later';
 
 class CreateAccount extends Component {
     constructor(props) {
@@ -43,17 +42,17 @@ class CreateAccount extends Component {
                 this.props.onCreateAccount(this.state.username, this.state.password);
             } else if (response.status === 400) {
                 // The users's info is invalid
-                this.setState({ errorMsg: invalidInfoMsg });
+                this.setState({ errorMsg: INVALID_INFO });
             } else if (response.status === 409) {
                 // The username or email is already taken
-                this.setState({ errorMsg: usernameOrEmailTaken });
+                this.setState({ errorMsg: USERNAME_OR_EMAIL_TAKEN });
             } else {
                 // Some unexpected error occurred
-                this.setState({ errorMsg: createAccountFailureMsg });
+                this.setState({ errorMsg: CREATE_ACCOUNT_FAILURE });
             }
         }).catch(() => {
             // An error occurred in the browser while handling the request
-            this.setState({ errorMsg: createAccountFailureMsg });
+            this.setState({ errorMsg: CREATE_ACCOUNT_FAILURE });
         });
     }
 

@@ -1,13 +1,9 @@
 /* eslint-disable no-unused-vars */
 import React, { Component } from 'react';
 import '../css/SignIn.css';
+import { UNAUTHORIZED, SIGNIN_ERROR } from '../constants';
 import CreateAccount from './CreateAccount';
 /* eslint-enable no-unused-vars */
-
-// Error messages to display to the user
-const unauthorizedMsg = 'Invalid username or password';
-const signInErrorMsg = 'Oops! Something went wrong during sign-in. ' +
-    'Please try again later.';
 
 class SignIn extends Component {
     constructor(props) {
@@ -38,9 +34,9 @@ class SignIn extends Component {
 
     /**
      * Authenticates the user with the back-end.
-    * @param {Boolean} newAccount whether or not this account was just created
+    * @param {Boolean} isNewAccount whether or not this account was just created
      */
-    handleSignIn(newAccount) {
+    handleSignIn(isNewAccount) {
         this.props.client.authenticate(
             this.state.username,
             this.state.password
@@ -48,17 +44,17 @@ class SignIn extends Component {
             // Check if authentication was successful
             if (response.ok) {
                 // Trigger a page transition in the parent component
-                this.props.onSignIn(newAccount, this.state.username);
+                this.props.onSignIn(isNewAccount, this.state.username);
             } else if (response.status === 401) {
                 // The users's credentials are invalid
-                this.setState({ errorMsg: unauthorizedMsg });
+                this.setState({ errorMsg: UNAUTHORIZED });
             } else {
                 // Some unexpected error occurred
-                this.setState({ errorMsg: signInErrorMsg });
+                this.setState({ errorMsg: SIGNIN_ERROR });
             }
         }).catch(() => {
             // An error occurred in the browser while handling the request
-            this.setState({ errorMsg: signInErrorMsg });
+            this.setState({ errorMsg: SIGNIN_ERROR });
         });
     }
 

@@ -10,7 +10,7 @@ class Clubs extends Component {
 
     render() {
         let welcomeMsg;
-        if (this.props.newAccount) {
+        if (this.props.isNewAccount) {
             welcomeMsg = <p>Welcome, {this.props.username}!</p>;
         }
         return (
