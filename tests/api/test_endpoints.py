@@ -134,7 +134,7 @@ def test_post_clubs__failure(server):
             'instagram_url': 'instagram.com/test',
             'twitter_url': 'twitter.com/test',
         }))
-    assert response.status == 400
+    assert response.status == 409
     assert 'error' in response.json
 
 
