@@ -107,3 +107,73 @@ def test_delete_user__failure(server):
         '/users/doesnotexist',
         headers={'Authorization': token})
     assert response.status == 404
+
+
+def test_post_clubs__success(server):
+    _, response = server.app.test_client.post(
+        '/clubs',
+        data=json.dumps({
+            'name': 'test',
+            'description': 'club called test',
+            'website_url': 'club.com',
+            'facebook_url': 'facebook.com/test',
+            'instagram_url': 'instagram.com/test',
+            'twitter_url': 'twitter.com/test',
+        }))
+    assert response.status == 201
+
+
+def test_post_clubs__failure(server):
+    _, response = server.app.test_client.post(
+        '/clubs',
+        data=json.dumps({
+            'name': 'test',
+            'description': 'club called test',
+            'website_url': 'club.com',
+            'facebook_url': 'facebook.com/test',
+            'instagram_url': 'instagram.com/test',
+            'twitter_url': 'twitter.com/test',
+        }))
+    assert response.status == 409
+    assert 'error' in response.json
+
+
+def test_put_club__success(server):
+    _, response = server.app.test_client.put(
+        '/clubs/test',
+        data=json.dumps({
+            'name': 'newtest',
+            'description': 'club called new test',
+        }))
+    assert response.status == 200
+    assert response.json['name'] == 'newtest'
+    assert response.json['description'] == 'club called new test'
+    assert response.json['id'] == 1
+    assert isinstance(response.json['created_at'], int)
+
+
+def test_put_club__failure(server):
+    _, response = server.app.test_client.put(
+        '/clubs/newtest', data=json.dumps({
+            'garbage': True
+        }))
+    assert response.status == 400
+
+
+def test_get_club__success(server):
+    _, response = server.app.test_client.get('/clubs/newtest')
+    assert response.status == 200
+    assert response.json['name'] == 'newtest'
+    assert response.json['description'] == 'club called new test'
+    assert response.json['id'] == 1
+    assert isinstance(response.json['created_at'], int)
+
+
+def test_get_club__failure(server):
+    _, response = server.app.test_client.get('/clubs/doesnotexist')
+    assert response.status == 404
+
+
+def test_delete_club__success(server):
+    _, response = server.app.test_client.delete('/clubs/test')
+    assert response.status == 204
