@@ -1,5 +1,3 @@
-/* eslint-disable-next-line no-unused-vars */
-import React from 'react';
 import 'whatwg-fetch';
 
 export default class BounceClient {
@@ -28,8 +26,7 @@ export default class BounceClient {
             // The access token is available so put it in the request header
             requestData.headers['Authorization'] = this.token;
         }
-        const response = await fetch(this.url + endpoint, requestData);
-        return await response.json();
+        return await fetch(this.url + endpoint, requestData);
     }
 
     /**
@@ -39,11 +36,10 @@ export default class BounceClient {
      * @param {String} password
      */
     async authenticate(username, password) {
-        const response = await this._request('POST', '/auth/login', {
+        return await this._request('POST', '/auth/login', {
             username: username,
             password: password,
         });
-        this.token = response.token;
     }
 
     /**
@@ -93,5 +89,69 @@ export default class BounceClient {
      */
     async deleteUser(username) {
         return await this._request('DELETE', '/users/' + username);
+    }
+
+    /**
+     * Fetch information about a club
+     * @param {String} name
+     */
+    async getClub(name) {
+        return await this._request('GET', '/clubs/' + name);
+    }
+
+    /**
+     * Create a new club with the given properties
+     * @param {String} name
+     * @param {String} description
+     * @param {String} websiteUrl
+     * @param {String} facebookUrl
+     * @param {String} instagramUrl
+     * @param {String} twitterUrl
+     */
+    async createClub(name, description, websiteUrl, facebookUrl, instagramUrl, twitterUrl) {
+        return await this._request('POST', '/clubs', {
+            name: name,
+            description: description,
+            websiteUrl: websiteUrl,
+            facebookUrl: facebookUrl,
+            instagramUrl: instagramUrl,
+            twitterUrl: twitterUrl,
+        });
+    }
+
+    /**
+     * Update a club's information whatever new information is provided
+     * @param {String} name The name of the club to update
+     * @param {String} newName (optional) The club's new name
+     * @param {String} description (optional) The club's new description
+     * @param {String} websiteUrl (optional) The club's new websiteUrl
+     * @param {String} facebookUrl (optional) The club's new facebookUrl
+     * @param {String} instagramUrl (optional) The club's new instagramUrl
+     * @param {String} twitterUrl (optional) The club's new twitterUrl
+     */
+    async updateClub(name, newName, description, websiteUrl, facebookUrl, instagramUrl, twitterUrl) {
+        const attrs = {
+            name: newName,
+            description: description,
+            websiteUrl: websiteUrl,
+            facebookUrl: facebookUrl,
+            instagramUrl: instagramUrl,
+            twitterUrl: twitterUrl,
+        };
+        // Remove properties that were not set
+        for (let atte in attrs) {
+            if (!attrs[atte]) {
+                delete attrs[atte];
+            }
+        }
+        return await this._request('PUT', '/clubs/' + name, attrs);
+    }
+
+    /**
+     * Delete the club with the given name
+     * @param {String} name
+     */
+    async deleteClub(name) {
+        return await this._request('DELETE', '/clubs/' + name);
     }
 }
