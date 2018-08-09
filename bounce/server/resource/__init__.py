@@ -7,10 +7,9 @@ import json
 import logging
 from functools import wraps
 
-from sanic import response
-
 import jsonschema
 from jsonschema.validators import Draft4Validator
+from sanic import response
 
 # Set up logger for this module
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name

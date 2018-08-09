@@ -68,8 +68,7 @@ class GetClubResponse(metaclass=ResourceMeta):
         'object',
         'required': [
             'name', 'description', 'website_url', 'facebook_url',
-            'instagram_url', 'twitter_url', 'id', 'created_at',
-            'tsvector'
+            'instagram_url', 'twitter_url', 'id', 'created_at', 'tsvector'
         ],
         'additionalProperties':
         False,
