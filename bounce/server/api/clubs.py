@@ -35,7 +35,7 @@ class ClubEndpoint(Endpoint):
         queried_clubs = club.search_clubs(self.server.db_session, user_input)
         if queried_clubs:
             for c in queried_clubs:
-                print(dict(u))
+                print(dict(c))
 
     @validate(PutClubRequest, GetClubResponse)
     async def put(self, request, name):
