@@ -6,7 +6,6 @@ Also provides methods to access and edit the DB.
 from sqlalchemy import Column, Integer, String, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import TIMESTAMP
-
 from sqlalchemy_searchable import make_searchable, search
 from sqlalchemy_utils.types import TSVectorType
 
