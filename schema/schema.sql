@@ -8,6 +8,7 @@ CREATE TABLE clubs (
     instagram_url TEXT,
     twitter_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT (now() at time zone 'utc')
+    search_vector TSVECTOR
 );
 
 DROP TABLE IF EXISTS users CASCADE;

@@ -22,6 +22,12 @@ def create_engine(driver, user, password, host, port, db_name):
         f'{driver}://{user}:{password}@{host}:{port}/{db_name}', echo=True)
 
 
+def configure_mappers():
+    """Link club, user, and membership classes with table metadata
+    before creating tables. Needed for search functionality"""
+    return sqlalchemy.orm.configure_mappers()
+
+
 def get_sessionmaker(engine):
     """Create a new DB sessionmaker bound to the given engine.
 

@@ -6,7 +6,14 @@ Also provides methods to access and edit the DB.
 from sqlalchemy import Column, Integer, String, func
 from sqlalchemy.types import TIMESTAMP
 
+<<<<<<< 77d1f37e3897983810fb4e28e8f9e59110386173
 from . import BASE
+=======
+from sqlalchemy_searchable import make_searchable, search
+from sqlalchemy_utils.types import TSVectorType
+
+Base = declarative_base()  # pylint: disable=invalid-name
+>>>>>>> add search functionality using tsvector
 
 # The maximum number of results to return from one search query
 MAX_SEARCH_RESULTS = 20
@@ -28,6 +35,7 @@ class Club(BASE):
     twitter_url = Column('twitter_url', String, nullable=True)
     created_at = Column(
         'created_at', TIMESTAMP, nullable=False, server_default=func.now())
+    search_vector = Column(TSVectorType('name', 'description'))
 
     def to_dict(self):
         """Returns a dict representation of a club."""
@@ -52,11 +60,18 @@ def select(session, name):
     return None if club is None else club.to_dict()
 
 
+<<<<<<< 77d1f37e3897983810fb4e28e8f9e59110386173
 def search(session, query, max_results=MAX_SEARCH_RESULTS):
     """Returns a list of clubs that contain content from the user's query"""
     clubs = session.query(Club).filter(
         Club.name.ilike(f'%{query}%')).limit(max_results)
     return [result.to_dict() for result in clubs]
+=======
+def search_clubs(session, user_input):
+    """Returns a list of clubs that fit the user's search input"""
+    query = session.query(Club)
+    return search(query, user_input, sort=True)
+>>>>>>> add search functionality using tsvector
 
 
 def insert(session, name, description, website_url, facebook_url,

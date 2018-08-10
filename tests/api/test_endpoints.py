@@ -146,6 +146,7 @@ def test_post_clubs__failure(server):
     assert 'error' in response.json
 
 
+<<<<<<< 77d1f37e3897983810fb4e28e8f9e59110386173
 def test_search_clubs__success(server):
     # add dummy data to search for in database
     club_info = [['UBC Launch Pad', 'software engineering team'],
@@ -172,6 +173,17 @@ def test_search_clubs__success(server):
     assert body[1]['description'] == 'something else'
 
 
+=======
+def test_search_clubs(server):
+    # the server's test client doesn't expose a search method.
+    # It does expose a GET method but that can't provide a list
+    # of clubs like how the search method can.  Is there a way
+    # to use the search_clubs method created in the clubs endpoint?
+    # Reference:
+    # https://github.com/channelcat/sanic/blob/master/docs/sanic/testing.md
+
+    
+>>>>>>> add search functionality using tsvector
 def test_put_club__success(server):
     _, response = server.app.test_client.put(
         '/clubs/test',
