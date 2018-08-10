@@ -1,8 +1,15 @@
 /* eslint-disable no-unused-vars */
 import React, { Component } from 'react';
-import '../css/App.css';
 import SignIn from './SignIn';
 import Clubs from './Clubs';
+import Home from './Home';
+import {
+    BrowserRouter,
+    Switch,
+    Route
+} from 'react-router-dom';
+import '../css/App.css';
+import CreateAccount from './CreateAccount';
 /* eslint-enable no-unused-vars */
 
 class App extends Component {
@@ -15,6 +22,9 @@ class App extends Component {
         };
 
         this.onSignIn = this.onSignIn.bind(this);
+        this.getSignInPage = this.getSignInPage.bind(this);
+        this.getCreateAccountPage = this.getCreateAccountPage.bind(this);
+        this.getHomePage = this.getHomePage.bind(this);
     }
 
     /**
@@ -30,21 +40,43 @@ class App extends Component {
         });
     }
 
+    /**
+     * Returns a SignIn component.
+     */
+    getSignInPage() {
+        return <SignIn
+            onSignIn={this.onSignIn}
+            client={this.props.client}
+        />;
+    }
+
+    /**
+     * Returns a SignIn component that defaults to the CreateAccount form.
+     */
+    getCreateAccountPage() {
+        return <CreateAccount
+            onSignIn={this.onSignIn}
+            client={this.props.client}
+        />;
+    }
+
+    getHomePage() {
+        return <Home
+            isSignedIn={this.state.isSignedIn}
+            username={this.state.username}
+            isNewAccount={this.state.isNewAccount}
+        />;
+    }
+
     render() {
-        if (this.state.isSignedIn) {
-            return (
-                <Clubs
-                    client={this.props.client}
-                    isNewAccount={this.state.isNewAccount}
-                    username={this.state.username}
-                />
-            );
-        }
         return (
-            <SignIn
-                onSignIn={this.onSignIn}
-                client={this.props.client}
-            />
+            <BrowserRouter>
+                <Switch>
+                    <Route exact path='/' component={this.getHomePage} />
+                    <Route path='/sign-in' render={this.getSignInPage} />
+                    <Route path='/create-account' render={this.getCreateAccountPage} />
+                </Switch>
+            </BrowserRouter>
         );
     }
 }

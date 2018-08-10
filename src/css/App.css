@@ -1,45 +1,52 @@
-.App {
+body h1 {
+  color: #0CD3FE;
+}
+
+.home > h1 {
+  color: #7F7F7F;
+}
+
+.home > p {
+  color: #7F7F7F;
+}
+
+input.form-control {
+  border-radius: 4em;
+}
+
+.btn {
+  border-color: #7F7F7F;
+  border-radius: 4em;
+}
+
+.btn.btn-primary {
+  background-color: #73E5D6;
+}
+
+.btn.btn-secondary {
+  background-color: white;
+  color: #0CD3FE;
+}
+
+form {
+  text-align: left;
+}
+
+form > input {
+  width: 50%;
+  min-width: 6em;
+}
+
+form > label {
+  color: #DDDDDD;
+}
+
+form > h1 {
   text-align: center;
 }
 
-.Form {
-  width: 300px;
-  margin: 0 auto;
+button {
+  margin-right: 0.5em;
 }
 
-.Form-Button {
-  background-color: lightgray;
-}
-
-.Form-Buttom-Picture {
-  display: block;
-  margin-left: 20px;
-}
-
-.Form-Input {
-  width: 100%;
-  margin: 5px auto;
-}
-
-.Form-Input-About {
-  height: 100px;
-  resize: none;
-}
-
-.Social-Media-Type {
-  vertical-align: top;
-}
-
-.Social-Media-Type {
-  display: inline-block;
-  margin: 0px 15px;
-}
-
-.Social-Media-Type > p{
-  margin: 0 0 5px 0;
-}
-
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
+/*# sourceMappingURL=App.css.map */

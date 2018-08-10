@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './components/App';

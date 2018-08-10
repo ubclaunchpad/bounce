@@ -1,24 +1,23 @@
 /* eslint-disable no-unused-vars */
 import React, { Component } from 'react';
-import '../css/SignIn.css';
 import { UNAUTHORIZED, SIGNIN_ERROR } from '../constants';
 import CreateAccount from './CreateAccount';
+import { Redirect } from 'react-router-dom';
 /* eslint-enable no-unused-vars */
 
 class SignIn extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            isSignedIn: false,
             username: '',
             password: '',
+            goToCreateAccount: false,
             errorMsg: undefined,
-            accountCreated: true,
         };
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleInput = this.handleInput.bind(this);
-        this.handleSignIn = this.handleSignIn.bind(this);
-        this.onCreateAccount = this.onCreateAccount.bind(this);
         this.handleCreateAccountClick = this.handleCreateAccountClick.bind(this);
     }
 
@@ -29,14 +28,6 @@ class SignIn extends Component {
      */
     handleSubmit(event) {
         event.preventDefault();
-        this.handleSignIn(false);
-    }
-
-    /**
-     * Authenticates the user with the back-end.
-    * @param {Boolean} isNewAccount whether or not this account was just created
-     */
-    handleSignIn(isNewAccount) {
         this.props.client.authenticate(
             this.state.username,
             this.state.password
@@ -44,7 +35,8 @@ class SignIn extends Component {
             // Check if authentication was successful
             if (response.ok) {
                 // Trigger a page transition in the parent component
-                this.props.onSignIn(isNewAccount, this.state.username);
+                this.props.onSignIn(false, this.state.username);
+                this.setState({ isSignedIn: true });
             } else if (response.status === 401) {
                 // The users's credentials are invalid
                 this.setState({ errorMsg: UNAUTHORIZED });
@@ -59,17 +51,6 @@ class SignIn extends Component {
     }
 
     /**
-     * Authenticates the user with the given credentials. Called to
-     * automatically sign a user in when they create their account.
-     * @param {String} username
-     * @param {String} password
-     */
-    onCreateAccount(username, password) {
-        this.setState({ username: username, password: password });
-        this.handleSignIn(true);
-    }
-
-    /**
      * Update this component's state when the user enters his/her credentials.
      * @param {Event} event
      */
@@ -80,44 +61,59 @@ class SignIn extends Component {
     }
 
     /**
-     * Triggers a page re-render so the user is shown the create account page.
+     * Triggers a redirect to the CreateAccount page when the user hits the
+     * "Create Account" button.
      * @param {Event} event
      */
     handleCreateAccountClick(event) {
         event.preventDefault();
-        this.setState({ accountCreated: false });
+        this.setState({ goToCreateAccount: true });
     }
 
     render() {
-        if (!this.state.accountCreated) {
-            return <CreateAccount
-                client={this.props.client}
-                onCreateAccount={this.onCreateAccount}
-            />;
+        let buttonClass = 'btn btn-primary';
+        if (this.state.isSignedIn) {
+            return <Redirect to='/' />;
+        } else if (this.state.goToCreateAccount) {
+            return <Redirect to='create-account' />;
+        } else if (this.state.password === '' && this.state.username === '') {
+            buttonClass += ' disabled';
         }
         const error = this.state.errorMsg ? <p>{this.state.errorMsg}</p> : undefined;
 
         return (
-            <div className='UserSignIn'>
+            <div className='container'>
                 <form onSubmit={this.handleSubmit}>
-                    <h1 className='signinComponent'>Sign In</h1>
+                    <h1>Sign In</h1>
 
                     {error}
 
-                    <input type='text' name='username'
-                        placeholder='Username'
-                        className='signinComponent'
-                        value={this.state.username}
-                        onChange={this.handleInput} />
+                    <div className='form-group'>
+                        <label>Username</label>
+                        <input type='text'
+                            name='username'
+                            placeholder='Username'
+                            className='form-control'
+                            value={this.state.username}
+                            onChange={this.handleInput} />
+                    </div>
 
-                    <input type='password' name='password'
-                        placeholder='Password'
-                        className='signinComponent'
-                        value={this.state.password}
-                        onChange={this.handleInput} />
+                    <div className='form-group'>
+                        <label>Password</label>
+                        <input type='password'
+                            name='password'
+                            placeholder='Password'
+                            className='form-control'
+                            value={this.state.password}
+                            onChange={this.handleInput} />
+                    </div>
 
-                    <button>Sign In</button>
-                    <button onClick={this.handleCreateAccountClick}>Create Account</button>
+                    <button className={buttonClass}>Sign In</button>
+                    <button
+                        onClick={this.handleCreateAccountClick}
+                        className='btn btn-secondary'>
+                        Create Account
+                    </button>
                 </form>
             </div>
         );

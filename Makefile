@@ -20,3 +20,8 @@ lint:
 .PHONY: format
 format:
 	@./node_modules/.bin/eslint --fix src
+
+# Preprocess CSS
+.PHONY: styles
+styles:
+	@./node_modules/.bin/sass src/sass/:src/css/

@@ -1,0 +1,60 @@
+$pallete-blue: #0CD3FE;
+$pallete-green: #73E5D6;
+$pallete-light-grey: #DDDDDD;
+$pallete-dark-grey: #7F7F7F;
+
+body {
+
+    h1 {
+        color: $pallete-blue;
+    }
+
+}
+
+.home > h1 {
+    color: $pallete-dark-grey;
+}
+
+.home > p {
+    color: $pallete-dark-grey;
+}
+
+input.form-control {
+    border-radius: 4em;
+}
+
+.btn {
+    border-color: $pallete-dark-grey;
+    border-radius: 4em;
+}
+
+.btn.btn-primary {
+    background-color: $pallete-green;
+}
+
+.btn.btn-secondary {
+    background-color: white;
+    color: $pallete-blue;
+}
+
+form {
+    text-align: left;
+}
+
+form > input {
+    width: 50%;
+    min-width: 6em;
+}
+
+form > label {
+    color: $pallete-light-grey;
+}
+
+form > h1 {
+    text-align: center;
+}
+
+button {
+    margin-right: 0.5em;
+}
+

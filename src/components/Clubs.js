@@ -5,7 +5,6 @@ import React, { Component } from 'react';
 class Clubs extends Component {
     constructor(props) {
         super(props);
-        // TODO: fetch and display clubs the user might be intersted in
     }
 
     render() {

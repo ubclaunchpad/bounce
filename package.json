@@ -3,13 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "bootstrap": "^3.3",
     "react": "^16.4.0",
     "react-dom": "^16.4.0",
+    "react-router-dom": "^4.3.1",
     "react-scripts": "1.1.4",
+    "sass": "^1.10.3",
     "whatwg-fetch": "^2.0.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "react-scripts start | node_modules/.bin/sass --watch src/sass/:src/css/",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom --coverage",
     "eject": "react-scripts eject"
