@@ -25,6 +25,19 @@ class ClubEndpoint(Endpoint):
             raise APIError('No such club', status=404)
         return response.json(club_data, status=200)
 
+    #@validate(None, GetClubResponse)
+    # Although this method uses a GET request, I don't know if we can
+    # validate the search function if it gives a list
+    # of SQL objects ... how could we go about validating this method?
+    async def search(self, _, user_input):
+        """Handles a full text search by returning clubs with content
+        that include lexemes from the user input."""
+        queried_clubs = club.search_clubs(self.server.db_session, user_input)
+        if queried_clubs:
+            for club in queried_clubs:
+                print(dict(club))
+        return queried_clubs
+
     @validate(PutClubRequest, GetClubResponse)
     async def put(self, request, name):
         """Handles a PUT /clubs/<name> request by updating the club with

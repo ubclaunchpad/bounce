@@ -146,6 +146,15 @@ def test_post_clubs__failure(server):
     assert 'error' in response.json
 
 
+def test_search_clubs(server):
+    # the server's test client doesn't expose a search method.
+    # It does expose a GET method but that can't provide a list
+    # of clubs like how the search method can.  Is there a way
+    # to use the search_clubs method created in the clubs endpoint?
+    # Reference:
+    # https://github.com/channelcat/sanic/blob/master/docs/sanic/testing.md
+
+    
 def test_put_club__success(server):
     _, response = server.app.test_client.put(
         '/clubs/test',

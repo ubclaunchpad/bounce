@@ -7,6 +7,9 @@ from sqlalchemy import Column, Integer, String, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import TIMESTAMP
 
+from sqlalchemy_searchable import make_searchable, search
+from sqlalchemy_utils.types import TSVectorType
+
 Base = declarative_base()  # pylint: disable=invalid-name
 
 
@@ -26,6 +29,7 @@ class Club(Base):
     twitter_url = Column('twitter_url', String, nullable=True)
     created_at = Column(
         'created_at', TIMESTAMP, nullable=False, server_default=func.now())
+    search_vector = Column(TSVectorType('name', 'description'))
 
     def to_dict(self):
         """Returns a dict representation of a club."""
@@ -48,6 +52,12 @@ def select(session, name):
     """
     club = session.query(Club).filter(Club.name == name).first()
     return None if club is None else club.to_dict()
+
+
+def search_clubs(session, user_input):
+    """Returns a list of clubs that fit the user's search input"""
+    query = session.query(Club)
+    return search(query, user_input, sort=True)
 
 
 def insert(session, name, description, website_url, facebook_url,
