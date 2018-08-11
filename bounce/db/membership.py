@@ -16,9 +16,9 @@ class Membership(BASE):
 
     identifier = Column('id', Integer, primary_key=True)
     user_id = Column(
-        'user_id', Integer, ForeignKey('users.user_id'), nullable=False)
+        'user_id', Integer, ForeignKey('user.user_id'), nullable=False, primary_key=True)
     club_id = Column(
-        'club_id', Integer, ForeignKey('clubs.club_id'), nullable=False)
+        'club_id', Integer, ForeignKey('club.club_id'), nullable=False, primary_key=True)
     created_at = Column(
         'created_at', TIMESTAMP, nullable=False, server_default=func.now())
 
@@ -30,3 +30,24 @@ class Membership(BASE):
             'club_id': self.club_id,
             'created_at': self.created_at,
         }
+
+
+def insert(session, user_id, club_id):
+    """Insert a new user into the Users table."""
+    membership = Membership(
+        user_id=user_id, club_id=club_id)
+    session.add(membership)
+    session.commit()
+
+def select(session, id):
+    """
+    Returns the membership with the given id or None if
+    there is no such member.
+    """
+    membership = session.query(Membership).filter(Membership.id == id).first()
+    return None if membership is None else membership.to_dict()
+
+def delete(session, id):
+    """Deletes the club with the given name."""
+    session.query(Membership).filter(Membership.id == id).delete()
+    session.commit()

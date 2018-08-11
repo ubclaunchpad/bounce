@@ -21,6 +21,9 @@ class Server:
             endpoints (list[Endpoint]): list of Endpoints this server serves
                 requests at
         """
+        # import pdb
+        # pdb.set_trace()
+
         self._config = config
         self._app = Sanic()
         self._engine = None
