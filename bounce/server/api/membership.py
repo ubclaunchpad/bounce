@@ -1,33 +1,33 @@
-'''Create a post method for a Memberships endpoint in bounce/server/api/memberships.py (see users.py as an example).'''
-
 """Request handlers for the /users endpoint."""
-#???
+
 from sanic import response
 from sqlalchemy.exc import IntegrityError
 
 from . import APIError, Endpoint, util, verify_token
 from ...db import membership
 from ..resource import validate
-from ..resource.membership import GetMembershipResponse, PostMembershipRequest, PutMembershipRequest
+from ..resource.membership import (GetMembershipResponse,
+                                   PostMembershipRequest, PutMembershipRequest)
 
 
 class MembershipEndpoint(Endpoint):
-    """Handles requests to /memberships/<membership>."""
+    """Handles requests to /memberships/<club_id>."""
 
-    __uri__ = "/memberships/<membership:string>"
+    __uri__ = "/memberships/<club_id:string>"
 
     @verify_token()
-    async def delete(self, _, id):
-        """Handles a DELETE /memberships/<membership> request by deleting the membership with
-        the given id. """
-        # Make sure the ID from the token is for the membership we're deleting
-        membership_row = membership.select(self.server.db_session, id)
+    async def delete(self, _, club_id, id_from_token=None):
+        """
+        Handles a DELETE /memberships/<club_id> request by deleting the
+        user's membership with the club with the given id.
+        """
+        # Fetch the membership using the user ID and club ID
+        membership_row = membership.select(self.server.db_session, club_id,
+                                           id_from_token)
         if not membership_row:
             raise APIError('No such membership', status=404)
-        elif membership_row.identifier != id:
-            raise APIError('Forbidden', status=403)
-        # Delete the user
-        membership.delete(self.server.db_session, id)
+        # Delete the membership
+        membership.delete(self.server.db_session, club_id, id_from_token)
         return response.text('', status=204)
 
 
@@ -43,7 +43,7 @@ class MembershipsEndpoint(Endpoint):
         # Put the membership in the DB
         try:
             membership.insert(self.server.db_session, body['user_id'],
-                        body['club_id'])
+                              body['club_id'])
         except IntegrityError:
             raise APIError('Membership already exists', status=409)
         return response.text('', status=201)

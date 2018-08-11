@@ -8,6 +8,7 @@ from bounce.server.api.clubs import (ClubEndpoint, ClubsEndpoint,
                                      SearchClubsEndpoint)
 from bounce.server.api.users import (UserEndpoint, UserImagesEndpoint,
                                      UsersEndpoint)
+from bounce.server.api.membership import MembershipEndpoint
 from bounce.server.config import ServerConfig
 
 
@@ -23,7 +24,8 @@ def server(config):
     """Returns a test server."""
     serv = Server(config, [
         UserEndpoint, UsersEndpoint, ClubEndpoint, ClubsEndpoint,
-        LoginEndpoint, UserImagesEndpoint, SearchClubsEndpoint
+        LoginEndpoint, UserImagesEndpoint, SearchClubsEndpoint,
+        MembershipEndpoint
     ])
     serv.start(test=True)
     return serv

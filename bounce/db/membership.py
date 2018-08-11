@@ -5,6 +5,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 
 from . import BASE
+from .club import Club
+from .user import User
 
 
 class Membership(BASE):
@@ -50,16 +52,17 @@ def insert(session, user_id, club_id):
     session.commit()
 
 
-def select(session, id):
+def select(session, club_id, user_id):
     """
-    Returns the membership with the given id or None if
-    there is no such member.
+    Returns the membership for the user and club with the given IDs.
     """
-    membership = session.query(Membership).filter(Membership.id == id).first()
+    membership = session.query(Membership).filter(
+        Club.identifier == club_id, User.identifier == user_id).first()
     return None if membership is None else membership.to_dict()
 
 
-def delete(session, id):
-    """Deletes the club with the given name."""
-    session.query(Membership).filter(Membership.id == id).delete()
+def delete(session, club_id, user_id):
+    """Deletes the membership for the user and club with the given IDs."""
+    session.query(Membership).filter_by(
+        club_id=club_id, user_id=user_id).delete()
     session.commit()
