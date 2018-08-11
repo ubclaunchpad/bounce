@@ -35,7 +35,7 @@ Both the Python backend and Postgres need to be configured before they can run. 
 * `POSTGRES_USER`: Should match the setting by the same name in `postgres.env`.
 * `POSTGRES_PASSWORD`: Should match the setting by the same name in `postgres.env`.
 * `POSTGRES_DB`: Should match the setting by the same name in `postgres.env`.
-* `ALLOWED_ORIGIN`: The domain that is allowed to access the API. For local development you can set this to your front-end URL (`http://localhost:8000`).
+* `ALLOWED_ORIGIN`: The domain that is allowed to access the API. For local development you can set this to your front-end URL (`http://localhost:3000`).
 
 ### Running the Server
 
