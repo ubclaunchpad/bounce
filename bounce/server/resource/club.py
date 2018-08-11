@@ -103,3 +103,52 @@ class GetClubResponse(metaclass=ResourceMeta):
             },
         }
     }
+
+    class SearchClubResponse(metaclass=ResourceMeta):
+        """Defines the schema for a search query response."""
+        __body__ = {
+            'results': {
+                'type':
+                'array',
+                'items': {
+                    'type':
+                    'object',
+                    'required': [
+                        'name', 'description', 'website_url', 'facebook_url',
+                        'instagram_url', 'twitter_url', 'id', 'created_at', 'tsvector'
+                    ],
+                    'additionalProperties':
+                    False,
+                    'properties': {
+                        'name': {
+                            'type': 'string'
+                        },
+                        'description': {
+                            'type': 'string',
+                        },
+                        'website_url': {
+                            'type': 'string',
+                        },
+                        'facebook_url': {
+                            'type': 'string',
+                        },
+                        'instagram_url': {
+                            'type': 'string',
+                        },
+                        'twitter_url': {
+                            'type': 'string',
+                        },
+                        'id': {
+                            'type': 'integer',
+                            'minimum': 0,
+                        },
+                        'created_at': {
+                            'type': 'integer',
+                        },
+                        'search_vector': {
+                            'type': 'tsvector'
+                        },
+                    }
+                }
+            }
+        }
