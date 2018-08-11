@@ -6,11 +6,12 @@ Also provides methods to access and edit the DB.
 from sqlalchemy import Column, Integer, String, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import TIMESTAMP
-
-from sqlalchemy_searchable import make_searchable, search as sql_search
+from sqlalchemy_searchable import make_searchable
+from sqlalchemy_searchable import search as sql_search
 from sqlalchemy_utils.types import TSVectorType
 
 Base = declarative_base()  # pylint: disable=invalid-name
+make_searchable()
 
 
 class Club(Base):
@@ -29,7 +30,8 @@ class Club(Base):
     twitter_url = Column('twitter_url', String, nullable=True)
     created_at = Column(
         'created_at', TIMESTAMP, nullable=False, server_default=func.now())
-    search_vector = Column('search_vector', TSVectorType('name', 'description'))
+    search_vector = Column('search_vector', TSVectorType(
+        'name', 'description'))
 
     def to_dict(self):
         """Returns a dict representation of a club."""
@@ -55,9 +57,9 @@ def select(session, name):
 
 
 def search(session, query):
-    """Returns a list of clubs that fit the user's search input"""
+    """Returns a list of clubs that fit the user's query"""
     clubs = session.query(Club)
-    return sql_search(club, query, sort=True)
+    return sql_search(clubs, query, sort=True)
 
 
 def insert(session, name, description, website_url, facebook_url,

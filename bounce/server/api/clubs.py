@@ -6,7 +6,8 @@ from sqlalchemy.exc import IntegrityError
 from . import APIError, Endpoint, util
 from ...db import club
 from ..resource import validate
-from ..resource.club import GetClubResponse, PostClubsRequest, PutClubRequest
+from ..resource.club import (GetClubResponse, PostClubsRequest, PutClubRequest,
+                             SearchClubResponse)
 
 
 class ClubEndpoint(Endpoint):
@@ -30,10 +31,8 @@ class ClubEndpoint(Endpoint):
         """Handles a full text search by returning clubs with content
         that include lexemes from the user input."""
         queried_clubs = club.search(self.server.db_session, query)
-        if queried_clubs:
-            for club in queried_clubs:
-                print(dict(club))
-        else:
+        if not queried_clubs:
+            # Failed to find clubs that match the query
             raise APIError('No clubs match your query', status=404)
         return queried_clubs
 
