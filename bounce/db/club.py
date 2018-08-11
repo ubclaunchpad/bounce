@@ -7,14 +7,13 @@ import math
 from sqlalchemy import Column, Integer, String, desc, func
 from sqlalchemy.types import TIMESTAMP
 from sqlalchemy.orm import relationship
-from .membership import Membership
+from sqlalchemy.types import TIMESTAMP
 
 from . import BASE
 
 # The maximum number of results to return in one page.
 # Used in the search method.
 MAX_SIZE = 20
-
 
 class Club(BASE):
     """
@@ -32,9 +31,7 @@ class Club(BASE):
     twitter_url = Column('twitter_url', String, nullable=True)
     created_at = Column(
         'created_at', TIMESTAMP, nullable=False, server_default=func.now())
-
-    members = relationship('User', secondary=Membership, 
-        back_populates='clubs')
+    members = relationship('Membership', back_populates='club')
 
     def to_dict(self):
         """Returns a dict representation of a club."""
