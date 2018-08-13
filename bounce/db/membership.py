@@ -16,8 +16,6 @@ class Membership(BASE):
     to a club they're a member of.
     """
     __tablename__ = 'memberships'
-
-    identifier = Column('id', Integer, primary_key=True)
     user_id = Column(
         'user_id',
         Integer,
@@ -38,7 +36,6 @@ class Membership(BASE):
     def to_dict(self):
         """Returns a dict representation of a Membership."""
         return {
-            'id': self.identifier,
             'user_id': self.user_id,
             'club_id': self.club_id,
             'created_at': self.created_at,
@@ -52,17 +49,42 @@ def insert(session, user_id, club_id):
     session.commit()
 
 
-def select(session, club_id, user_id):
+def select(session, club_name, user_id=None):
     """
-    Returns the membership for the user and club with the given IDs.
+    Returns all memberships for the given club. If user_id is given, returns
+    only the membership for the given user.
     """
-    membership = session.query(Membership).filter(
-        Club.identifier == club_id, User.identifier == user_id).first()
-    return None if membership is None else membership.to_dict()
+    query = f"""
+        SELECT users.id AS user_id,
+        memberships.created_at, users.full_name, users.username FROM
+        memberships INNER JOIN users ON (memberships.user_id = users.id)
+        WHERE memberships.club_id IN (
+            SELECT id FROM clubs WHERE name = '{club_name}'
+        )
+    """
+    if user_id:
+        query += f' AND user_id = {user_id}'
+    result_proxy = session.execute(query)
+    results = []
+    for row in result_proxy.fetchall():
+        results.append({
+            key: row[i] for i, key in enumerate(result_proxy.keys())
+        })
+    return results
 
 
-def delete(session, club_id, user_id):
-    """Deletes the membership for the user and club with the given IDs."""
-    session.query(Membership).filter_by(
-        club_id=club_id, user_id=user_id).delete()
+def delete(session, club_name, user_id=None):
+    """
+    Deletes all memberships for the given club. If user_id is given, deletes
+    only the membership for the given user.
+    """
+    query = f"""
+        DELETE FROM memberships
+        WHERE memberships.club_id IN (
+            SELECT id FROM clubs WHERE name = '{club_name}'
+        )
+    """
+    if user_id:
+        query += f' AND user_id = {user_id}'
+    session.execute(query)
     session.commit()

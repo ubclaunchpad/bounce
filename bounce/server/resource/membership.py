@@ -3,6 +3,50 @@
 from . import ResourceMeta
 
 
+class GetMembershipRequest(metaclass=ResourceMeta):
+    """Defines the schema for a GET /membership/<club_name> request."""
+    __params__ = {
+        'type': 'object',
+        'additionalProperties': False,
+        'properties': {
+            'user_id': {
+                'type': 'string',
+                'minimum': 0,
+            },
+        }
+    }
+
+
+class GetMembershipResponse(metaclass=ResourceMeta):
+    """Defines the schema for a GET /membership/<club_name> response."""
+    __body__ = {
+        'type': 'array',
+        'items': {
+            'type': 'object',
+            'required': [
+                'user_id',
+                'created_at',
+                'full_name',
+                'username',
+            ],
+            'properties': {
+                'user_id': {
+                    'type': 'integer'
+                },
+                'created_at': {
+                    'type': 'integer',
+                },
+                'full_name': {
+                    'type': 'string',
+                },
+                'username': {
+                    'type': 'string',
+                },
+            }
+        }
+    }
+
+
 class PostMembershipRequest(metaclass=ResourceMeta):
     """Defines the schema for a POST /membership request."""
     __body__ = {
@@ -29,10 +73,6 @@ class PutMembershipRequest(metaclass=ResourceMeta):
         'additionalProperties': False,
         'properties': {
             'user_id': {
-                'type': 'string',
-                'minimum': 0,
-            },
-            'membership_id': {
                 'type': 'integer',
                 'minimum': 0,
             },
@@ -43,21 +83,14 @@ class PutMembershipRequest(metaclass=ResourceMeta):
     }
 
 
-class GetMembershipResponse(metaclass=ResourceMeta):
-    """Defines the schema for a GET /users/<username> response."""
-    __body__ = {
+class DeleteMembershipRequest(metaclass=ResourceMeta):
+    """Defines the schema for a DELETE /members/<club_name> request."""
+    __params__ = {
         'type': 'object',
-        'required': ['user_id', 'club_id', 'created_at'],
         'additionalProperties': False,
         'properties': {
             'user_id': {
-                'type': 'string'
-            },
-            'club_id': {
                 'type': 'string',
-            },
-            'created_at': {
-                'type': 'integer',
             },
         }
     }
