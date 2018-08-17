@@ -27,9 +27,9 @@ class ClubEndpoint(Endpoint):
         return response.json(club_data, status=200)
 
     @validate(None, SearchClubResponse)
-    async def search(self, _, query):
-        """Handles a full text search by returning clubs with content
-        that include lexemes from the user input."""
+    async def search(self, query):
+        """Handles a full text search by returning clubs that contain content
+        that from the query."""
         queried_clubs = club.search(self.server.db_session, query)
         if not queried_clubs:
             # Failed to find clubs that match the query

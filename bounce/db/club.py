@@ -11,7 +11,7 @@ from sqlalchemy_searchable import search as sql_search
 from sqlalchemy_utils.types import TSVectorType
 
 Base = declarative_base()  # pylint: disable=invalid-name
-make_searchable()
+make_searchable(Base.metadata)
 
 
 class Club(Base):
@@ -57,7 +57,7 @@ def select(session, name):
 
 
 def search(session, query):
-    """Returns a list of clubs that fit the user's query"""
+    """Returns a list of clubs that contain content from the user's query"""
     clubs = session.query(Club)
     return sql_search(clubs, query, sort=True)
 

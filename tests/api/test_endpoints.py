@@ -4,7 +4,8 @@ import json
 
 from aiohttp import FormData
 
-from bounce.server.api import util
+from bounce.server.api import Endpoint, util
+from bounce.server.api.clubs import ClubEndpoint
 
 
 def test_root_handler(server):
@@ -147,9 +148,29 @@ def test_post_clubs__failure(server):
 
 
 def test_search_clubs(server):
-    return
+    # add dummy data to search for in database
+    server.app.test_client.post(
+        '/clubs',
+        data=json.dumps({
+            'name': 'ubclaunchpad',
+            'description': 'software engineering team',
+        }))
+    server.app.test_client.post(
+        '/clubs',
+        data=json.dumps({
+            'name': 'envision',
+            'description': 'chemical engineering team',
+        }))
+    server.app.test_client.post(
+        '/clubs',
+        data=json.dumps({
+            'name': 'ubcbiomod',
+            'description': 'chemical engineering team',
+        }))
+    queried_clubs = ClubEndpoint(Endpoint).search('chemical')
+    assert queried_clubs.count() == 2
 
-    
+
 def test_put_club__success(server):
     _, response = server.app.test_client.put(
         '/clubs/test',
