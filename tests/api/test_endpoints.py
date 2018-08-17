@@ -2,9 +2,14 @@
 
 import json
 
+<<<<<<< be8959a4944fc1bed219853ff1e1b4f6db91344d
 from aiohttp import FormData
 
 from bounce.server.api import util
+=======
+from bounce.server.api import util, Endpoint
+from bounce.server.api.clubs import ClubEndpoint
+>>>>>>> add test for search feature
 
 
 def test_root_handler(server):
@@ -171,6 +176,28 @@ def test_search_clubs__success(server):
     assert body[1]['name'] == 'UBC biomed'
     assert body[1]['description'] == 'something else'
 
+def test_search_clubs(server):
+    # add dummy data to search for in database
+    server.app.test_client.post(
+        '/clubs',
+        data=json.dumps({
+            'name': 'ubclaunchpad',
+            'description': 'software engineering team',
+        }))
+    server.app.test_client.post(
+        '/clubs',
+        data=json.dumps({
+            'name': 'envision',
+            'description': 'chemical engineering team',
+        }))
+    server.app.test_client.post(
+        '/clubs',
+        data=json.dumps({
+            'name': 'ubcbiomod',
+            'description': 'chemical engineering team',
+        }))
+    queried_clubs = ClubEndpoint(Endpoint).search('chemical')
+    assert queried_clubs.count() == 2
 
 def test_put_club__success(server):
     _, response = server.app.test_client.put(

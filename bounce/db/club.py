@@ -6,7 +6,12 @@ Also provides methods to access and edit the DB.
 from sqlalchemy import Column, Integer, String, func
 from sqlalchemy.types import TIMESTAMP
 
+<<<<<<< be8959a4944fc1bed219853ff1e1b4f6db91344d
 from . import BASE
+=======
+Base = declarative_base()  # pylint: disable=invalid-name
+make_searchable(Base.metadata)
+>>>>>>> add test for search feature
 
 # The maximum number of results to return from one search query
 MAX_SEARCH_RESULTS = 20
