@@ -105,7 +105,16 @@ class GetClubResponse(metaclass=ResourceMeta):
     }
 
 
-class SearchClubResponse(metaclass=ResourceMeta):
+class SearchClubsRequest(metaclass=ResourceMeta):
+    """Defines the schema for a GET /clubs/<search> request."""
+    __params__ = {
+        'query': {
+            'type': 'string',
+        }
+    }
+
+
+class SearchClubsResponse(metaclass=ResourceMeta):
     """Defines the schema for a search query response."""
     __body__ = {
         'results': {
