@@ -7,11 +7,7 @@ from . import APIError, Endpoint, util
 from ...db import club
 from ..resource import validate
 from ..resource.club import (GetClubResponse, PostClubsRequest, PutClubRequest,
-<<<<<<< 50156da9695bd27d001f0bebc3a021aa61c3fede
                              SearchClubsRequest, SearchClubsResponse)
-=======
-                             SearchClubResponse)
->>>>>>> make format and fix lint issues
 
 
 class ClubEndpoint(Endpoint):
@@ -29,16 +25,6 @@ class ClubEndpoint(Endpoint):
             # Failed to find a club with that name
             raise APIError('No such club', status=404)
         return response.json(club_data, status=200)
-
-    @validate(None, SearchClubResponse)
-    async def search(self, query):
-        """Handles a full text search by returning clubs that contain content
-        that from the query."""
-        queried_clubs = club.search(self.server.db_session, query)
-        if not queried_clubs:
-            # Failed to find clubs that match the query
-            raise APIError('No clubs match your query', status=404)
-        return queried_clubs
 
     @validate(PutClubRequest, GetClubResponse)
     async def put(self, request, name):
@@ -83,7 +69,6 @@ class ClubsEndpoint(Endpoint):
             raise APIError('Club already exists', status=409)
         return response.text('', status=201)
 
-
 class SearchClubsEndpoint(Endpoint):
     """Handles requests to /clubs/search."""
 
@@ -91,12 +76,14 @@ class SearchClubsEndpoint(Endpoint):
 
     @validate(SearchClubsRequest, SearchClubsResponse)
     async def get(self, request):
-        """
-        Handles a GET /clubs/search request by returning clubs that contain
-        content that matches the query.
-        """
-        results = club.search(self.server.db_session, request.args['query'][0])
-        if not results:
+        """Handles a GET /club/search request by returning clubs that contain content from the query."""
+        queried_clubs = club.search(self.server.db_session, request.args['query'][0])
+        if not queried_clubs:
             # Failed to find clubs that match the query
             raise APIError('No clubs match your query', status=404)
+        #import pdb
+        #pdb.set_trace()
+        results = []
+        for result in queried_clubs.all():
+            results.append(result.to_dict())
         return response.json(results, status=200)

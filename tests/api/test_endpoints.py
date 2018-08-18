@@ -196,7 +196,7 @@ def test_search_clubs(server):
             'name': 'ubcbiomod',
             'description': 'chemical engineering team',
         }))
-    queried_clubs = ClubEndpoint(Endpoint).search('chemical')
+    server.app.test_client.get('/clubs/search?query=chemical')
     assert queried_clubs.count() == 2
 
 def test_put_club__success(server):

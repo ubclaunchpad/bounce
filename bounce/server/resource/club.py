@@ -106,7 +106,11 @@ class GetClubResponse(metaclass=ResourceMeta):
 
 
 class SearchClubsRequest(metaclass=ResourceMeta):
+<<<<<<< 44c7da3db86f72b4de2f45d358508ba095e9f112
     """Defines the schema for a GET /clubs/search request."""
+=======
+    """Defines the schema for a GET /clubs/<search> request."""
+>>>>>>> create new SearchClubsEndpoint
     __params__ = {
         'query': {
             'type': 'string',
