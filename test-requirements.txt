@@ -13,7 +13,6 @@ certifi==2018.8.13        # via requests
 chardet==3.0.4            # via aiohttp, requests
 coverage==4.5.1           # via coveralls
 coveralls==1.3.0
-decorator==4.3.0          # via validators
 docopt==0.6.2             # via coveralls
 flake8==3.5.0
 idna-ssl==1.1.0
@@ -31,12 +30,8 @@ pylint==1.9.1
 pytest-asyncio==0.8.0
 pytest==3.7.2             # via pytest-asyncio
 requests==2.19.1          # via coveralls
-six==1.11.0               # via astroid, more-itertools, pylint, pytest, sqlalchemy-utils, validators
-sqlalchemy-searchable==1.0.3
-sqlalchemy-utils==0.33.3  # via sqlalchemy-searchable
-sqlalchemy==1.2.10        # via sqlalchemy-searchable, sqlalchemy-utils
+six==1.11.0               # via astroid, more-itertools, pylint, pytest
 urllib3==1.23             # via requests
-validators==0.12.2        # via sqlalchemy-searchable
 wrapt==1.10.11            # via astroid
 yapf==0.22.0
 yarl==1.2.6               # via aiohttp

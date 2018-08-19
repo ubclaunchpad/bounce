@@ -8,6 +8,7 @@ aiofiles==0.4.0           # via sanic
 bcrypt==3.1.4
 cffi==1.11.5              # via bcrypt
 click==6.7
+decorator==4.3.0          # via validators
 ecdsa==0.13               # via python-jose
 future==0.16.0            # via python-jose
 httptools==0.0.11         # via sanic
@@ -18,7 +19,9 @@ pycparser==2.18           # via cffi
 python-jose==3.0.0
 rsa==3.4.2                # via python-jose
 sanic==0.7.0
-six==1.11.0               # via bcrypt, python-jose
+six==1.11.0               # via bcrypt, python-jose, sqlalchemy-utils, validators
+sqlalchemy-searchable==1.0.3
+sqlalchemy-utils==0.33.3  # via sqlalchemy-searchable
 sqlalchemy==1.2.8
 ujson==1.35               # via sanic
 uvloop==0.11.2            # via sanic
