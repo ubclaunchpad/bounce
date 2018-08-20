@@ -16,7 +16,7 @@ Before you can install and run Bounce you'll need the following:
 
 For linux users, to use docker without using sudo for every command,
 follow the steps in this link:
-https://docs.docker.com/install/linux/linux-postinstall/#configuring-remote-access-with-systemd-unit-file
+https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user
 
 ### Configuration
 
