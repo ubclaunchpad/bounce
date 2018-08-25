@@ -8,7 +8,7 @@ install:
 
 # Run all tests
 .PHONY: test
-test:
+test: styles
 	@yarn run test
 
 # Check for formatting errors

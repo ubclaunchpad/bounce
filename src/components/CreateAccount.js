@@ -1,14 +1,22 @@
 /* eslint-disable no-unused-vars */
 import React, { Component } from 'react';
-import {
-    INVALID_INFO,
-    USERNAME_OR_EMAIL_TAKEN,
-    CREATE_ACCOUNT_FAILURE,
-    USERNAME_WARNING,
-    PASSWORD_WARNING,
-    EMAIL_WARNING,
-} from '../constants';
 import { Redirect } from 'react-router-dom';
+import {
+    Alert,
+    Button,
+    FormGroup,
+    Label,
+    PageHeader,
+} from 'react-bootstrap';
+
+import {
+    EMAIL_WARNING,
+    INVALID_INFO,
+    PASSWORD_WARNING,
+    UNEXPECTED_ERROR,
+    USERNAME_OR_EMAIL_TAKEN,
+    USERNAME_WARNING,
+} from '../constants';
 /* eslint-enable no-unused-vars */
 
 class CreateAccount extends Component {
@@ -63,11 +71,11 @@ class CreateAccount extends Component {
                 this.setState({ errorMsg: USERNAME_OR_EMAIL_TAKEN });
             } else {
                 // Some unexpected error occurred
-                this.setState({ errorMsg: CREATE_ACCOUNT_FAILURE });
+                this.setState({ errorMsg: UNEXPECTED_ERROR });
             }
         }).catch(() => {
             // An error occurred in the browser while handling the request
-            this.setState({ errorMsg: CREATE_ACCOUNT_FAILURE });
+            this.setState({ errorMsg: UNEXPECTED_ERROR });
         });
     }
 
@@ -200,64 +208,62 @@ class CreateAccount extends Component {
         }
 
         let errorMsg, usernameWarning, emailWarning, passwordWarning;
-        let buttonClass = 'btn btn-primary';
-        let usernameClass = 'form-group has-';
-        let emailClass = 'form-group has-';
-        let passwordClass = 'form-group has-';
+        let usernameClass, emailClass, passwordClass;
 
         // Display error message if there is one
         if (this.state.errorMsg) {
-            errorMsg = <p className='bg-warning text-warning'> {this.state.errorMsg} </p>;
+            errorMsg = <Alert bsStyle='warning'> {this.state.errorMsg} </Alert>;
         }
         // Disable submit button if input is invalid
-        if (!this.state.usernameIsValid | !this.state.passwordIsValid || !this.state.emailIsValid) {
-            buttonClass += ' disabled';
-        }
+        const submitDisabled = (
+            !this.state.usernameIsValid ||
+            !this.state.passwordIsValid ||
+            !this.state.emailIsValid);
         // Signal the validity of each input if it's been filled in
         if (this.state.usernameIsValid !== undefined) {
             if (this.state.usernameIsValid) {
-                usernameClass += 'success';
+                usernameClass = 'has-success';
             } else {
-                usernameClass += 'error';
+                usernameClass = 'has-error';
                 usernameWarning = <span>{USERNAME_WARNING}</span>;
             }
         }
         if (this.state.emailIsValid !== undefined) {
             if (this.state.emailIsValid) {
-                emailClass += 'success';
+                emailClass = 'has-success';
             } else {
-                emailClass += 'error';
+                emailClass = 'has-error';
                 emailWarning = <span>{EMAIL_WARNING}</span>;
             }
         }
         if (this.state.passwordIsValid !== undefined) {
             if (this.state.passwordIsValid) {
-                passwordClass += 'success';
+                passwordClass = 'has-success';
             } else {
-                passwordClass += 'error';
+                passwordClass = 'has-error';
                 passwordWarning = <span>{PASSWORD_WARNING}</span>;
             }
         }
 
         return (
             <div className='container'>
+
+                <PageHeader>Create an Account</PageHeader>
+                {errorMsg}
+
                 <form onSubmit={this.handleSubmit}>
-                    <h1>Create an Account</h1>
-
-                    {errorMsg}
-
-                    <div className='form-group'>
-                        <label>Name</label>
+                    <FormGroup>
+                        <Label>Name</Label>
                         <input type='text'
                             name='fullName'
                             placeholder='Name'
                             className='form-control'
                             value={this.state.fullName}
                             onChange={this.handleInput} />
-                    </div>
+                    </FormGroup>
 
-                    <div className={usernameClass}>
-                        <label>Username</label>
+                    <FormGroup bsClass={usernameClass}>
+                        <Label>Username</Label>
                         <input type='text'
                             name='username'
                             placeholder='Username'
@@ -265,10 +271,10 @@ class CreateAccount extends Component {
                             value={this.state.username}
                             onChange={this.handleInput} />
                         {usernameWarning}
-                    </div>
+                    </FormGroup>
 
-                    <div className={emailClass}>
-                        <label>Email</label>
+                    <FormGroup bsClass={emailClass}>
+                        <Label>Email</Label>
                         <input type='text'
                             name='email'
                             placeholder='Email'
@@ -276,10 +282,10 @@ class CreateAccount extends Component {
                             value={this.state.email}
                             onChange={this.handleInput} />
                         {emailWarning}
-                    </div>
+                    </FormGroup>
 
-                    <div className={passwordClass}>
-                        <label>Password</label>
+                    <FormGroup bsClass={passwordClass}>
+                        <Label>Password</Label>
                         <input type='password'
                             name='password'
                             placeholder='Password'
@@ -287,14 +293,20 @@ class CreateAccount extends Component {
                             value={this.state.password}
                             onChange={this.handleInput} />
                         {passwordWarning}
-                    </div>
+                    </FormGroup>
 
-                    <button className={buttonClass}>Create Account</button>
-                    <button
+                    <br />
+                    <Button
+                        bsStyle='primary'
+                        disabled={submitDisabled}
+                        onClick={this.handleSubmit}>
+                        Create Account
+                    </Button>
+                    <Button
                         onClick={this.handleSignInClick}
-                        className='btn btn-secondary'>
+                        bsStyle='secondary'>
                         Sign In
-                    </button>
+                    </Button>
                 </form>
             </div>
         );

@@ -1,22 +1,14 @@
 $pallete-blue: #0CD3FE;
-$pallete-green: #73E5D6;
-$pallete-light-grey: #DDDDDD;
+$pallete-green: #a7f2e8;
+$pallete-light-grey: #adadad;
 $pallete-dark-grey: #7F7F7F;
 
-body {
-
-    h1 {
-        color: $pallete-blue;
-    }
-
+h1 {
+    color: $pallete-blue;
 }
 
-.home > h1 {
-    color: $pallete-dark-grey;
-}
-
-.home > p {
-    color: $pallete-dark-grey;
+h2 {
+    color: $pallete-light-grey;
 }
 
 input.form-control {
@@ -37,8 +29,18 @@ input.form-control {
     color: $pallete-blue;
 }
 
+.center {
+    text-align: center;
+}
+
+.left {
+    text-align: left;
+}
+
 form {
     text-align: left;
+    max-width: 30em;
+    margin: auto;
 }
 
 form > input {
@@ -57,4 +59,3 @@ form > h1 {
 button {
     margin-right: 0.5em;
 }
-

@@ -1,4 +1,5 @@
 import 'whatwg-fetch';
+import jwtDecode from 'jwt-decode';
 
 export default class BounceClient {
     constructor(url) {
@@ -12,8 +13,9 @@ export default class BounceClient {
      * @param {String} method The HTTP method
      * @param {String} endpoint The URI to which the request will be made
      * @param {Object} body The body of the request (optional, may be undefined)
+     * @param {Object} params The request parameters (optional, may be undefined)
      */
-    async _request(method, endpoint, body) {
+    async _request(method, endpoint, body, params) {
         let requestData = {
             method: method,
             headers: {},
@@ -26,7 +28,25 @@ export default class BounceClient {
             // The access token is available so put it in the request header
             requestData.headers['Authorization'] = this.token;
         }
+        if (params) {
+            // Append request params if necessary
+            endpoint += '?';
+            for (let key in params) {
+                const value = encodeURIComponent(params[key]);
+                endpoint += `${key}=${value}&`;
+            }
+        }
         return await fetch(this.url + endpoint, requestData);
+    }
+
+    /**
+     * Returns the user ID in the JWT we were given on sign-in.
+     */
+    getUserIdFromToken() {
+        if (!this.token) {
+            return null;
+        }
+        return jwtDecode(this.token).id;
     }
 
     /**
@@ -112,10 +132,10 @@ export default class BounceClient {
         return await this._request('POST', '/clubs', {
             name: name,
             description: description,
-            websiteUrl: websiteUrl,
-            facebookUrl: facebookUrl,
-            instagramUrl: instagramUrl,
-            twitterUrl: twitterUrl,
+            website_url: websiteUrl,
+            facebook_url: facebookUrl,
+            instagram_url: instagramUrl,
+            twitter_url: twitterUrl,
         });
     }
 
@@ -133,15 +153,15 @@ export default class BounceClient {
         const attrs = {
             name: newName,
             description: description,
-            websiteUrl: websiteUrl,
-            facebookUrl: facebookUrl,
-            instagramUrl: instagramUrl,
-            twitterUrl: twitterUrl,
+            website_url: websiteUrl,
+            facebook_url: facebookUrl,
+            instagram_url: instagramUrl,
+            twitter_url: twitterUrl,
         };
         // Remove properties that were not set
-        for (let atte in attrs) {
-            if (!attrs[atte]) {
-                delete attrs[atte];
+        for (let attr in attrs) {
+            if (!attrs[attr]) {
+                delete attrs[attr];
             }
         }
         return await this._request('PUT', '/clubs/' + name, attrs);
@@ -153,5 +173,29 @@ export default class BounceClient {
      */
     async deleteClub(name) {
         return await this._request('DELETE', '/clubs/' + name);
+    }
+
+    /**
+     * Fetches the memberships for the given club. If a userId is provided only
+     * the membership for that user will be returned.
+     * @param {String} clubName
+     * @param {String} userId (optional, may be undefined)
+     */
+    async getMemberships(clubName, userId) {
+        const params = userId ? { user_id: userId } : undefined;
+        return await this._request('GET', `/memberships/${clubName}`,
+            undefined, params);
+    }
+
+    /**
+     * Deletes the memberships for the given club. If a userId is provided only
+     * the membership for that user will be deleted.
+     * @param {String} clubName
+     * @param {String} userId (optional, may be undefined)
+     */
+    async deleteMemberships(clubName, userId) {
+        const params = userId ? { user_id: userId } : undefined;
+        return await this._request('DELETE', `/memberships/${clubName}`,
+            undefined, params);
     }
 }
