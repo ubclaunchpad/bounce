@@ -1,13 +1,12 @@
 """Defines the schema for the Memberships table in our DB."""
 
 from sqlalchemy import Column, ForeignKey, Integer, func
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import TIMESTAMP
 
-Base = declarative_base()  # pylint: disable=invalid-name
+from . import BASE
 
 
-class Membership(Base):
+class Membership(BASE):
     """
     Specifies a mapping between a Membership as a Python object and the
     Memberships table in our DB. A memership is simply a mapping from a user

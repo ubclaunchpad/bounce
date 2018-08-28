@@ -69,6 +69,7 @@ class ClubsEndpoint(Endpoint):
             raise APIError('Club already exists', status=409)
         return response.text('', status=201)
 
+
 class SearchClubsEndpoint(Endpoint):
     """Handles requests to /clubs/search."""
 
@@ -76,14 +77,12 @@ class SearchClubsEndpoint(Endpoint):
 
     @validate(SearchClubsRequest, SearchClubsResponse)
     async def get(self, request):
-        """Handles a GET /club/search request by returning clubs that contain content from the query."""
-        queried_clubs = club.search(self.server.db_session, request.args['query'][0])
-        if not queried_clubs:
+        """
+        Handles a GET /clubs/search request by returning clubs that contain
+        content that matches the query.
+        """
+        results = club.search(self.server.db_session, request.args['query'][0])
+        if not results:
             # Failed to find clubs that match the query
             raise APIError('No clubs match your query', status=404)
-        #import pdb
-        #pdb.set_trace()
-        results = []
-        for result in queried_clubs.all():
-            results.append(result.to_dict())
         return response.json(results, status=200)

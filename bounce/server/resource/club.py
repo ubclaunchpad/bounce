@@ -68,7 +68,7 @@ class GetClubResponse(metaclass=ResourceMeta):
         'object',
         'required': [
             'name', 'description', 'website_url', 'facebook_url',
-            'instagram_url', 'twitter_url', 'id', 'created_at', 'tsvector'
+            'instagram_url', 'twitter_url', 'id', 'created_at'
         ],
         'additionalProperties':
         False,
@@ -98,15 +98,12 @@ class GetClubResponse(metaclass=ResourceMeta):
             'created_at': {
                 'type': 'integer',
             },
-            'search_vector': {
-                'type': 'tsvector'
-            },
         }
     }
 
 
 class SearchClubsRequest(metaclass=ResourceMeta):
-    """Defines the schema for a GET /clubs/<search> request."""
+    """Defines the schema for a GET /clubs/search request."""
     __params__ = {
         'query': {
             'type': 'string',
@@ -124,8 +121,7 @@ class SearchClubsResponse(metaclass=ResourceMeta):
                 'object',
                 'required': [
                     'name', 'description', 'website_url', 'facebook_url',
-                    'instagram_url', 'twitter_url', 'id', 'created_at',
-                    'tsvector'
+                    'instagram_url', 'twitter_url', 'id', 'created_at'
                 ],
                 'additionalProperties':
                 False,
@@ -154,9 +150,6 @@ class SearchClubsResponse(metaclass=ResourceMeta):
                     },
                     'created_at': {
                         'type': 'integer',
-                    },
-                    'search_vector': {
-                        'type': 'tsvector'
                     },
                 }
             }

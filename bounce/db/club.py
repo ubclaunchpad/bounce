@@ -4,17 +4,15 @@ Also provides methods to access and edit the DB.
 """
 
 from sqlalchemy import Column, Integer, String, func
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import TIMESTAMP
-from sqlalchemy_searchable import make_searchable
-from sqlalchemy_searchable import search as sql_search
-from sqlalchemy_utils.types import TSVectorType
 
-Base = declarative_base()  # pylint: disable=invalid-name
-make_searchable(Base.metadata)
+from . import BASE
+
+# The maximum number of results to return from one search query
+MAX_SEARCH_RESULTS = 20
 
 
-class Club(Base):
+class Club(BASE):
     """
     Specifies a mapping between a Club as a Python object and the Clubs table
     in our DB.
@@ -30,8 +28,6 @@ class Club(Base):
     twitter_url = Column('twitter_url', String, nullable=True)
     created_at = Column(
         'created_at', TIMESTAMP, nullable=False, server_default=func.now())
-    search_vector = Column('search_vector', TSVectorType(
-        'name', 'description'))
 
     def to_dict(self):
         """Returns a dict representation of a club."""
@@ -56,10 +52,11 @@ def select(session, name):
     return None if club is None else club.to_dict()
 
 
-def search(session, query):
+def search(session, query, max_results=MAX_SEARCH_RESULTS):
     """Returns a list of clubs that contain content from the user's query"""
-    clubs = session.query(Club)
-    return sql_search(clubs, query, sort=True)
+    clubs = session.query(Club).filter(
+        Club.name.ilike(f'%{query}%')).limit(max_results)
+    return [result.to_dict() for result in clubs]
 
 
 def insert(session, name, description, website_url, facebook_url,

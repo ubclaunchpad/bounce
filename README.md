@@ -214,7 +214,7 @@ Notice that we're using the `@validate` decorator to validate the request parame
 
 **Step 3: Add the endpoint to the server**
 
-Now we can add the endpoint to the servers by updating `endpoints` in the `start` function in `cli.py` and server function in `conftest.py`:
+Now we can add the endpoint to the servers by updating `endpoints` in the `start` function in `cli.py` and `server` function in `conftest.py`:
 
 In `cli.py`:
 ```python
