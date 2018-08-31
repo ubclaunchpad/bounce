@@ -31,10 +31,12 @@ def save(directory,
 
 def load(directory, entity_type, entity_id, image_name):
     """Returns the image by the given name."""
+    # pylint: disable=bad-continuation
     with open(
             os.path.join(directory, entity_type.value, str(entity_id),
                          image_name), 'rb') as image_file:
         image = image_file.read()
+    # pylint: enable=bad-continuation
     return image
 
 
