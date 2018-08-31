@@ -11,6 +11,9 @@ from ...db.image import EntityType
 from ..resource import validate
 from ..resource.user import GetUserResponse, PostUsersRequest, PutUserRequest
 
+# Maximum number of bytes in an image upload
+IMAGE_SIZE_LIMIT = 1000000
+
 
 class UserEndpoint(Endpoint):
     """Handles requests to /users/<username>."""
@@ -132,10 +135,16 @@ class UserImagesEndpoint(Endpoint):
             raise APIError('Forbidden', status=403)
 
         # Save the image
+        image_upload = request.files.get('image')
+        if not image_upload:
+            raise APIError('No image provided', status=400)
+        if (image_upload.type != 'image/png'
+                and image_upload.type != 'image/jpeg'):
+            raise APIError(
+                'Only png and jpeg images are supported', status=400)
+        if len(image_upload.body) > IMAGE_SIZE_LIMIT:
+            raise APIError('Image too large', status=400)
         try:
-            image_upload = request.files.get('image')
-            if not image_upload:
-                raise APIError('No image provided', status=400)
             image.save(self.server.config.image_dir, EntityType.USER, user_id,
                        image_name, image_upload.body)
         except FileExistsError:

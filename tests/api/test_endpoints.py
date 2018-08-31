@@ -2,8 +2,7 @@
 
 import json
 
-import pytest
-from aiohttp import ClientSession, FormData, MultipartWriter
+from aiohttp import FormData
 
 from bounce.server.api import util
 
