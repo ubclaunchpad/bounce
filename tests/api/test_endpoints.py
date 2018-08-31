@@ -213,6 +213,7 @@ def test_put_user_image__success(server):
 def test_put_user_image__failure(server):
     token = util.create_jwt(3, server.config.secret)
     data = FormData()
+    # No such user
     _, response = server.app.test_client.put(
         '/users/3/images/profile',
         data=data,
@@ -220,6 +221,23 @@ def test_put_user_image__failure(server):
             'Authorization': token,
         })
     assert response.status == 404
+    # Forbidden (the user is trying to update another user's image)
+    _, response = server.app.test_client.put(
+        '/users/2/images/profile',
+        data=data,
+        headers={
+            'Authorization': token,
+        })
+    assert response.status == 403
+    # Invalid image name
+    token = util.create_jwt(2, server.config.secret)
+    _, response = server.app.test_client.put(
+        '/users/2/images/$%^&*(',
+        data=data,
+        headers={
+            'Authorization': token,
+        })
+    assert response.status == 400
 
 
 def test_get_user_image__success(server):
@@ -239,3 +257,19 @@ def test_delete_user_image__success(server):
             'Authorization': token,
         })
     assert response.status == 200
+
+
+def test_delete_user_image__failure(server):
+    token = util.create_jwt(3, server.config.secret)
+    # No such image
+    _, response = server.app.test_client.delete(
+        '/users/3/images/profile', headers={
+            'Authorization': token,
+        })
+    assert response.status == 404
+    # Forbidden (user is trying to delete another user's image)
+    _, response = server.app.test_client.delete(
+        '/users/2/images/profile', headers={
+            'Authorization': token,
+        })
+    assert response.status == 403

@@ -1,7 +1,6 @@
 """Request handlers for the /users endpoint."""
 
 import os
-import re
 
 from sanic import response
 from sqlalchemy.exc import IntegrityError
@@ -129,6 +128,8 @@ class UserImagesEndpoint(Endpoint):
         user_info = user.select_by_id(self.server.db_session, user_id)
         if not user_info:
             raise APIError('No such image', status=404)
+        if not user_info.identifier == id_from_token:
+            raise APIError('Forbidden', status=403)
 
         # Save the image
         try:
@@ -151,6 +152,8 @@ class UserImagesEndpoint(Endpoint):
         user_info = user.select_by_id(self.server.db_session, user_id)
         if not user_info:
             raise APIError('No such image', status=404)
+        if not user_info.identifier == id_from_token:
+            raise APIError('Forbidden', status=403)
         try:
             image.delete(
                 self.server.config.image_dir,

@@ -1,7 +1,6 @@
 """Defines the schema for the Users table in our DB."""
 
 from sqlalchemy import Column, Integer, String, func
-from sqlalchemy import select as pg_select
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import TIMESTAMP
 
