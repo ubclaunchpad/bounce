@@ -3,7 +3,7 @@
 from sanic import response
 from sqlalchemy.exc import IntegrityError
 
-from . import APIError, Endpoint
+from . import APIError, Endpoint, util
 from ...db import club
 from ..resource import validate
 from ..resource.club import GetClubResponse, PostClubsRequest, PutClubRequest
@@ -29,7 +29,7 @@ class ClubEndpoint(Endpoint):
     async def put(self, request, name):
         """Handles a PUT /clubs/<name> request by updating the club with
         the given name and returning the updated club info."""
-        body = request.json
+        body = util.strip_whitespace(request.json)
         updated_club = club.update(
             self.server.db_session,
             name,
@@ -57,12 +57,13 @@ class ClubsEndpoint(Endpoint):
     async def post(self, request):
         """Handles a POST /clubs request by creating a new club."""
         # Put the club in the DB
-        body = request.json
+        body = util.strip_whitespace(request.json)
         try:
-            club.insert(self.server.db_session, body['name'],
-                        body['description'], body['website_url'],
-                        body['facebook_url'], body['instagram_url'],
-                        body['twitter_url'])
+            club.insert(
+                self.server.db_session, body['name'].strip(),
+                body['description'].strip(), body['website_url'].strip(),
+                body['facebook_url'].strip(), body['instagram_url'].strip(),
+                body['twitter_url'].strip())
         except IntegrityError:
             raise APIError('Club already exists', status=409)
         return response.text('', status=201)

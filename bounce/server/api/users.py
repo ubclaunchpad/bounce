@@ -30,7 +30,7 @@ class UserEndpoint(Endpoint):
     async def put(self, request, username, id_from_token=None):
         """Handles a PUT /users/<username> request by updating the user with
         the given username and returning the updated user info. """
-        body = request.json
+        body = util.strip_whitespace(request.json)
         # Make sure the ID from the token is for the user we're updating
         user_row = user.select(self.server.db_session, username)
         if not user_row:
@@ -69,7 +69,7 @@ class UsersEndpoint(Endpoint):
     @validate(PostUsersRequest, None)
     async def post(self, request):
         """Handles a POST /users request by creating a new user."""
-        body = request.json
+        body = util.strip_whitespace(request.json)
         # Make sure the username is valid
         if not util.validate_username(body['username']):
             raise APIError('Invalid username', status=400)

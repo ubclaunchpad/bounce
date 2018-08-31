@@ -138,3 +138,14 @@ def check_jwt(token, secret):
     except exceptions.JWTError:
         return None
     return payload.get('id', None)
+
+
+def strip_whitespace(obj):
+    """
+    Strips whitespace from the beginning and end of all values in the object,
+    then returns the object. Ignores passwords.
+    """
+    for key, value in obj.items():
+        if key != 'password':
+            obj[key] = value.strip()
+    return obj
