@@ -1,6 +1,7 @@
 """Defines an interface for storing and retreiving images."""
 
 import os
+import shutil
 from enum import Enum
 
 
@@ -54,6 +55,6 @@ def delete_dir(directory, entity_type, entity_id, must_exist=False):
     """Deletes the directory by the given name."""
     path = os.path.join(directory, entity_type.value, str(entity_id))
     if os.path.exists(path):
-        os.remove(path)
+        shutil.rmtree(path)
     elif must_exist:
         raise FileNotFoundError(f'No such image {path}')
