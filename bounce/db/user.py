@@ -1,6 +1,7 @@
 """Defines the schema for the Users table in our DB."""
 
 from sqlalchemy import Column, Integer, String, func
+from sqlalchemy import select as pg_select
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import TIMESTAMP
 
@@ -41,6 +42,14 @@ def select(session, username):
     there is no such user.
     """
     return session.query(User).filter(User.username == username).first()
+
+
+def select_by_id(session, user_id):
+    """
+    Returns the user with the given ID or None if
+    there is no such user.
+    """
+    return session.query(User).filter(User.identifier == user_id).first()
 
 
 def insert(session, full_name, username, secret, email):

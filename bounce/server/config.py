@@ -5,7 +5,7 @@ class ServerConfig:
     """Stores configuration for the server."""
 
     def __init__(self, port, secret, pg_host, pg_port, pg_user, pg_password,
-                 pg_database, allowed_origin):
+                 pg_database, allowed_origin, image_dir):
         self._server_port = port
         self._secret = secret
         self._postgres_host = pg_host
@@ -14,6 +14,7 @@ class ServerConfig:
         self._postgres_password = pg_password
         self._postgres_db = pg_database
         self._allowed_origin = allowed_origin
+        self._image_dir = image_dir
 
     # Expose attributes as properties so they can't be modified after
     # they've been set.
@@ -59,3 +60,8 @@ class ServerConfig:
         by this server, or None is one is not configured.
         """
         return self._allowed_origin or None
+
+    @property
+    def image_dir(self):
+        """Returns the path to the location images are stored at."""
+        return self._image_dir

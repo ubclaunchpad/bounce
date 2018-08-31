@@ -39,8 +39,8 @@ install-test-requirements:
 # Auto-format all Python files
 .PHONY: format
 format:
-	@isort -rc bounce
-	@yapf -i -r -vv bounce
+	@isort -rc bounce tests
+	@yapf -i -r -vv bounce tests
 
 # Run linters to make sure there are no formatting issues
 .PHONY: lint

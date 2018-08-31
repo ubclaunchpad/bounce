@@ -2,6 +2,9 @@
 
 import json
 
+import pytest
+from aiohttp import ClientSession, FormData, MultipartWriter
+
 from bounce.server.api import util
 
 
@@ -58,7 +61,9 @@ def test_put_user__failure(server):
     token = util.create_jwt(1, server.config.secret)
     _, response = server.app.test_client.put(
         f'/users/{username}',
-        data=json.dumps({'garbage': True}),
+        data=json.dumps({
+            'garbage': True
+        }),
         headers={'Authorization': token})
     assert response.status == 400
 
@@ -81,7 +86,10 @@ def test_get_user__failure(server):
 def test_login__success(server):
     _, response = server.app.test_client.post(
         '/auth/login',
-        data=json.dumps({'username': 'test', 'password': 'Val1dPassword!'}))
+        data=json.dumps({
+            'username': 'test',
+            'password': 'Val1dPassword!'
+        }))
     assert response.status == 200
     assert isinstance(response.json['token'], str)
 
@@ -89,23 +97,24 @@ def test_login__success(server):
 def test_login__failure(server):
     _, response = server.app.test_client.post(
         '/auth/login',
-        data=json.dumps({'username': 'test', 'password': 'WrongPassword!'}))
+        data=json.dumps({
+            'username': 'test',
+            'password': 'WrongPassword!'
+        }))
     assert response.status == 401
 
 
 def test_delete_user__success(server):
     token = util.create_jwt(1, server.config.secret)
     _, response = server.app.test_client.delete(
-        '/users/test',
-        headers={'Authorization': token})
+        '/users/test', headers={'Authorization': token})
     assert response.status == 204
 
 
 def test_delete_user__failure(server):
     token = util.create_jwt(1, server.config.secret)
     _, response = server.app.test_client.delete(
-        '/users/doesnotexist',
-        headers={'Authorization': token})
+        '/users/doesnotexist', headers={'Authorization': token})
     assert response.status == 404
 
 
@@ -177,3 +186,56 @@ def test_get_club__failure(server):
 def test_delete_club__success(server):
     _, response = server.app.test_client.delete('/clubs/test')
     assert response.status == 204
+
+
+def test_put_user_image__success(server):
+    # POST a dummy user to add a profile image to
+    server.app.test_client.post(
+        '/users',
+        data=json.dumps({
+            'username': 'test',
+            'full_name': 'Test Guy',
+            'email': 'test@test.com',
+            'password': 'Val1dPassword!'
+        }))
+    token = util.create_jwt(2, server.config.secret)
+    data = FormData()
+    data.add_field('image', open('tests/testdata/large-logo.png', 'rb'))
+    _, response = server.app.test_client.put(
+        '/users/2/images/profile',
+        data=data,
+        headers={
+            'Authorization': token,
+        })
+    assert response.status == 200
+
+
+def test_put_user_image__failure(server):
+    token = util.create_jwt(3, server.config.secret)
+    data = FormData()
+    _, response = server.app.test_client.put(
+        '/users/3/images/profile',
+        data=data,
+        headers={
+            'Authorization': token,
+        })
+    assert response.status == 404
+
+
+def test_get_user_image__success(server):
+    _, response = server.app.test_client.get('/users/2/images/profile')
+    assert response.status == 200
+
+
+def test_get_user_image__failure(server):
+    _, response = server.app.test_client.get('/users/3/images/profile')
+    assert response.status == 404
+
+
+def test_delete_user_image__success(server):
+    token = util.create_jwt(2, server.config.secret)
+    _, response = server.app.test_client.delete(
+        '/users/2/images/profile', headers={
+            'Authorization': token,
+        })
+    assert response.status == 200
