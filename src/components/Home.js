@@ -37,10 +37,14 @@ class Home extends Component {
                     </Col>
                 </Row>
                 <Link to='/sign-in'>
-                    <Button bsStyle='primary'>Explore Clubs</Button>
+                    <Button bsStyle='primary'>
+                        Explore Clubs
+                    </Button>
                 </Link>
                 <Link to='/create-account'>
-                    <Button>Create Account</Button>
+                    <Button bsClass='btn btn-secondary'>
+                        Create Account
+                    </Button>
                 </Link>
             </div>
         );
