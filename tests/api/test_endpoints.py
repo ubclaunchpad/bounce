@@ -146,6 +146,32 @@ def test_post_clubs__failure(server):
     assert 'error' in response.json
 
 
+def test_search_clubs__success(server):
+    # add dummy data to search for in database
+    club_info = [['UBC Launch Pad', 'software engineering team'],
+                 ['envision', 'something'], ['UBC biomed', 'something else']]
+    for name, desc in club_info:
+        server.app.test_client.post(
+            '/clubs',
+            data=json.dumps({
+                'name': name,
+                'description': desc,
+                'website_url': '',
+                'twitter_url': '',
+                'facebook_url': '',
+                'instagram_url': '',
+            }))
+
+    _, response = server.app.test_client.get('/clubs/search?query=UBC')
+    assert response.status == 200
+    body = response.json
+    assert len(body) == 2
+    assert body[0]['name'] == 'UBC Launch Pad'
+    assert body[0]['description'] == 'software engineering team'
+    assert body[1]['name'] == 'UBC biomed'
+    assert body[1]['description'] == 'something else'
+
+
 def test_put_club__success(server):
     _, response = server.app.test_client.put(
         '/clubs/test',

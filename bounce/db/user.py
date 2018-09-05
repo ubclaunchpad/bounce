@@ -1,13 +1,12 @@
 """Defines the schema for the Users table in our DB."""
 
 from sqlalchemy import Column, Integer, String, func
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import TIMESTAMP
 
-Base = declarative_base()  # pylint: disable=invalid-name
+from . import BASE
 
 
-class User(Base):
+class User(BASE):
     """
     Specifies a mapping between a User as a Python object and the Users table
     in our DB.

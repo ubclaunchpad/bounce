@@ -14,6 +14,10 @@ Before you can install and run Bounce you'll need the following:
 * Docker (see [Install Docker](https://docs.docker.com/install/))
 * Docker Compose (see [Install Docker Compose](https://docs.docker.com/compose/install/))
 
+For linux users, to use docker without using sudo for every command,
+follow the steps in this link:
+https://docs.docker.com/install/linux/linux-postinstall/#configuring-remote-access-with-systemd-unit-file
+
 ### Configuration
 
 Both the Python backend and Postgres need to be configured before they can run. Copy the [web](container/web.env.example) and [Postgres](container/postgres.env.example) example configuration files to `container/web.env` and `container/postgres.env` respectively. These files will contain the environment variables that our web server and Postgres rely on.
@@ -210,8 +214,9 @@ Notice that we're using the `@validate` decorator to validate the request parame
 
 **Step 3: Add the endpoint to the server**
 
-Now we can add the endpoint to the server by updating `endpoints` in the `start` function in `cli.py`:
+Now we can add the endpoint to the servers by updating `endpoints` in the `start` function in `cli.py` and `server` function in `conftest.py`:
 
+In `cli.py`:
 ```python
 def start(port, pg_host, pg_port, pg_user, pg_password, pg_database):
     """Starts the Bounce webserver with the given configuration."""
@@ -221,6 +226,15 @@ def start(port, pg_host, pg_port, pg_user, pg_password, pg_database):
     endpoints = [UsersEndpoint]
     serv = Server(conf, endpoints)
     serv.start()
+```
+
+in `conftest.py`:
+```python
+def server(config):
+    """Returns a test server."""
+    serv = Server(config, [UsersEndpoint])
+    serv.start(test=True)
+    return serv
 ```
 
 ### Interacting with the DB

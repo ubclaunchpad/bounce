@@ -1,7 +1,10 @@
 """Utilities for interacting with the DB."""
 
 import sqlalchemy
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+
+BASE = declarative_base()
 
 
 def create_engine(driver, user, password, host, port, db_name):

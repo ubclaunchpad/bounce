@@ -4,13 +4,15 @@ Also provides methods to access and edit the DB.
 """
 
 from sqlalchemy import Column, Integer, String, func
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import TIMESTAMP
 
-Base = declarative_base()  # pylint: disable=invalid-name
+from . import BASE
+
+# The maximum number of results to return from one search query
+MAX_SEARCH_RESULTS = 20
 
 
-class Club(Base):
+class Club(BASE):
     """
     Specifies a mapping between a Club as a Python object and the Clubs table
     in our DB.
@@ -48,6 +50,13 @@ def select(session, name):
     """
     club = session.query(Club).filter(Club.name == name).first()
     return None if club is None else club.to_dict()
+
+
+def search(session, query, max_results=MAX_SEARCH_RESULTS):
+    """Returns a list of clubs that contain content from the user's query"""
+    clubs = session.query(Club).filter(
+        Club.name.ilike(f'%{query}%')).limit(max_results)
+    return [result.to_dict() for result in clubs]
 
 
 def insert(session, name, description, website_url, facebook_url,

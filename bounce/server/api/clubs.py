@@ -6,7 +6,8 @@ from sqlalchemy.exc import IntegrityError
 from . import APIError, Endpoint, util
 from ...db import club
 from ..resource import validate
-from ..resource.club import GetClubResponse, PostClubsRequest, PutClubRequest
+from ..resource.club import (GetClubResponse, PostClubsRequest, PutClubRequest,
+                             SearchClubsRequest, SearchClubsResponse)
 
 
 class ClubEndpoint(Endpoint):
@@ -67,3 +68,21 @@ class ClubsEndpoint(Endpoint):
         except IntegrityError:
             raise APIError('Club already exists', status=409)
         return response.text('', status=201)
+
+
+class SearchClubsEndpoint(Endpoint):
+    """Handles requests to /clubs/search."""
+
+    __uri__ = '/clubs/search'
+
+    @validate(SearchClubsRequest, SearchClubsResponse)
+    async def get(self, request):
+        """
+        Handles a GET /clubs/search request by returning clubs that contain
+        content that matches the query.
+        """
+        results = club.search(self.server.db_session, request.args['query'][0])
+        if not results:
+            # Failed to find clubs that match the query
+            raise APIError('No clubs match your query', status=404)
+        return response.json(results, status=200)
