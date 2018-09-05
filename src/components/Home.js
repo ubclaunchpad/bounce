@@ -40,7 +40,7 @@ class Home extends Component {
                     <Button bsStyle='primary'>Explore Clubs</Button>
                 </Link>
                 <Link to='/create-account'>
-                    <Button bsStyle='secondary'>Create Account</Button>
+                    <Button>Create Account</Button>
                 </Link>
             </div>
         );

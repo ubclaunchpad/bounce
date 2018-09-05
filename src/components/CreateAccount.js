@@ -299,12 +299,11 @@ class CreateAccount extends Component {
                     <Button
                         bsStyle='primary'
                         disabled={submitDisabled}
-                        onClick={this.handleSubmit}>
+                        onClick={this.handleSubmit}
+                    >
                         Create Account
                     </Button>
-                    <Button
-                        onClick={this.handleSignInClick}
-                        bsStyle='secondary'>
+                    <Button onClick={this.handleSignInClick}>
                         Sign In
                     </Button>
                 </form>
