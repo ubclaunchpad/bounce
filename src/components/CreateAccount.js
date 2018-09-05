@@ -305,7 +305,8 @@ class CreateAccount extends Component {
                     </Button>
                     <Button
                         bsClass='btn btn-secondary'
-                        onClick={this.handleSignInClick}>
+                        onClick={this.handleSignInClick}
+                    >
                         Sign In
                     </Button>
                 </form>
