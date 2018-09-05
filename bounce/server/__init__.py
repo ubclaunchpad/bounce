@@ -46,6 +46,7 @@ class Server:
         # First make sure this server is not already running
         assert self._engine is None and self._sessionmaker is None, (
             'server is already running')
+
         # Set up engine for interacting with the DB
         self._engine = db.create_engine(
             DB_DRIVER, self._config.postgres_user,

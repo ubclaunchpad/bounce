@@ -1,12 +1,18 @@
 """Request handlers for the /users endpoint."""
 
+import os
+
 from sanic import response
 from sqlalchemy.exc import IntegrityError
 
 from . import APIError, Endpoint, util, verify_token
-from ...db import user
+from ...db import image, user
+from ...db.image import EntityType
 from ..resource import validate
 from ..resource.user import GetUserResponse, PostUsersRequest, PutUserRequest
+
+# Maximum number of bytes in an image upload
+IMAGE_SIZE_LIMIT = 1000000
 
 
 class UserEndpoint(Endpoint):
@@ -58,6 +64,9 @@ class UserEndpoint(Endpoint):
             raise APIError('Forbidden', status=403)
         # Delete the user
         user.delete(self.server.db_session, username)
+        # Delete the user's images
+        image.delete_dir(self.server.config.image_dir, EntityType.USER,
+                         user_row.identifier)
         return response.text('', status=204)
 
 
@@ -87,3 +96,80 @@ class UsersEndpoint(Endpoint):
         except IntegrityError:
             raise APIError('User already exists', status=409)
         return response.text('', status=201)
+
+
+class UserImagesEndpoint(Endpoint):
+    """Handles requests to /users/<user_id>/images/<image_name>."""
+
+    __uri__ = '/users/<user_id>/images/<image_name>'
+
+    async def get(self, _, user_id, image_name):
+        """
+        Handles a GET /users/<user_id>/images/<image_name> request
+        by returning the user's image with the given name.
+        """
+        if not util.check_image_name(image_name):
+            raise APIError('Invalid image name', status=400)
+        try:
+            return await response.file(
+                os.path.join(self.server.config.image_dir,
+                             EntityType.USER.value, user_id, image_name))
+        except FileNotFoundError:
+            raise APIError('No such image', status=404)
+
+    @verify_token()
+    async def put(self, request, user_id, image_name, id_from_token=None):
+        """
+        Handles a PUT /users/<user_id>/images/<image_name> request
+        by updating the image at the given path.
+        """
+        # For now, only allow users to upload profile pictures
+        if image_name != 'profile' or not util.check_image_name(image_name):
+            raise APIError('Invalid image name', status=400)
+
+        # Make sure the user is updating an image they own
+        user_info = user.select_by_id(self.server.db_session, user_id)
+        if not user_info:
+            raise APIError('No such image', status=404)
+        if not user_info.identifier == id_from_token:
+            raise APIError('Forbidden', status=403)
+
+        # Save the image
+        image_upload = request.files.get('image')
+        if not image_upload:
+            raise APIError('No image provided', status=400)
+        if (image_upload.type != 'image/png'
+                and image_upload.type != 'image/jpeg'):
+            raise APIError(
+                'Only png and jpeg images are supported', status=400)
+        if len(image_upload.body) > IMAGE_SIZE_LIMIT:
+            raise APIError('Image too large', status=400)
+        try:
+            image.save(self.server.config.image_dir, EntityType.USER, user_id,
+                       image_name, image_upload.body)
+        except FileExistsError:
+            raise APIError('No such image', status=404)
+
+        return response.text('', status=200)
+
+    @verify_token()
+    async def delete(self, _, user_id, image_name, id_from_token=None):
+        """Handles a DETELE by deleting the user's image by the given name."""
+        if not util.check_image_name(image_name):
+            raise APIError('Invalid image name', status=400)
+        # Make sure the user is deleting their own image
+        user_info = user.select_by_id(self.server.db_session, user_id)
+        if not user_info:
+            raise APIError('No such image', status=404)
+        if not user_info.identifier == id_from_token:
+            raise APIError('Forbidden', status=403)
+        try:
+            image.delete(
+                self.server.config.image_dir,
+                EntityType.USER,
+                user_id,
+                image_name,
+                must_exist=True)
+        except FileExistsError:
+            raise APIError('No such image', status=404)
+        return response.text('', status=200)

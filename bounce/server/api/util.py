@@ -149,3 +149,11 @@ def strip_whitespace(obj):
         if key != 'password':
             obj[key] = value.strip()
     return obj
+
+
+def check_image_name(name):
+    """
+    Verifies that the image name is well formatted, as a cleverly
+    formatted name could cause us to send the user files we don't want to.
+    """
+    return re.fullmatch('[0-9a-zA-Z-]+', name)

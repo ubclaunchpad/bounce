@@ -43,6 +43,14 @@ def select(session, username):
     return session.query(User).filter(User.username == username).first()
 
 
+def select_by_id(session, user_id):
+    """
+    Returns the user with the given ID or None if
+    there is no such user.
+    """
+    return session.query(User).filter(User.identifier == user_id).first()
+
+
 def insert(session, full_name, username, secret, email):
     """Insert a new user into the Users table."""
     user = User(

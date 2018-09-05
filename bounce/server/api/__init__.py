@@ -154,6 +154,8 @@ def verify_token():
     def decorator(coro):
         @wraps(coro)
         async def wrapper(endpoint, request, *args, **kwargs):
+            if not request.token:
+                return response.json({'error': 'Unauthorized'}, status=401)
             user_id = util.check_jwt(request.token,
                                      endpoint.server.config.secret)
             if not user_id:
@@ -168,6 +170,9 @@ def verify_token():
             except Exception:
                 # Return an error response if an error occurred in
                 # the request handler
+                logger.exception(
+                    'An error occurred during the handling of a %s '
+                    'request to %s', request.method, request.url)
                 return response.json(
                     {
                         'error': 'Internal server error'
