@@ -303,7 +303,10 @@ class CreateAccount extends Component {
                     >
                         Create Account
                     </Button>
-                    <Button onClick={this.handleSignInClick}>
+                    <Button
+                        bsClass='btn btn-secondary'
+                        onClick={this.handleSignInClick}
+                    >
                         Sign In
                     </Button>
                 </form>
