@@ -1,6 +1,9 @@
 /* eslint-disable no-unused-vars */
 import React, { Component } from 'react';
 import { Alert, PageHeader } from 'react-bootstrap';
+
+import { UNEXPECTED_ERROR, NO_CLUBS_FOUND } from '../../constants';
+import Cards from '../util/Cards';
 /* eslint-enable no-unused-vars */
 
 class Clubs extends Component {
@@ -8,41 +11,60 @@ class Clubs extends Component {
         super(props);
         this.state = {
             clubs: [],
+            searchQuery: props.searchQuery,
+            errorMsg: undefined,
         };
+
+        this.search = this.search.bind(this);
     }
 
     /**
-     * Fetches clubs to display
+     * Updates component state when new props are received from the parent.
+     * @param {Object} props
      */
-    componentDidMount() {
-        // TODO
+    componentWillReceiveProps(props) {
+        this.setState({ searchQuery: props.searchQuery });
+        this.search();
+    }
+
+    /**
+     * Searches for clubs that match the current query and updates the
+     * component state with the results.
+     */
+    search() {
+        // Do nothing if there is no query
+        if (!this.state.searchQuery) return;
+
+        this.props.client.searchClubs(this.state.searchQuery)
+            .then(result => {
+                if (result.ok) {
+                    // Display results
+                    result.json().then(body => {
+                        this.setState({ clubs: body, errorMsg: undefined });
+                    });
+                } else if (result.status === 404) {
+                    this.setState({ errorMsg: NO_CLUBS_FOUND });
+                } else {
+                    this.setState({ errorMsg: UNEXPECTED_ERROR });
+                }
+            }).catch(() => {
+                this.setState({ errorMsg: UNEXPECTED_ERROR });
+            });
     }
 
     render() {
-        // Display a welcome message if the user just signed up
-        let welcomeMsg;
-        if (this.props.isNewAccount) {
-            welcomeMsg = (
-                <Alert bsStyle='primary'>
-                    Welcome, {this.props.username}!
-                </Alert>
-            );
-        }
-
-        // Collect clubs to display
-        const clubs = this.state.clubs.map(club => {
-            return (
-                <div>
-                    <b>{club.name}</b>
-                    <p>{club.description}</p>
-                </div>
-            );
-        });
         return (
-            <div>
-                {welcomeMsg}
+            <div className='container'>
+                {this.props.isNewAccount &&
+                    <Alert bsStyle='success'>
+                        Welcome, {this.props.username}!
+                    </Alert>
+                }
+                {this.state.errorMsg &&
+                    <Alert bsStyle='warning'> {this.state.errorMsg} </Alert>
+                }
                 <PageHeader>Explore Clubs</PageHeader>
-                {clubs}
+                <Cards items={this.state.clubs} />
             </div>
         );
     }

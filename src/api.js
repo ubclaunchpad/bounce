@@ -63,10 +63,14 @@ export default class BounceClient {
      * @param {String} password
      */
     async authenticate(username, password) {
-        return await this._request('POST', '/auth/login', {
+        const response = await this._request('POST', '/auth/login', {
             username: username,
             password: password,
         });
+        if (response.ok) {
+            this.token = (await response.json())['token'];
+        }
+        return Promise.resolve(response);
     }
 
     /**
@@ -124,6 +128,14 @@ export default class BounceClient {
      */
     async getClub(name) {
         return await this._request('GET', '/clubs/' + name);
+    }
+
+    /**
+     * Returns a list of clubs that match the given query.
+     * @param {String} query
+     */
+    async searchClubs(query) {
+        return await this._request('GET', `/clubs/search?query=${query}`);
     }
 
     /**
