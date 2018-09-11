@@ -1,5 +1,10 @@
 
-all: install
+all: run
+
+# Run the app
+.PHONY: run
+run: install
+	@yarn start
 
 # Install required Node modules
 .PHONY: install

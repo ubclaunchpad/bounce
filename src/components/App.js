@@ -3,16 +3,17 @@ import React, { Component } from 'react';
 import {
     BrowserRouter,
     Switch,
-    Route
+    Route,
+    Redirect,
 } from 'react-router-dom';
 
-import SignIn from './SignIn';
-import Clubs from './Clubs';
-import CreateClub from './CreateClub';
+import SignIn from './accounts/SignIn';
+import BounceNavbar from './Navbar';
 import Home from './Home';
+import ViewClub from './clubs/ViewClub';
+import CreateAccount from './accounts/CreateAccount';
+import CreateClub from './clubs/CreateClub';
 import '../css/App.css';
-import CreateAccount from './CreateAccount';
-import ViewClub from './ViewClub';
 /* eslint-enable no-unused-vars */
 
 class App extends Component {
@@ -97,15 +98,21 @@ class App extends Component {
 
     render() {
         return (
-            <BrowserRouter>
-                <Switch>
-                    <Route exact path='/' component={this.getHomePage} />
-                    <Route path='/sign-in' render={this.getSignInPage} />
-                    <Route path='/create-club' render={this.getCreateClubPage} />
-                    <Route path='/clubs/:name' component={this.getViewClubPage} />
-                    <Route path='/create-account' render={this.getCreateAccountPage} />
-                </Switch>
-            </BrowserRouter>
+            <div>
+                <BrowserRouter>
+                    <div>
+                        <BounceNavbar />
+                        <Switch>
+                            <Route exact path='/' component={this.getHomePage} />
+                            <Route path='/sign-in' render={this.getSignInPage} />
+                            <Route path='/create-club' render={this.getCreateClubPage} />
+                            <Route path='/clubs/:name' component={this.getViewClubPage} />
+                            <Route path='/create-account' render={this.getCreateAccountPage} />
+                            <Route path='*' render={() => <Redirect to='/' />} />
+                        </Switch>
+                    </div>
+                </BrowserRouter>
+            </div>
         );
     }
 }

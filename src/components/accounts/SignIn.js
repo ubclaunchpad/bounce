@@ -1,8 +1,9 @@
 /* eslint-disable no-unused-vars */
 import React, { Component } from 'react';
-import { UNAUTHORIZED, SIGNIN_ERROR } from '../constants';
 import { Redirect } from 'react-router-dom';
-import { FormGroup, PageHeader, Label } from 'react-bootstrap';
+import { Alert, FormGroup, Label, PageHeader } from 'react-bootstrap';
+
+import { UNAUTHORIZED, SIGNIN_ERROR } from '../../constants';
 /* eslint-enable no-unused-vars */
 
 class SignIn extends Component {
@@ -79,13 +80,16 @@ class SignIn extends Component {
         } else if (this.state.password === '' && this.state.username === '') {
             buttonClass += ' disabled';
         }
-        const error = this.state.errorMsg ? <p>{this.state.errorMsg}</p> : undefined;
+        let errorMsg;
+        if (this.state.errorMsg) {
+            errorMsg = <Alert bsStyle='warning'>{this.state.errorMsg}</Alert>;
+        }
 
         return (
             <div className='container'>
                 <PageHeader>Sign In</PageHeader>
                 <form onSubmit={this.handleSubmit}>
-                    {error}
+                    {errorMsg}
                     <FormGroup>
                         <Label>Username</Label>
                         <input type='text'

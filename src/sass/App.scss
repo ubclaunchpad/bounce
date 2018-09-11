@@ -16,12 +16,16 @@ input.form-control {
 }
 
 .btn {
-    border-color: $pallete-dark-grey;
+    border-color: $pallete-light-grey;
     border-radius: 4em;
 }
 
 .btn.btn-primary {
     background-color: $pallete-green;
+
+    &:hover {
+        border-color: $pallete-light-grey;
+    }
 }
 
 .btn.btn-default {
@@ -48,8 +52,10 @@ form > input {
     min-width: 6em;
 }
 
-form > label {
-    color: $pallete-light-grey;
+.label.label-default {
+    font-size: 14px;
+    background-color: transparent;
+    color: $pallete-dark-grey;
 }
 
 form > h1 {
@@ -58,4 +64,8 @@ form > h1 {
 
 button {
     margin-right: 0.5em;
+}
+
+.glyphicon {
+    color: $pallete-dark-grey;
 }

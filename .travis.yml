@@ -2,7 +2,7 @@ language: node_js
 node_js:
   - "7"
 install:
-  make
+  make install
 script:
   - make lint
   - make test

@@ -40,6 +40,13 @@ export default class BounceClient {
     }
 
     /**
+     * Returns true if the user is signed in and false otherwise.
+     */
+    isSignedIn() {
+        return !!this.token;
+    }
+
+    /**
      * Returns the user ID in the JWT we were given on sign-in.
      */
     getUserIdFromToken() {

@@ -21,7 +21,7 @@ import {
     INVALID_INFO,
     RESOURCE_NOT_FOUND,
     UNEXPECTED_ERROR,
-} from '../constants';
+} from '../../constants';
 /* eslint-enable no-unused-vars */
 
 class ViewClub extends Component {

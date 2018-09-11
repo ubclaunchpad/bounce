@@ -2,10 +2,10 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import {
-    Button, Row, Col
+    Button, Row, Col, Image
 } from 'react-bootstrap';
 
-import Clubs from './Clubs';
+import Clubs from './clubs/Clubs';
 import LargeLogo from '../media/large-logo.png';
 import '../css/Home.css';
 /* eslint-enable no-unused-vars */
@@ -26,26 +26,27 @@ class Home extends Component {
         return (
             <div className='container home'>
                 <Row>
-                    <Col>
+                    <Col sm={6}>
                         <h1>Huddle</h1>
                         <h2>Find a club that matches your interests.</h2>
                         <p>Find a club, get involved, and make new friends!</p>
+                        <br />
+                        <Link to='/sign-in'>
+                            <Button bsStyle='primary'>Explore Clubs</Button>
+                        </Link>
+                        <Link to='/create-account'>
+                            <Button>Create Account</Button>
+                        </Link>
                     </Col>
-
-                    <Col>
-                        <img src={LargeLogo} alt='logo' className='large-logo' />
+                    <Col sm={6}>
+                        <Image
+                            src={LargeLogo}
+                            alt='logo'
+                            className='large-logo'
+                            responsive
+                        />
                     </Col>
                 </Row>
-                <Link to='/sign-in'>
-                    <Button bsStyle='primary'>
-                        Explore Clubs
-                    </Button>
-                </Link>
-                <Link to='/create-account'>
-                    <Button bsClass='btn btn-secondary'>
-                        Create Account
-                    </Button>
-                </Link>
             </div>
         );
     }
