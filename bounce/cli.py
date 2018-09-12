@@ -11,11 +11,7 @@ from sanic.log import logger
 from .server import Server
 from .server.api.auth import LoginEndpoint
 from .server.api.clubs import ClubEndpoint, ClubsEndpoint, SearchClubsEndpoint
-<<<<<<< 44c7da3db86f72b4de2f45d358508ba095e9f112
 from .server.api.users import UserEndpoint, UserImagesEndpoint, UsersEndpoint
-=======
-from .server.api.users import UserEndpoint, UsersEndpoint
->>>>>>> create new SearchClubsEndpoint
 from .server.config import ServerConfig
 
 
@@ -86,12 +82,8 @@ def start(port, secret, pg_host, pg_port, pg_user, pg_password, pg_database,
                         pg_database, allowed_origin, image_dir)
     # Register your new endpoints here
     endpoints = [
-<<<<<<< 44c7da3db86f72b4de2f45d358508ba095e9f112
         UsersEndpoint, UserEndpoint, UserImagesEndpoint, ClubsEndpoint,
         ClubEndpoint, SearchClubsEndpoint, LoginEndpoint
-=======
-        UsersEndpoint, UserEndpoint, SearchClubsEndpoint, ClubsEndpoint, ClubEndpoint, LoginEndpoint
->>>>>>> create new SearchClubsEndpoint
     ]
     serv = Server(conf, endpoints)
     serv.start()

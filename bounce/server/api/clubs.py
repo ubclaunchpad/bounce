@@ -69,21 +69,39 @@ class ClubsEndpoint(Endpoint):
             raise APIError('Club already exists', status=409)
         return response.text('', status=201)
 
+
 class SearchClubsEndpoint(Endpoint):
     """Handles requests to /clubs/search."""
 
     __uri__ = '/clubs/search'
 
-    @validate(SearchClubsRequest, SearchClubsResponse)
+    #@validate(SearchClubsRequest, SearchClubsResponse)
     async def get(self, request):
         """Handles a GET /club/search request by returning clubs that contain content from the query."""
-        queried_clubs = club.search(self.server.db_session, request.args['query'][0])
+        # import pdb
+        # pdb.set_trace()
+
+        query = ''  # default value
+        page = 0  # default value
+        size = 5  # default value
+
+        if 'query' in request.args:
+            query = request.args['query'][0]
+        if 'page' in request.args:
+            page = int(request.args['page'][0])
+        if 'size' in request.args:
+            size = int(request.args['size'][0])
+        if size > 20:
+            raise APIError('offset too high', status=400)
+
+        queried_clubs, result_count, total_pages = club.search(
+            self.server.db_session, query, page, size)
         if not queried_clubs:
             # Failed to find clubs that match the query
             raise APIError('No clubs match your query', status=404)
-        #import pdb
-        #pdb.set_trace()
         results = []
         for result in queried_clubs.all():
             results.append(result.to_dict())
+        page_info = {'result_count': result_count, 'page': page, 'total_pages': total_pages}
+
         return response.json(results, status=200)

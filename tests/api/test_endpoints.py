@@ -122,6 +122,48 @@ def test_delete_user__failure(server):
     assert response.status == 404
 
 
+def test_search_clubs(server):
+    # add dummy data to search for in database
+    import pdb
+    pdb.set_trace()
+    _, response = server.app.test_client.post(
+        '/clubs',
+        data=json.dumps({
+            'name': 'ubclaunchpad',
+            'description': 'software engineering team',
+            'website_url': 'club.com',
+            'facebook_url': 'facebook.com/test',
+            'instagram_url': 'instagram.com/test',
+            'twitter_url': 'twitter.com/test',
+        }))
+    assert response.status == 201
+    _, response = server.app.test_client.post(
+        '/clubs',
+        data=json.dumps({
+            'name': 'envision',
+            'description': 'chemical engineering team',
+            'website_url': 'club.com',
+            'facebook_url': 'facebook.com/test',
+            'instagram_url': 'instagram.com/test',
+            'twitter_url': 'twitter.com/test',
+        }))
+    assert response.status == 201
+    _, response = server.app.test_client.post(
+        '/clubs',
+        data=json.dumps({
+            'name': 'ubcbiomod',
+            'description': 'chemical engineering team',
+            'website_url': 'club.com',
+            'facebook_url': 'facebook.com/test',
+            'instagram_url': 'instagram.com/test',
+            'twitter_url': 'twitter.com/test',
+        }))
+    assert response.status == 201
+    _, response = server.app.test_client.get('/clubs/search?query=chemical')
+    pdb.set_trace()
+    assert response.status == 200
+
+
 def test_post_clubs__success(server):
     _, response = server.app.test_client.post(
         '/clubs',
@@ -150,6 +192,7 @@ def test_post_clubs__failure(server):
     assert response.status == 409
     assert 'error' in response.json
 
+<<<<<<< bfa471afba2af34ab14cba11a89c68899953d329
 
 def test_search_clubs__success(server):
     # add dummy data to search for in database
@@ -199,6 +242,9 @@ def test_search_clubs(server):
     server.app.test_client.get('/clubs/search?query=chemical')
     assert queried_clubs.count() == 2
 
+=======
+    
+>>>>>>> add pagination functionality
 def test_put_club__success(server):
     _, response = server.app.test_client.put(
         '/clubs/test',

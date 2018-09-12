@@ -16,7 +16,7 @@ Before you can install and run Bounce you'll need the following:
 
 For linux users, to use docker without using sudo for every command,
 follow the steps in this link:
-https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user
+https://docs.docker.com/install/linux/linux-postinstall/#configuring-remote-access-with-systemd-unit-file
 
 ### Configuration
 
@@ -214,11 +214,7 @@ Notice that we're using the `@validate` decorator to validate the request parame
 
 **Step 3: Add the endpoint to the server**
 
-<<<<<<< 44c7da3db86f72b4de2f45d358508ba095e9f112
 Now we can add the endpoint to the servers by updating `endpoints` in the `start` function in `cli.py` and `server` function in `conftest.py`:
-=======
-Now we can add the endpoint to the servers by updating `endpoints` in the `start` function in `cli.py` and server function in `conftest.py`:
->>>>>>> create new SearchClubsEndpoint
 
 In `cli.py`:
 ```python
