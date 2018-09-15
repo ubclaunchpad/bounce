@@ -83,7 +83,7 @@ class SearchClubsEndpoint(Endpoint):
 
         query = ''  # default value
         page = 0  # default value
-        size = 5  # default value
+        size = 20  # default value
 
         if 'query' in request.args:
             query = request.args['query'][0]
@@ -102,6 +102,6 @@ class SearchClubsEndpoint(Endpoint):
         results = []
         for result in queried_clubs.all():
             results.append(result.to_dict())
-        page_info = {'result_count': result_count, 'page': page, 'total_pages': total_pages}
+        info = {'results': results, 'result_count': result_count, 'page': page, 'total_pages': total_pages}
 
-        return response.json(results, status=200)
+        return response.json(info, status=200)

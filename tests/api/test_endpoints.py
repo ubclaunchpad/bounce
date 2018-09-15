@@ -123,9 +123,8 @@ def test_delete_user__failure(server):
 
 
 def test_search_clubs(server):
-    # add dummy data to search for in database
     import pdb
-    pdb.set_trace()
+    # add dummy data to search for in database
     _, response = server.app.test_client.post(
         '/clubs',
         data=json.dumps({
@@ -159,7 +158,7 @@ def test_search_clubs(server):
             'twitter_url': 'twitter.com/test',
         }))
     assert response.status == 201
-    _, response = server.app.test_client.get('/clubs/search?query=chemical')
+    _, response = server.app.test_client.get('/clubs/search?query=engineering')
     pdb.set_trace()
     assert response.status == 200
 

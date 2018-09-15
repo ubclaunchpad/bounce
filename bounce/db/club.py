@@ -55,7 +55,6 @@ def select(session, name):
 
 
 def search(session, query, page, size):
-    import pdb
     """Returns a list of clubs that contain content from the user's query"""
     offset_num = page * size  # the number used for offset is the page number multiplied by the size of each page
     clubs = session.query(Club)
@@ -64,7 +63,7 @@ def search(session, query, page, size):
         # show clubs that have a name that matches the query
         clubs = clubs.filter(Club.name.ilike(f'%{query}%'))
     else:
-        # show top results ordered by most recently created
+        # show clubs ordered by most recently created
         clubs = clubs.order_by(desc(Club.created_at))
 
     result_count = clubs.count()
