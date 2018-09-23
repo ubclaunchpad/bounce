@@ -2,14 +2,9 @@
 
 import json
 
-<<<<<<< be8959a4944fc1bed219853ff1e1b4f6db91344d
 from aiohttp import FormData
 
 from bounce.server.api import util
-=======
-from bounce.server.api import util, Endpoint
-from bounce.server.api.clubs import ClubEndpoint
->>>>>>> add test for search feature
 
 
 def test_root_handler(server):
@@ -122,45 +117,38 @@ def test_delete_user__failure(server):
     assert response.status == 404
 
 
-def test_search_clubs(server):
+def test_paginate_clubs__success(server):
     import pdb
     # add dummy data to search for in database
-    _, response = server.app.test_client.post(
-        '/clubs',
-        data=json.dumps({
-            'name': 'ubclaunchpad',
-            'description': 'software engineering team',
-            'website_url': 'club.com',
-            'facebook_url': 'facebook.com/test',
-            'instagram_url': 'instagram.com/test',
-            'twitter_url': 'twitter.com/test',
-        }))
-    assert response.status == 201
-    _, response = server.app.test_client.post(
-        '/clubs',
-        data=json.dumps({
-            'name': 'envision',
-            'description': 'chemical engineering team',
-            'website_url': 'club.com',
-            'facebook_url': 'facebook.com/test',
-            'instagram_url': 'instagram.com/test',
-            'twitter_url': 'twitter.com/test',
-        }))
-    assert response.status == 201
-    _, response = server.app.test_client.post(
-        '/clubs',
-        data=json.dumps({
-            'name': 'ubcbiomod',
-            'description': 'chemical engineering team',
-            'website_url': 'club.com',
-            'facebook_url': 'facebook.com/test',
-            'instagram_url': 'instagram.com/test',
-            'twitter_url': 'twitter.com/test',
-        }))
-    assert response.status == 201
-    _, response = server.app.test_client.get('/clubs/search?query=engineering')
+    club_info = [['UBC Launch Pad', 'software engineering team'],
+                 ['envision', 'something'], ['UBC biomed', 'something else']]
+    for name, desc in club_info:
+        server.app.test_client.post(
+            '/clubs',
+            data=json.dumps({
+                'name': name,
+                'description': desc,
+                'website_url': '',
+                'twitter_url': '',
+                'facebook_url': '',
+                'instagram_url': '',
+            }))
+    _, response = server.app.test_client.get('/clubs/search?page=0&size=2')
     pdb.set_trace()
     assert response.status == 200
+    body = response.json
+    assert body.get('result_count') == 3
+    assert body.get('page') == 0
+    assert body.get('total_pages') == 2
+
+    _, response = server.app.test_client.get('/clubs/search?query=UBC')
+    assert response.status == 200
+    body = response.json
+    assert len(body) == 2
+    assert body[0]['name'] == 'UBC Launch Pad'
+    assert body[0]['description'] == 'software engineering team'
+    assert body[1]['name'] == 'UBC biomed'
+    assert body[1]['description'] == 'something else'
 
 
 def test_post_clubs__success(server):
@@ -191,59 +179,7 @@ def test_post_clubs__failure(server):
     assert response.status == 409
     assert 'error' in response.json
 
-<<<<<<< bfa471afba2af34ab14cba11a89c68899953d329
 
-def test_search_clubs__success(server):
-    # add dummy data to search for in database
-    club_info = [['UBC Launch Pad', 'software engineering team'],
-                 ['envision', 'something'], ['UBC biomed', 'something else']]
-    for name, desc in club_info:
-        server.app.test_client.post(
-            '/clubs',
-            data=json.dumps({
-                'name': name,
-                'description': desc,
-                'website_url': '',
-                'twitter_url': '',
-                'facebook_url': '',
-                'instagram_url': '',
-            }))
-
-    _, response = server.app.test_client.get('/clubs/search?query=UBC')
-    assert response.status == 200
-    body = response.json
-    assert len(body) == 2
-    assert body[0]['name'] == 'UBC Launch Pad'
-    assert body[0]['description'] == 'software engineering team'
-    assert body[1]['name'] == 'UBC biomed'
-    assert body[1]['description'] == 'something else'
-
-def test_search_clubs(server):
-    # add dummy data to search for in database
-    server.app.test_client.post(
-        '/clubs',
-        data=json.dumps({
-            'name': 'ubclaunchpad',
-            'description': 'software engineering team',
-        }))
-    server.app.test_client.post(
-        '/clubs',
-        data=json.dumps({
-            'name': 'envision',
-            'description': 'chemical engineering team',
-        }))
-    server.app.test_client.post(
-        '/clubs',
-        data=json.dumps({
-            'name': 'ubcbiomod',
-            'description': 'chemical engineering team',
-        }))
-    server.app.test_client.get('/clubs/search?query=chemical')
-    assert queried_clubs.count() == 2
-
-=======
-    
->>>>>>> add pagination functionality
 def test_put_club__success(server):
     _, response = server.app.test_client.put(
         '/clubs/test',
@@ -283,6 +219,42 @@ def test_get_club__failure(server):
 def test_delete_club__success(server):
     _, response = server.app.test_client.delete('/clubs/test')
     assert response.status == 204
+
+
+def test_paginate_clubs__success(server):
+    # add dummy data to search for in database
+    club_info = [['UBC Launch Pad', 'software engineering team'],
+                 ['envision', 'something'], ['UBC biomed', 'something else']]
+    for name, desc in club_info:
+        server.app.test_client.post(
+            '/clubs',
+            data=json.dumps({
+                'name': name,
+                'description': desc,
+                'website_url': '',
+                'twitter_url': '',
+                'facebook_url': '',
+                'instagram_url': '',
+            }))
+    _, response = server.app.test_client.get('/clubs/search?page=0&size=2')
+    assert response.status == 200
+    body = response.json
+    assert body.get('result_count') == 4
+    assert body.get('page') == 0
+    assert body.get('total_pages') == 2
+
+
+def test_search_clubs__success(server):
+    import pdb
+    _, response = server.app.test_client.get('/clubs/search?query=UBC')
+    pdb.set_trace()
+    assert response.status == 200
+    body = response.json
+    assert len(body.get('results')) == 2
+    assert body.get('results')[0]['name'] == 'UBC Launch Pad'
+    assert body.get('results')[0]['description'] == 'software engineering team'
+    assert body.get('results')[1]['name'] == 'UBC biomed'
+    assert body.get('results')[1]['description'] == 'something else'
 
 
 def test_put_user_image__success(server):

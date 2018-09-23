@@ -68,7 +68,7 @@ class GetClubResponse(metaclass=ResourceMeta):
         'object',
         'required': [
             'name', 'description', 'website_url', 'facebook_url',
-            'instagram_url', 'twitter_url', 'id', 'created_at', 'tsvector'
+            'instagram_url', 'twitter_url', 'id', 'created_at'
         ],
         'additionalProperties':
         False,
@@ -98,9 +98,6 @@ class GetClubResponse(metaclass=ResourceMeta):
             'created_at': {
                 'type': 'integer',
             },
-            'search_vector': {
-                'type': 'tsvector'
-            },
         }
     }
 
@@ -110,6 +107,16 @@ class SearchClubsRequest(metaclass=ResourceMeta):
     __params__ = {
         'query': {
             'type': 'string',
+        },
+        'page': {
+            'type': 'integer',
+            'default':
+            0,  # TODO: defaults aren't being set when param is not specified
+        },
+        'size': {
+            'type': 'integer',
+            'default':
+            5,  # TODO: defaults aren't being set when param is not specified
         }
     }
 
@@ -156,5 +163,17 @@ class SearchClubsResponse(metaclass=ResourceMeta):
                     },
                 }
             }
+        },
+        'resultCount': {
+            'type': 'integer',
+            'minimum': 0,
+        },
+        'page': {
+            'type': 'integer',
+            'minimum': 0,
+        },
+        'totalPages': {
+            'type': 'integer',
+            'minimum': 0,
         }
     }

@@ -5,7 +5,6 @@ Defines Bounce's command line interface.
 import logging
 
 import click
-
 from sanic.log import logger
 
 from .server import Server

@@ -2,7 +2,7 @@
 Defines the schema for the Clubs table in our DB.
 Also provides methods to access and edit the DB.
 """
-import logging, math
+import math
 
 from sqlalchemy import Column, Integer, String, desc, func
 from sqlalchemy.types import TIMESTAMP
@@ -29,7 +29,6 @@ class Club(BASE):
     twitter_url = Column('twitter_url', String, nullable=True)
     created_at = Column(
         'created_at', TIMESTAMP, nullable=False, server_default=func.now())
-    search_vector = Column(TSVectorType('name', 'description'))
 
     def to_dict(self):
         """Returns a dict representation of a club."""
@@ -56,7 +55,8 @@ def select(session, name):
 
 def search(session, query, page, size):
     """Returns a list of clubs that contain content from the user's query"""
-    offset_num = page * size  # the number used for offset is the page number multiplied by the size of each page
+    # number used for offset is the page number multiplied by the size of each page
+    offset_num = page * size
     clubs = session.query(Club)
 
     if query:
@@ -70,6 +70,7 @@ def search(session, query, page, size):
     total_pages = math.ceil(result_count / size)
     clubs = clubs.limit(size).offset(offset_num)
     return clubs, result_count, total_pages
+
 
 def insert(session, name, description, website_url, facebook_url,
            instagram_url, twitter_url):

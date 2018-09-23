@@ -9,6 +9,8 @@ from ..resource import validate
 from ..resource.club import (GetClubResponse, PostClubsRequest, PutClubRequest,
                              SearchClubsRequest, SearchClubsResponse)
 
+MAX_SIZE = 20
+
 
 class ClubEndpoint(Endpoint):
     """Handles requests to /clubs/<name>."""
@@ -75,15 +77,15 @@ class SearchClubsEndpoint(Endpoint):
 
     __uri__ = '/clubs/search'
 
-    #@validate(SearchClubsRequest, SearchClubsResponse)
+    @validate(SearchClubsRequest, SearchClubsResponse)
     async def get(self, request):
-        """Handles a GET /club/search request by returning clubs that contain content from the query."""
-        # import pdb
-        # pdb.set_trace()
+        """Handles a GET /club/search request by returning
+        clubs that contain content from the query."""
 
-        query = ''  # default value
-        page = 0  # default value
-        size = 20  # default value
+        # default values, TODO: set default value in json-schema
+        query = ''
+        page = 0
+        size = 20
 
         if 'query' in request.args:
             query = request.args['query'][0]
@@ -91,7 +93,7 @@ class SearchClubsEndpoint(Endpoint):
             page = int(request.args['page'][0])
         if 'size' in request.args:
             size = int(request.args['size'][0])
-        if size > 20:
+        if size > MAX_SIZE:
             raise APIError('offset too high', status=400)
 
         queried_clubs, result_count, total_pages = club.search(
@@ -102,6 +104,11 @@ class SearchClubsEndpoint(Endpoint):
         results = []
         for result in queried_clubs.all():
             results.append(result.to_dict())
-        info = {'results': results, 'result_count': result_count, 'page': page, 'total_pages': total_pages}
+        info = {
+            'results': results,
+            'result_count': result_count,
+            'page': page,
+            'total_pages': total_pages
+        }
 
         return response.json(info, status=200)
