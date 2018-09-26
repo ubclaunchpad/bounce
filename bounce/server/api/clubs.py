@@ -94,7 +94,7 @@ class SearchClubsEndpoint(Endpoint):
         if 'size' in request.args:
             size = int(request.args['size'][0])
         if size > MAX_SIZE:
-            raise APIError('offset too high', status=400)
+            raise APIError('size too high', status=400)
 
         queried_clubs, result_count, total_pages = club.search(
             self.server.db_session, query, page, size)

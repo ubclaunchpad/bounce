@@ -9,8 +9,9 @@ from sqlalchemy.types import TIMESTAMP
 
 from . import BASE
 
-# The maximum number of results to return from one search query
-MAX_SEARCH_RESULTS = 20
+# The maximum number of results to return in one page.
+# Used in the search method.
+MAX_SIZE = 20
 
 
 class Club(BASE):
@@ -53,9 +54,10 @@ def select(session, name):
     return None if club is None else club.to_dict()
 
 
-def search(session, query, page, size):
+def search(session, query=None, page=0, size=MAX_SIZE):
     """Returns a list of clubs that contain content from the user's query"""
-    # number used for offset is the page number multiplied by the size of each page
+    # number used for offset is the 
+    # page number multiplied by the size of each page
     offset_num = page * size
     clubs = session.query(Club)
 

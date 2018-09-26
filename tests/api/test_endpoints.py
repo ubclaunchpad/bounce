@@ -117,40 +117,6 @@ def test_delete_user__failure(server):
     assert response.status == 404
 
 
-def test_paginate_clubs__success(server):
-    import pdb
-    # add dummy data to search for in database
-    club_info = [['UBC Launch Pad', 'software engineering team'],
-                 ['envision', 'something'], ['UBC biomed', 'something else']]
-    for name, desc in club_info:
-        server.app.test_client.post(
-            '/clubs',
-            data=json.dumps({
-                'name': name,
-                'description': desc,
-                'website_url': '',
-                'twitter_url': '',
-                'facebook_url': '',
-                'instagram_url': '',
-            }))
-    _, response = server.app.test_client.get('/clubs/search?page=0&size=2')
-    pdb.set_trace()
-    assert response.status == 200
-    body = response.json
-    assert body.get('result_count') == 3
-    assert body.get('page') == 0
-    assert body.get('total_pages') == 2
-
-    _, response = server.app.test_client.get('/clubs/search?query=UBC')
-    assert response.status == 200
-    body = response.json
-    assert len(body) == 2
-    assert body[0]['name'] == 'UBC Launch Pad'
-    assert body[0]['description'] == 'software engineering team'
-    assert body[1]['name'] == 'UBC biomed'
-    assert body[1]['description'] == 'something else'
-
-
 def test_post_clubs__success(server):
     _, response = server.app.test_client.post(
         '/clubs',
