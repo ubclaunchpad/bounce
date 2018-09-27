@@ -56,7 +56,7 @@ def select(session, name):
 
 def search(session, query=None, page=0, size=MAX_SIZE):
     """Returns a list of clubs that contain content from the user's query"""
-    # number used for offset is the 
+    # number used for offset is the
     # page number multiplied by the size of each page
     offset_num = page * size
     clubs = session.query(Club)
