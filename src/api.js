@@ -24,7 +24,7 @@ export default class BounceClient {
             requestData.body = JSON.stringify(body);
             requestData.headers['Content-Type'] = 'application/json';
         }
-        if (this.token) {
+        if (this.token || (this.token = localStorage.getItem('jwt'))) {
             // The access token is available so put it in the request header
             requestData.headers['Authorization'] = this.token;
         }
@@ -43,7 +43,15 @@ export default class BounceClient {
      * Returns true if the user is signed in and false otherwise.
      */
     isSignedIn() {
-        return !!this.token;
+        return !!this.token || !!(this.token = localStorage.getItem('jwt'));
+    }
+
+    /**
+     * Removes the access token for this user.
+     */
+    signOut() {
+        this.token = null;
+        localStorage.clear();
     }
 
     /**
@@ -54,6 +62,14 @@ export default class BounceClient {
             return null;
         }
         return jwtDecode(this.token).id;
+    }
+
+    /**
+     * Returns the username of the current user, or null if the user is not
+     * logged in.
+     */
+    getUsername() {
+        return this.username || (this.username = localStorage.getItem('username'));
     }
 
     /**
@@ -69,6 +85,9 @@ export default class BounceClient {
         });
         if (response.ok) {
             this.token = (await response.json())['token'];
+            this.username = username;
+            localStorage.setItem('username', username);
+            localStorage.setItem('jwt', this.token);
         }
         return Promise.resolve(response);
     }

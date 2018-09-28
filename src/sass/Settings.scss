@@ -1,0 +1,29 @@
+$pallete-blue: #0CD3FE;
+$pallete-green: #73E5D6;
+$pallete-dark-grey: #7F7F7F;
+
+h2 {
+    margin: 0.5em 0;
+}
+
+.settings-sidebar {
+    display: inline-block;
+    vertical-align: top;
+
+    ul {
+        list-style: none;
+        padding: 0px;
+    }
+
+    ul ul {
+        padding-left: 20px;
+    }
+
+    a {
+        text-decoration: none;
+    }
+
+    a:hover {
+        cursor: pointer;
+    }
+}

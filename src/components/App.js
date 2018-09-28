@@ -14,6 +14,7 @@ import ViewClub from './clubs/ViewClub';
 import CreateAccount from './accounts/CreateAccount';
 import CreateClub from './clubs/CreateClub';
 import '../css/App.css';
+import AccountSettings from './accounts/AccountSettings';
 /* eslint-enable no-unused-vars */
 
 class App extends Component {
@@ -21,7 +22,6 @@ class App extends Component {
         super(props);
         this.state = {
             isNewAccount: false,
-            username: undefined,
             searchQuery: undefined,
         };
 
@@ -32,18 +32,15 @@ class App extends Component {
         this.getViewClubPage = this.getViewClubPage.bind(this);
         this.getHomePage = this.getHomePage.bind(this);
         this.onSearch = this.onSearch.bind(this);
+        this.getAccountSettingsPage = this.getAccountSettingsPage.bind(this);
     }
 
     /**
      * Updates the state to indicate that the user is signed in.
      * @param {Boolean} isNewAccount whether or not this account was just created
-     * @param {String} username
      */
-    onSignIn(isNewAccount, username) {
-        this.setState({
-            isNewAccount: isNewAccount,
-            username: username,
-        });
+    onSignIn(isNewAccount) {
+        this.setState({isNewAccount: isNewAccount});
     }
 
     /**
@@ -90,7 +87,6 @@ class App extends Component {
      */
     getHomePage() {
         return <Home
-            username={this.state.username}
             isNewAccount={this.state.isNewAccount}
             client={this.props.client}
             searchQuery={this.state.searchQuery}
@@ -103,6 +99,15 @@ class App extends Component {
      */
     onSearch(query) {
         this.setState({ searchQuery: query });
+    }
+
+    /**
+     * Returns an AccountSettings page.
+     */
+    getAccountSettingsPage() {
+        return <AccountSettings
+            client={this.props.client}
+        />;
     }
 
     render() {
@@ -119,6 +124,7 @@ class App extends Component {
                         <Route path='/create-club' render={this.getCreateClubPage} />
                         <Route path='/clubs/:name' component={this.getViewClubPage} />
                         <Route path='/create-account' render={this.getCreateAccountPage} />
+                        <Route path='/account-settings' render={this.getAccountSettingsPage} />
                         <Route path='*' render={() => <Redirect to='/' />} />
                     </Switch>
                 </div>

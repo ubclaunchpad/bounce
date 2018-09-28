@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
-import { Alert, FormGroup, Label, PageHeader } from 'react-bootstrap';
+import { Alert, FormGroup, Label, PageHeader, Button } from 'react-bootstrap';
 
 import { UNAUTHORIZED, SIGNIN_ERROR } from '../../constants';
 /* eslint-enable no-unused-vars */
@@ -72,13 +72,13 @@ class SignIn extends Component {
     }
 
     render() {
-        let buttonClass = 'btn btn-primary';
+        let buttonClass;
         if (this.state.isSignedIn) {
             return <Redirect to='/' />;
         } else if (this.state.goToCreateAccount) {
             return <Redirect to='create-account' />;
         } else if (this.state.password === '' && this.state.username === '') {
-            buttonClass += ' disabled';
+            buttonClass = 'disabled';
         }
         let errorMsg;
         if (this.state.errorMsg) {
@@ -108,12 +108,15 @@ class SignIn extends Component {
                             value={this.state.password}
                             onChange={this.handleInput} />
                     </FormGroup>
-                    <button className={buttonClass}>Sign In</button>
-                    <button
-                        onClick={this.handleCreateAccountClick}
-                        className='btn btn-secondary'>
+                    <Button
+                        bsStyle='primary'
+                        type='submit'
+                        className={buttonClass}>
+                        Sign In
+                    </Button>
+                    <Button onClick={this.handleCreateAccountClick}>
                         Create Account
-                    </button>
+                    </Button>
                 </form>
             </div>
         );

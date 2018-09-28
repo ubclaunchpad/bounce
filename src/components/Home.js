@@ -20,7 +20,6 @@ class Home extends Component {
         if (this.props.client.isSignedIn() || this.props.searchQuery) {
             // Display clubs when the user is signed in or if they are searching
             return <Clubs
-                username={this.props.username}
                 isNewAccount={this.props.isNewAccount}
                 searchQuery={this.props.searchQuery}
                 client={this.props.client}

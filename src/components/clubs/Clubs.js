@@ -57,7 +57,7 @@ class Clubs extends Component {
             <div className='container'>
                 {this.props.isNewAccount &&
                     <Alert bsStyle='success'>
-                        Welcome, {this.props.username}!
+                        Welcome, {this.props.client.getUsername()}!
                     </Alert>
                 }
                 {this.state.errorMsg &&
