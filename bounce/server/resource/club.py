@@ -107,6 +107,16 @@ class SearchClubsRequest(metaclass=ResourceMeta):
     __params__ = {
         'query': {
             'type': 'string',
+        },
+        'page': {
+            'type': 'integer',
+            'default':
+            0,  # TODO: defaults aren't being set when param is not specified
+        },
+        'size': {
+            'type': 'integer',
+            'default':
+            5,  # TODO: defaults aren't being set when param is not specified
         }
     }
 
@@ -153,5 +163,17 @@ class SearchClubsResponse(metaclass=ResourceMeta):
                     },
                 }
             }
+        },
+        'resultCount': {
+            'type': 'integer',
+            'minimum': 0,
+        },
+        'page': {
+            'type': 'integer',
+            'minimum': 0,
+        },
+        'totalPages': {
+            'type': 'integer',
+            'minimum': 0,
         }
     }

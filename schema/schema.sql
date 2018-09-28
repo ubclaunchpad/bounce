@@ -7,6 +7,7 @@ CREATE TABLE clubs (
     facebook_url TEXT,
     instagram_url TEXT,
     twitter_url TEXT,
+    search_vector TSVECTOR,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT (now() at time zone 'utc')
 );
 

@@ -9,6 +9,8 @@ from ..resource import validate
 from ..resource.club import (GetClubResponse, PostClubsRequest, PutClubRequest,
                              SearchClubsRequest, SearchClubsResponse)
 
+MAX_SIZE = 20
+
 
 class ClubEndpoint(Endpoint):
     """Handles requests to /clubs/<name>."""
@@ -77,12 +79,36 @@ class SearchClubsEndpoint(Endpoint):
 
     @validate(SearchClubsRequest, SearchClubsResponse)
     async def get(self, request):
-        """
-        Handles a GET /clubs/search request by returning clubs that contain
-        content that matches the query.
-        """
-        results = club.search(self.server.db_session, request.args['query'][0])
-        if not results:
+        """Handles a GET /club/search request by returning
+        clubs that contain content from the query."""
+
+        # default values, TODO: set default value in json-schema
+        query = ''
+        page = 0
+        size = 20
+
+        if 'query' in request.args:
+            query = request.args['query'][0]
+        if 'page' in request.args:
+            page = int(request.args['page'][0])
+        if 'size' in request.args:
+            size = int(request.args['size'][0])
+        if size > MAX_SIZE:
+            raise APIError('size too high', status=400)
+
+        queried_clubs, result_count, total_pages = club.search(
+            self.server.db_session, query, page, size)
+        if not queried_clubs:
             # Failed to find clubs that match the query
             raise APIError('No clubs match your query', status=404)
-        return response.json(results, status=200)
+        results = []
+        for result in queried_clubs.all():
+            results.append(result.to_dict())
+        info = {
+            'results': results,
+            'result_count': result_count,
+            'page': page,
+            'total_pages': total_pages
+        }
+
+        return response.json(info, status=200)
