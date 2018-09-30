@@ -9,14 +9,9 @@ from sanic.log import logger
 
 from .server import Server
 from .server.api.auth import LoginEndpoint
-<<<<<<< HEAD
 from .server.api.clubs import ClubEndpoint, ClubsEndpoint, SearchClubsEndpoint
+from .server.api.membership import MembershipEndpoint
 from .server.api.users import UserEndpoint, UserImagesEndpoint, UsersEndpoint
-=======
-from .server.api.clubs import ClubEndpoint, ClubsEndpoint
-from .server.api.membership import MembershipEndpoint, MembershipsEndpoint
-from .server.api.users import UserEndpoint, UsersEndpoint
->>>>>>> Fix DELETE membership
 from .server.config import ServerConfig
 
 

@@ -5,7 +5,6 @@ Also provides methods to access and edit the DB.
 import math
 
 from sqlalchemy import Column, Integer, String, desc, func
-from sqlalchemy.types import TIMESTAMP
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 
@@ -14,6 +13,7 @@ from . import BASE
 # The maximum number of results to return in one page.
 # Used in the search method.
 MAX_SIZE = 20
+
 
 class Club(BASE):
     """

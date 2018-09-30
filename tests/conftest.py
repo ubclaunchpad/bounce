@@ -6,9 +6,9 @@ from bounce.server import Server
 from bounce.server.api.auth import LoginEndpoint
 from bounce.server.api.clubs import (ClubEndpoint, ClubsEndpoint,
                                      SearchClubsEndpoint)
+from bounce.server.api.membership import MembershipEndpoint
 from bounce.server.api.users import (UserEndpoint, UserImagesEndpoint,
                                      UsersEndpoint)
-from bounce.server.api.membership import MembershipEndpoint
 from bounce.server.config import ServerConfig
 
 

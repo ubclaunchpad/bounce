@@ -5,12 +5,12 @@ from urllib.parse import unquote
 from sanic import response
 from sqlalchemy.exc import IntegrityError
 
-from . import APIError, Endpoint, util, verify_token
+from . import APIError, Endpoint, verify_token
 from ...db import club, membership
 from ..resource import validate
 from ..resource.membership import (DeleteMembershipRequest,
                                    GetMembershipRequest, GetMembershipResponse,
-                                   PostMembershipRequest, PutMembershipRequest)
+                                   PutMembershipRequest)
 
 
 class MembershipEndpoint(Endpoint):
@@ -40,14 +40,33 @@ class MembershipEndpoint(Endpoint):
             self.server.db_session, club_name, user_id=user_id)
         return response.json(membership_info, status=200)
 
+    # pylint: disable=unused-argument
+    @verify_token()
+    @validate(PutMembershipRequest, None)
+    async def put(self, request, club_name, id_from_token=None):
+        """Handles a PUT /memberships/<club_name>?user_id=<user_id> request by
+        creating or updating the membership for the given user and club."""
+        # Decode the club name
+        club_name = unquote(club_name)
+        try:
+            user_id = int(request.args.get('user_id'))
+        except Exception:
+            raise APIError('Invalid user ID', status=400)
+        try:
+            membership.insert(self.server.db_session, club_name, user_id)
+        except IntegrityError:
+            raise APIError('Invalid user or club ID', status=400)
+        return response.text('', status=201)
+
+    # pylint: enable=unused-argument
+
     @verify_token()
     @validate(DeleteMembershipRequest, None)
     async def delete(self, request, club_name, id_from_token=None):
         """
         Handles a DELETE /memberships/<club_name>?user_id=<user_id> request
         by deleting the membership that associates the given user with the
-        given club. If no user ID is given, deletes all memberships for the
-        given club.
+        given club..
         """
         # TODO: fix this when we have user roles set up. A user should only be
         # able to delete their own memberships and memberships on clubs they
@@ -55,7 +74,10 @@ class MembershipEndpoint(Endpoint):
 
         # Decode the club name
         club_name = unquote(club_name)
-        user_id = request.args.get('user_id', None)
+        try:
+            user_id = int(request.args.get('user_id'))
+        except ValueError:
+            raise APIError('Invalid user ID', status=400)
 
         if id_from_token != user_id:
             # Regular members can only delete their own memberships
@@ -69,21 +91,3 @@ class MembershipEndpoint(Endpoint):
         # Delete the memberships
         membership.delete(self.server.db_session, club_name, user_id=user_id)
         return response.text('', status=204)
-
-
-class MembershipsEndpoint(Endpoint):
-    """Handles requests to /memberships."""
-
-    __uri__ = '/memberships'
-
-    @validate(PostMembershipRequest, None)
-    async def post(self, request):
-        """Handles a POST /users request by creating a new user."""
-        body = request.json
-        # Put the membership in the DB
-        try:
-            membership.insert(self.server.db_session, body['user_id'],
-                              body['club_id'])
-        except IntegrityError:
-            raise APIError('Invalid user or club ID', status=400)
-        return response.text('', status=201)

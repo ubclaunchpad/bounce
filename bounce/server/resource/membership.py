@@ -1,4 +1,4 @@
-'''Create a Membership resource in bounce/server/resource/membership.py that specifies all the information required for creating a new membership.'''
+"""Resources for the /memberships endpoint."""
 
 from . import ResourceMeta
 
@@ -47,47 +47,26 @@ class GetMembershipResponse(metaclass=ResourceMeta):
     }
 
 
-class PostMembershipRequest(metaclass=ResourceMeta):
-    """Defines the schema for a POST /membership request."""
-    __body__ = {
-        'type': 'object',
-        'required': ['user_id', 'club_id'],
-        'additionalProperties': False,
-        'properties': {
-            'user_id': {
-                'type': 'integer',
-                'minimum': 0,
-            },
-            'club_id': {
-                'type': 'integer',
-                'minimum': 0,
-            },
-        }
-    }
-
-
 class PutMembershipRequest(metaclass=ResourceMeta):
-    """Defines the schema for a PUT /users/<username> request."""
-    __body__ = {
+    """Defines the schema for a PUT /memberships/<club_name> request."""
+    __params__ = {
         'type': 'object',
         'additionalProperties': False,
+        'required': ['user_id'],
         'properties': {
             'user_id': {
-                'type': 'integer',
-                'minimum': 0,
-            },
-            'created_at': {
-                'type': 'integer',
+                'type': 'string',
             },
         }
     }
 
 
 class DeleteMembershipRequest(metaclass=ResourceMeta):
-    """Defines the schema for a DELETE /members/<club_name> request."""
+    """Defines the schema for a DELETE /memberships/<club_name> request."""
     __params__ = {
         'type': 'object',
         'additionalProperties': False,
+        'required': ['user_id'],
         'properties': {
             'user_id': {
                 'type': 'string',

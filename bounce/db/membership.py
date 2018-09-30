@@ -5,8 +5,6 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 
 from . import BASE
-from .club import Club
-from .user import User
 
 
 class Membership(BASE):
@@ -42,10 +40,19 @@ class Membership(BASE):
         }
 
 
-def insert(session, user_id, club_id):
-    """Insert a new user into the Users table."""
-    membership = Membership(user_id=user_id, club_id=club_id)
-    session.add(membership)
+def insert(session, club_name, user_id):
+    """Creates a new membership that associates the given user with the given
+    club. """
+    # For now we do nothing on conflict, but when we have roles on these
+    # memberships we need to update on conflict.
+    query = f"""
+        INSERT INTO memberships (user_id, club_id) VALUES (
+            '{user_id}',
+            (SELECT id FROM clubs WHERE name = '{club_name}')
+        )
+        ON CONFLICT DO NOTHING
+    """
+    session.execute(query)
     session.commit()
 
 
@@ -67,9 +74,9 @@ def select(session, club_name, user_id=None):
     result_proxy = session.execute(query)
     results = []
     for row in result_proxy.fetchall():
-        results.append({
-            key: row[i] for i, key in enumerate(result_proxy.keys())
-        })
+        results.append(
+            {key: row[i]
+             for i, key in enumerate(result_proxy.keys())})
     return results
 
 
