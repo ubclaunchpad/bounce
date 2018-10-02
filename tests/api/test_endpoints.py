@@ -306,3 +306,52 @@ def test_delete_user_image__failure(server):
             'Authorization': token,
         })
     assert response.status == 403
+
+
+def test_put_memberships__success(server):
+    _, response = server.app.test_client.post(
+        '/users',
+        data=json.dumps({
+            'username': 'mrguy',
+            'full_name': 'Hello WOrld',
+            'email': 'something@anotherthing.com',
+            'password': 'Val1dPassword!'
+        }))
+    assert response.status == 201
+    token = util.create_jwt(2, server.config.secret)
+    _, response = server.app.test_client.put(
+        '/memberships/newtest?user_id=2', headers={'Authorization': token})
+    assert response.status == 201
+
+
+def test_put_memberships__failure(server):
+    token = util.create_jwt(2, server.config.secret)
+    _, response = server.app.test_client.put(
+        '/memberships/doesnotexist?user_id=2',
+        headers={'Authorization': token})
+    assert response.status == 400
+
+
+def test_get_memberships__success(server):
+    _, response = server.app.test_client.get('/memberships/newtest?user_id=2')
+    assert response.status == 200
+    assert len(response.json) == 1
+    membership = response.json[0]
+    assert membership['user_id'] == 2
+    assert membership['full_name'] == 'Test Guy'
+    assert membership['username'] == 'test'
+    assert isinstance(membership['created_at'], int)
+
+
+def test_delete_membership__failure(server):
+    token = util.create_jwt(1, server.config.secret)
+    _, response = server.app.test_client.delete(
+        '/memberships/newtest?user_id=2', headers={'Authorization': token})
+    assert response.status == 403
+
+
+def test_delete_membership__success(server):
+    token = util.create_jwt(2, server.config.secret)
+    _, response = server.app.test_client.delete(
+        '/memberships/newtest?user_id=2', headers={'Authorization': token})
+    assert response.status == 204

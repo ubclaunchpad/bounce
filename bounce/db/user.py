@@ -1,6 +1,7 @@
 """Defines the schema for the Users table in our DB."""
 
 from sqlalchemy import Column, Integer, String, func
+from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 
 from . import BASE
@@ -20,6 +21,7 @@ class User(BASE):
     email = Column('email', String, nullable=False)
     created_at = Column(
         'created_at', TIMESTAMP, nullable=False, server_default=func.now())
+    clubs = relationship('Membership', back_populates='member')
 
     def to_dict(self):
         """Returns a dict representation of a User.

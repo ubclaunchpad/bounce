@@ -5,6 +5,7 @@ Also provides methods to access and edit the DB.
 import math
 
 from sqlalchemy import Column, Integer, String, desc, func
+from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 
 from . import BASE
@@ -30,6 +31,7 @@ class Club(BASE):
     twitter_url = Column('twitter_url', String, nullable=True)
     created_at = Column(
         'created_at', TIMESTAMP, nullable=False, server_default=func.now())
+    members = relationship('Membership', back_populates='club')
 
     def to_dict(self):
         """Returns a dict representation of a club."""
@@ -37,10 +39,10 @@ class Club(BASE):
             'id': self.identifier,
             'name': self.name,
             'description': self.description,
-            'website_url': self.website_url,
-            'facebook_url': self.facebook_url,
-            'instagram_url': self.instagram_url,
-            'twitter_url': self.twitter_url,
+            'website_url': self.website_url or '',
+            'facebook_url': self.facebook_url or '',
+            'instagram_url': self.instagram_url or '',
+            'twitter_url': self.twitter_url or '',
             'created_at': self.created_at,
         }
 
