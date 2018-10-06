@@ -45,19 +45,21 @@ class UserEndpoint(Endpoint):
         if user_row.identifier != id_from_token:
             raise APIError('Forbidden', status=403)
         if body.get('password'):
-            #Check that user old password is provided
+            # Check that user old password is provided
             if not body.get('old_password'):
-                raise APIError('Old Password not provided', status =400)
+                raise APIError('Old Password not provided', status=400)
             # Check that the user's password is correct
             if not util.check_password(body['old_password'], user_row.secret):
                 raise APIError('Unauthorized', status=401)
-            # Make sure the password is valid (no need to check email, this is done
+            # Make sure the password is valid (no need
+            # to check email, this is done
             # by a jsonschema formatter)
             if not util.validate_password(body['password']):
                 raise APIError('Invalid password', status=400)
-            # Create a secret from the user's password that we can use to securely
+            # Create a secret from the user's password
+            #  that we can use to securely
             # verify their password when they log in
-            secret = util.hash_password(body['password']) 
+            secret = util.hash_password(body['password'])
         # Update the user
         updated_user = user.update(
             self.server.db_session,
