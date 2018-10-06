@@ -81,17 +81,19 @@ def test_get_user__failure(server):
     _, response = server.app.test_client.get('/users/doesnotexist')
     assert response.status == 404
 
+
 def test_put_users_update_password__success(server):
     username = 'test'
     token = util.create_jwt(1, server.config.secret)
     _, response = server.app.test_client.put(
         f'/users/{username}',
         data=json.dumps({
-            'old_password' : 'Val1dPassword!',
-            'password' : 'Val1dPassword!s',
-        }), 
-        headers={'Authorization' : token})
+            'old_password': 'Val1dPassword!',
+            'password': 'Val1dPassword!s',
+        }),
+        headers={'Authorization': token})
     assert response.status == 200
+
 
 def test_put_users_update_password__failure(server):
     username = 'test'
@@ -99,10 +101,11 @@ def test_put_users_update_password__failure(server):
     _, response = server.app.test_client.put(
         f'/users/{username}',
         data=json.dumps({
-            'password' : 'Val1dPassword!123',
-        }), 
-        headers={'Authorization' : token})
+            'password': 'Val1dPassword!123',
+        }),
+        headers={'Authorization': token})
     assert response.status == 400
+
 
 def test_login__success(server):
     _, response = server.app.test_client.post(
