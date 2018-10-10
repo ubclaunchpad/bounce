@@ -10,6 +10,7 @@ from sanic.log import logger
 from .server import Server
 from .server.api.auth import LoginEndpoint
 from .server.api.clubs import ClubEndpoint, ClubsEndpoint, SearchClubsEndpoint
+from .server.api.membership import MembershipEndpoint
 from .server.api.users import UserEndpoint, UserImagesEndpoint, UsersEndpoint
 from .server.config import ServerConfig
 
@@ -82,7 +83,7 @@ def start(port, secret, pg_host, pg_port, pg_user, pg_password, pg_database,
     # Register your new endpoints here
     endpoints = [
         UsersEndpoint, UserEndpoint, UserImagesEndpoint, ClubsEndpoint,
-        ClubEndpoint, SearchClubsEndpoint, LoginEndpoint
+        ClubEndpoint, SearchClubsEndpoint, LoginEndpoint, MembershipEndpoint
     ]
     serv = Server(conf, endpoints)
     serv.start()

@@ -23,8 +23,8 @@ CREATE TABLE users (
 
 DROP TABLE IF EXISTS memberships;
 CREATE TABLE memberships (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    user_id INT REFERENCES users(id) ON DELETE CASCADE,
-    club_id INT REFERENCES clubs(id) ON DELETE CASCADE,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    club_id INT NOT NULL REFERENCES clubs(id) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, club_id),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT (now() at time zone 'utc')
 );

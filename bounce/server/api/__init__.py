@@ -155,10 +155,12 @@ def verify_token():
         @wraps(coro)
         async def wrapper(endpoint, request, *args, **kwargs):
             if not request.token:
+                logger.error('No token provided in request')
                 return response.json({'error': 'Unauthorized'}, status=401)
             user_id = util.check_jwt(request.token,
                                      endpoint.server.config.secret)
             if not user_id:
+                logger.error('Invalid auth token')
                 return response.json({'error': 'Unauthorized'}, status=401)
             kwargs['id_from_token'] = user_id
 
@@ -168,6 +170,8 @@ def verify_token():
             except APIError as err:
                 return response.json({'error': err.message}, status=err.status)
             except Exception:
+                logger.exception(
+                    'An error occurred during the hanlding of a request')
                 # Return an error response if an error occurred in
                 # the request handler
                 logger.exception(

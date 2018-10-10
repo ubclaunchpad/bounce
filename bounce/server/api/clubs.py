@@ -1,5 +1,7 @@
 """Request handlers for the /clubs endpoint."""
 
+from urllib.parse import unquote
+
 from sanic import response
 from sqlalchemy.exc import IntegrityError
 
@@ -21,6 +23,8 @@ class ClubEndpoint(Endpoint):
     async def get(self, _, name):
         """Handles a GET /clubs/<name> request by returning the club with
         the given name."""
+        # Decode the name, since special characters will be URL-encoded
+        name = unquote(name)
         # Fetch club data from DB
         club_data = club.select(self.server.db_session, name)
         if not club_data:
@@ -32,6 +36,8 @@ class ClubEndpoint(Endpoint):
     async def put(self, request, name):
         """Handles a PUT /clubs/<name> request by updating the club with
         the given name and returning the updated club info."""
+        # Decode the name, since special characters will be URL-encoded
+        name = unquote(name)
         body = util.strip_whitespace(request.json)
         updated_club = club.update(
             self.server.db_session,
@@ -46,7 +52,9 @@ class ClubEndpoint(Endpoint):
 
     async def delete(self, _, name):
         """Handles a DELETE /clubs/<name> request by deleting the club with
-        the given name."""
+        the given name. """
+        # Decode the name, since special characters will be URL-encoded
+        name = unquote(name)
         club.delete(self.server.db_session, name)
         return response.text('', status=204)
 

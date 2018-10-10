@@ -23,7 +23,7 @@ class UserEndpoint(Endpoint):
     @validate(None, GetUserResponse)
     async def get(self, _, username):
         """Handles a GET /users/<username> request by returning the user with
-        the given username."""
+        the given membership."""
         # Fetch user data from DB
         user_row = user.select(self.server.db_session, username)
         if not user_row:
