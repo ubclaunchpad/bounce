@@ -63,7 +63,7 @@ def select(session, name, role=None):
     else: logging.info("db/club.select: User does not have permission to select club")
 
 
-def search(session, query=None, page=0, size=MAX_SIZE): 
+def search(session, query=None, page=0, size=MAX_SIZE):
     # TODO: does query, page and size need default values if it's
     # already being set using the JSON schema?
     """Returns a list of clubs that contain content from the user's query"""

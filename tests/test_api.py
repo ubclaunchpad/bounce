@@ -74,6 +74,7 @@ def test_delete_user__success(server):
     _, response = server.app.test_client.delete('/users/test')
     assert response.status == 204
 
+
 def test_post_clubs__success(server):
     _, response = server.app.test_client.post(
         '/clubs',
