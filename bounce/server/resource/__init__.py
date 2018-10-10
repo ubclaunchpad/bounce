@@ -22,9 +22,9 @@ class ResourceMeta(type):
     back-end and the front-end.
     """
 
-    def __new__(mcs, cls_name, superclasses, attributes):
+    def __new__(mcs, cls_name, superclasses, values):
         """
-        Return a new class by the given name with the given attributes and
+        Return a new class by the given name with the given values and
         subclasses.
 
         This will validate the body and params schemas declared on a resource
@@ -34,28 +34,28 @@ class ResourceMeta(type):
             mcs (type): the metaclass
             cls_name (str): the name of the new class
             superclasses (list[type]): list of the classes superclasses
-            attributes (dict): a mapping from attribute name to attribute
+            values (dict): a mapping from attribute name to attribute
                 value on the new class
         """
-        if hasattr(attributes, '__body__'):
+        if hasattr(values, '__body__'):
             # Check that the body schema is valid
             try:
-                Draft4Validator.check_schema(attributes['__body__'])
+                Draft4Validator.check_schema(values['__body__'])
             except jsonschema.ValidationError:
                 raise jsonschema.ValidationError(
                     f'Invalid body schema declared for resource {cls_name}')
 
-        if hasattr(attributes, '__params__'):
+        if hasattr(values, '__params__'):
             # Check that the params schema is valid
             try:
-                Draft4Validator.check_schema(attributes['__params__'])
+                Draft4Validator.check_schema(values['__params__'])
             except jsonschema.ValidationError:
                 raise jsonschema.ValidationError(
                     f'Invalid params schema declared for resource {cls_name}')
 
         # Create the class
         return super(ResourceMeta, mcs).__new__(mcs, cls_name, superclasses,
-                                                attributes)
+                                                values)
 
 
 def validate(request_cls, response_cls):
@@ -70,14 +70,23 @@ def validate(request_cls, response_cls):
             body should match
     """
 
-    def set_defaults(schema, info):
-        for prop_name, attributes in schema.items():
-            if prop_name not in info and 'default' in attributes:
-                #if isinstance(attributes, dict):
-                    # TODO: run a recursion to set defaults of the dictionaries
-                    # contained within the current dictionary
-                default_value = attributes.get('default')
-                info.update({prop_name: default_value})
+    def set_defaults(schema, info, parent_key=None):
+        # if there is no value specified for the keys
+        # set the default values if there are
+        # corresponding default values found in the json schema
+        import pdb
+        pdb.set_trace()
+        for key in schema:
+            value = schema[key]
+            if key == 'default':
+                if parent_key not in info:
+                    info.update({parent_key: value})
+                elif not info[parent_key]:
+                    info.update({parent_key: value})
+            if isinstance(value, dict):
+                sub_schema = value
+                parent_key = key
+                set_defaults(sub_schema, info, parent_key)
         return info
 
     # pylint: disable=missing-docstring
@@ -89,11 +98,14 @@ def validate(request_cls, response_cls):
                 # required schema
                 # Body values come as arrays of length 1 so turn
                 # them into single values
-                body_no_defaults = {key: request.form.get(key) for key in request.form}
-                # TODO: set request.form with defaults
+                body_no_defaults = {
+                    key: request.form.get(key)
+                    for key in request.form
+                }
+                body = set_defaults(request_cls.__body__, body_no_defaults)
                 try:
                     jsonschema.validate(
-                        request.form or {},
+                        body or {},
                         request_cls.__body__,
                         format_checker=jsonschema.FormatChecker())
                 except jsonschema.ValidationError as err:
@@ -107,11 +119,15 @@ def validate(request_cls, response_cls):
                 # required schema
                 # Params values always come as arrays of length 1 so turn
                 # them into single values
-                params_no_defaults = {key: request.args.get(key) for key in request.args}
-                request = set_defaults(request_cls.__params__, params_no_defaults)
+                params_no_defaults = {
+                    key: request.args.get(key)
+                    for key in request.args
+                }
+                params = set_defaults(request_cls.__params__,
+                                      params_no_defaults)
                 try:
                     jsonschema.validate(
-                        request,
+                        params,
                         request_cls.__params__,
                         format_checker=jsonschema.FormatChecker())
                 except jsonschema.ValidationError as err:
@@ -127,10 +143,10 @@ def validate(request_cls, response_cls):
                 # Return a 500 if the response does not meet the required
                 # format and raise an error
                 body_no_defaults = json.loads(result.body)
-                # TODO: set defaults for body
+                body = set_defaults(response_cls.__body__, body_no_defaults)
                 try:
                     jsonschema.validate(
-                        json.loads(result.body),
+                        body,
                         response_cls.__body__,
                         format_checker=jsonschema.FormatChecker())
                 except jsonschema.ValidationError as err:

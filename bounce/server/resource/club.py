@@ -18,6 +18,7 @@ class PostClubsRequest(metaclass=ResourceMeta):
             },
             'website_url': {
                 'type': 'string',
+                'default': 'no link',
             },
             'facebook_url': {
                 'type': 'string',
@@ -81,6 +82,7 @@ class GetClubResponse(metaclass=ResourceMeta):
             },
             'website_url': {
                 'type': 'string',
+                'default': 'no link',
             },
             'facebook_url': {
                 'type': 'string',
@@ -110,13 +112,11 @@ class SearchClubsRequest(metaclass=ResourceMeta):
         },
         'page': {
             'type': 'string',
-            'default':
-            '0',
+            'default': '0',
         },
         'size': {
             'type': 'string',
-            'default':
-            '20',
+            'default': '20',
         }
     }
 
