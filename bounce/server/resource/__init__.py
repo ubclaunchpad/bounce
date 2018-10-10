@@ -70,6 +70,16 @@ def validate(request_cls, response_cls):
             body should match
     """
 
+    def set_defaults(schema, info):
+        for prop_name, attributes in schema.items():
+            if prop_name not in info and 'default' in attributes:
+                #if isinstance(attributes, dict):
+                    # TODO: run a recursion to set defaults of the dictionaries
+                    # contained within the current dictionary
+                default_value = attributes.get('default')
+                info.update({prop_name: default_value})
+        return info
+
     # pylint: disable=missing-docstring
     def decorator(coro):
         @wraps(coro)
@@ -77,9 +87,13 @@ def validate(request_cls, response_cls):
             if hasattr(request_cls, '__body__'):
                 # Return a 400 if the request body does not meet the
                 # required schema
+                # Body values come as arrays of length 1 so turn
+                # them into single values
+                body_no_defaults = {key: request.form.get(key) for key in request.form}
+                # TODO: set request.form with defaults
                 try:
                     jsonschema.validate(
-                        request.json or {},
+                        request.form or {},
                         request_cls.__body__,
                         format_checker=jsonschema.FormatChecker())
                 except jsonschema.ValidationError as err:
@@ -93,10 +107,11 @@ def validate(request_cls, response_cls):
                 # required schema
                 # Params values always come as arrays of length 1 so turn
                 # them into single values
-                params = {key: request.args.get(key) for key in request.args}
+                params_no_defaults = {key: request.args.get(key) for key in request.args}
+                request = set_defaults(request_cls.__params__, params_no_defaults)
                 try:
                     jsonschema.validate(
-                        params,
+                        request,
                         request_cls.__params__,
                         format_checker=jsonschema.FormatChecker())
                 except jsonschema.ValidationError as err:
@@ -111,6 +126,8 @@ def validate(request_cls, response_cls):
             if hasattr(response_cls, '__body__'):
                 # Return a 500 if the response does not meet the required
                 # format and raise an error
+                body_no_defaults = json.loads(result.body)
+                # TODO: set defaults for body
                 try:
                     jsonschema.validate(
                         json.loads(result.body),
