@@ -56,7 +56,9 @@ def select(session, name):
     return None if club is None else club.to_dict()
 
 
-def search(session, query=None, page=0, size=MAX_SIZE):
+def search(session, query=None, page=0, size=MAX_SIZE): 
+    # TODO: does query, page and size need default values if it's
+    # already being set using the JSON schema?
     """Returns a list of clubs that contain content from the user's query"""
     # number used for offset is the
     # page number multiplied by the size of each page
