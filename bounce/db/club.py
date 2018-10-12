@@ -3,11 +3,13 @@ Defines the schema for the Clubs table in our DB.
 Also provides methods to access and edit the DB.
 """
 import math
+import logging
 
 from sqlalchemy import Column, Integer, String, desc, func
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 
+from membership.Role import Owner, Admin, Member
 from . import BASE
 
 # The maximum number of results to return in one page.
@@ -47,13 +49,18 @@ class Club(BASE):
         }
 
 
-def select(session, name):
+def select(session, name, role=None):
+    # TODO: ask bruno about access to select being public (anyone can select a club)
     """
     Returns the club with the given name or None if
     there is no such club.
     """
-    club = session.query(Club).filter(Club.name == name).first()
-    return None if club is None else club.to_dict()
+    # Owners, Admins, and Members can read
+    if role == Owner or role == Admin or role == Member:
+        club = session.query(Club).filter(Club.name == name).first()
+        return None if club is None else club.to_dict()
+    # TODO: Ask Bruno what to return if permission is not granted
+    else: logging.info("db/club.select: User does not have permission to select club")
 
 
 def search(session, query=None, page=0, size=MAX_SIZE):
@@ -91,27 +98,36 @@ def insert(session, name, description, website_url, facebook_url,
 
 
 def update(session, name, new_name, description, website_url, facebook_url,
-           instagram_url, twitter_url):
+           instagram_url, twitter_url, role=None):
     """Updates an existing club in the Clubs table and returns the
     updated club."""
-    club = session.query(Club).filter(Club.name == name).first()
-    if new_name:
-        club.name = new_name
-    if description:
-        club.description = description
-    if website_url:
-        club.website_url = website_url
-    if facebook_url:
-        club.facebook_url = facebook_url
-    if instagram_url:
-        club.instagram_url = instagram_url
-    if twitter_url:
-        club.twitter_url = twitter_url
-    session.commit()
-    return club.to_dict()
+    # Only Owners and Admins can update
+    if role == Owner or role == Admin:
+        club = session.query(Club).filter(Club.name == name).first()
+        if new_name:
+            club.name = new_name
+        if description:
+            club.description = description
+        if website_url:
+            club.website_url = website_url
+        if facebook_url:
+            club.facebook_url = facebook_url
+        if instagram_url:
+            club.instagram_url = instagram_url
+        if twitter_url:
+            club.twitter_url = twitter_url
+        session.commit()
+        return club.to_dict()
+    # TODO: Ask Bruno what to return if permission is not granted
+    else: logging.info("db/club.update: User does not have permission to update club")
 
 
-def delete(session, name):
+
+def delete(session, name, role=None):
     """Deletes the club with the given name."""
-    session.query(Club).filter(Club.name == name).delete()
-    session.commit()
+    # Only Owners can delete
+    if role == Owner:
+        session.query(Club).filter(Club.name == name).delete()
+        session.commit()
+    # TODO: Ask Bruno what to return if permission is not granted
+    else: logging.info("db/club.delete: User does not have permission to delete club")
