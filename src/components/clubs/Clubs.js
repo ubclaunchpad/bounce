@@ -40,7 +40,7 @@ class Clubs extends Component {
                 if (result.ok) {
                     // Display results
                     result.json().then(body => {
-                        this.setState({ clubs: body, errorMsg: undefined });
+                        this.setState({ clubs: body.results, errorMsg: undefined });
                     });
                 } else if (result.status === 404) {
                     this.setState({ errorMsg: NO_CLUBS_FOUND });
