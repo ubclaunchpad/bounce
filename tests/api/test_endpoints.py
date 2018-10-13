@@ -106,6 +106,14 @@ def test_put_users_update_password__failure(server):
         headers={'Authorization': token})
     assert response.status == 400
 
+    _, response = server.app.test_client.put(
+        f'/users/{username}',
+        data=json.dumps({
+            'old_password': 'WrongPassword!',
+            'password': 'Val1dPassword!123',
+        }),
+        headers={'Authorization': token})
+    assert response.status == 401
 
 def test_login__success(server):
     _, response = server.app.test_client.post(
