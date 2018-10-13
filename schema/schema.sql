@@ -27,7 +27,14 @@ DROP TABLE IF EXISTS memberships;
 CREATE TABLE memberships (
     user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     club_id INT NOT NULL REFERENCES clubs(id) ON DELETE CASCADE,
+    position_id INT NOT NULL REFERENCES positions(id) on DELETE CASCADE,
     role member_role NOT NULL, 
     PRIMARY KEY (user_id, club_id),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT (now() at time zone 'utc')
+);
+
+DROP TABLE IF EXISTS positions CASCADE;
+CREATE TABLE positions (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
 );

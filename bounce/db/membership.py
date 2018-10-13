@@ -31,11 +31,15 @@ class Membership(BASE):
         ForeignKey('clubs.id'),
         nullable=False,
         primary_key=True)
+    position_id = Column(
+        'position_id',
+        Integer,
+        ForeignKey('positions.id'),
+        nullable=False),
     role = Column(
         'role',
         role,
-        nullable=False,
-    )
+        nullable=False,)
 
     member = relationship('User', back_populates='clubs')
     club = relationship('Club', back_populates='members')
@@ -47,7 +51,8 @@ class Membership(BASE):
         return {
             'user_id': self.user_id,
             'club_id': self.club_id,
-            "role": self.role,
+            'position_id': self.position_id,
+            'role': self.role,
             'created_at': self.created_at,
         }
 
