@@ -9,7 +9,7 @@ from sqlalchemy import Column, Integer, String, desc, func
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 
-from membership.Role import Owner, Admin, Member
+from membership.Role import President, Admin, Member
 from . import BASE
 
 # The maximum number of results to return in one page.
@@ -55,8 +55,8 @@ def select(session, name, role=None):
     Returns the club with the given name or None if
     there is no such club.
     """
-    # Owners, Admins, and Members can read
-    if role == Owner or role == Admin or role == Member:
+    # Presidents, Admins, and Members can read
+    if role == President or role == Admin or role == Member:
         club = session.query(Club).filter(Club.name == name).first()
         return None if club is None else club.to_dict()
     # TODO: Ask Bruno what to return if permission is not granted
@@ -101,8 +101,8 @@ def update(session, name, new_name, description, website_url, facebook_url,
            instagram_url, twitter_url, role=None):
     """Updates an existing club in the Clubs table and returns the
     updated club."""
-    # Only Owners and Admins can update
-    if role == Owner or role == Admin:
+    # Only Presidents and Admins can update
+    if role == President or role == Admin:
         club = session.query(Club).filter(Club.name == name).first()
         if new_name:
             club.name = new_name
@@ -125,8 +125,8 @@ def update(session, name, new_name, description, website_url, facebook_url,
 
 def delete(session, name, role=None):
     """Deletes the club with the given name."""
-    # Only Owners can delete
-    if role == Owner:
+    # Only Presidents can delete
+    if role == President:
         session.query(Club).filter(Club.name == name).delete()
         session.commit()
     # TODO: Ask Bruno what to return if permission is not granted
