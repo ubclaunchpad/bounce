@@ -3,6 +3,7 @@
 import json
 
 from aiohttp import FormData
+
 from bounce.server.api import util
 
 
@@ -113,6 +114,7 @@ def test_put_users_update_password__failure(server):
         }),
         headers={'Authorization': token})
     assert response.status == 401
+
 
 def test_login__success(server):
     _, response = server.app.test_client.post(

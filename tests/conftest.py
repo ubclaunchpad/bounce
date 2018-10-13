@@ -1,6 +1,7 @@
 """Defines fixtures for use in our tests."""
 
 import pytest
+
 from bounce.server import Server
 from bounce.server.api.auth import LoginEndpoint
 from bounce.server.api.clubs import (ClubEndpoint, ClubsEndpoint,
