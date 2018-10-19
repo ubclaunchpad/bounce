@@ -25,3 +25,23 @@ class Position(BASE):
             'id' : self.identifier,
             'name' : self.name
         }
+
+
+def select(session, name):
+    """
+    Returns the position object with the given name or None if
+    there is no such position.
+    """
+    return session.query(Position).filter(Position.name == name).first()
+
+def insert(session, name):
+    """Insert a new position into the Positions table."""
+    position = Position(name = name)
+    session.add(position)
+    session.commit()
+
+def delete(session, name):
+    """Deletes the user with the given username."""
+    session.query(Position).filter(Position.name == name).delete()
+    session.commit()
+
