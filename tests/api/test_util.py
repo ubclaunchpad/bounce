@@ -6,6 +6,7 @@ from bounce.server.api import util
 def test_validate_password__success():
     assert util.validate_password('Th1sisd!')
     assert util.validate_password('%$#@KJNlk jdfjd34657')
+    assert util.validate_password('Val1dPassword!123')
 
 
 def test_validate_password__failure():

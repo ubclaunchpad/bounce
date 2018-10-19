@@ -45,6 +45,7 @@ def validate_password(password):
     for regex in PASSWORD_REGEXES:
         matches = regex.findall(password)
         if matches:
+            matches.sort(key=len, reverse=True)
             for match in matches:
                 password = password.replace(match, '')
         else:
@@ -72,6 +73,7 @@ def validate_username(username):
     for regex in USERNAME_REGEXES:
         matches = regex.findall(username)
         for match in matches:
+            matches.sort(key=len, reverse=True)
             username = username.replace(match, '')
     return len(username) == 0
 
