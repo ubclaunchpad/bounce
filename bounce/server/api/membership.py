@@ -8,9 +8,9 @@ from sqlalchemy.exc import IntegrityError
 from . import APIError, Endpoint, verify_token
 from ...db import club, membership
 from ..resource import validate
-from ..resource.membership import (DeleteMembershipRequest,
-                                   GetMembershipRequest, GetMembershipResponse,
-                                   PutMembershipRequest)
+from ..resource.membership import (
+    DeleteMembershipRequest, GetMembershipsRequest, GetMembershipsResponse,
+    PutMembershipRequest)
 
 
 class MembershipEndpoint(Endpoint):
@@ -18,7 +18,7 @@ class MembershipEndpoint(Endpoint):
 
     __uri__ = "/memberships/<club_name:string>"
 
-    @validate(GetMembershipRequest, GetMembershipResponse)
+    @validate(GetMembershipsRequest, GetMembershipsResponse)
     async def get(self, request, club_name):
         """
         Handles a GET /memberships/<club_name>?user_id=<user_id> request
@@ -36,9 +36,10 @@ class MembershipEndpoint(Endpoint):
             raise APIError('No such club', status=404)
 
         # Fetch the club's memberships
-        membership_info = membership.select(
+        results = membership.select(
             self.server.db_session, club_name, user_id=user_id)
-        return response.json(membership_info, status=200)
+        info = {'results': results}
+        return response.json(info, status=200)
 
     # pylint: disable=unused-argument
     @verify_token()

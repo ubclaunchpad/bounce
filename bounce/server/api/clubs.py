@@ -67,7 +67,6 @@ class ClubsEndpoint(Endpoint):
     @validate(PostClubsRequest, None)
     async def post(self, request):
         """Handles a POST /clubs request by creating a new club."""
-        # Put the club in the DB
         body = util.strip_whitespace(request.json)
         try:
             club.insert(
@@ -91,10 +90,10 @@ class SearchClubsEndpoint(Endpoint):
         clubs that contain content from the query."""
 
         query = None
-        if ('query' in request):
-            query = request.get('query')
-        page = int(request.get('page'))
-        size = int(request.get('size'))
+        if 'query' in request.args:
+            query = request.args['query']
+        page = int(request.args['page'])
+        size = int(request.args['size'])
         if size > MAX_SIZE:
             raise APIError('size too high', status=400)
 

@@ -18,7 +18,6 @@ class PostClubsRequest(metaclass=ResourceMeta):
             },
             'website_url': {
                 'type': 'string',
-                'default': 'no link',
             },
             'facebook_url': {
                 'type': 'string',
@@ -86,12 +85,15 @@ class GetClubResponse(metaclass=ResourceMeta):
             },
             'facebook_url': {
                 'type': 'string',
+                'default': 'no link',
             },
             'instagram_url': {
                 'type': 'string',
+                'default': 'no link',
             },
             'twitter_url': {
                 'type': 'string',
+                'default': 'no link',
             },
             'id': {
                 'type': 'integer',
@@ -144,15 +146,19 @@ class SearchClubsResponse(metaclass=ResourceMeta):
                     },
                     'website_url': {
                         'type': 'string',
+                        'default': 'no link',
                     },
                     'facebook_url': {
                         'type': 'string',
+                        'default': 'no link',
                     },
                     'instagram_url': {
                         'type': 'string',
+                        'default': 'no link',
                     },
                     'twitter_url': {
                         'type': 'string',
+                        'default': 'no link',
                     },
                     'id': {
                         'type': 'integer',

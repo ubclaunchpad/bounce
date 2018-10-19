@@ -1,5 +1,7 @@
 """Tests Bounce API utilities."""
 
+import json
+
 from bounce.server.api import util
 
 
@@ -55,3 +57,39 @@ def test_create_and_check_jwt__success():
 def test_create_and_check_jwt__failure():
     token = util.create_jwt(12345, 'test secret')
     assert util.check_jwt(token, 'wrong secret') is None
+
+
+def test_set_default_values__success(server):
+    # add dummy data to search for in database
+    club_info = [['club abc', 'club that does abc'],
+                 ['club123', 'something that does 123'],
+                 ['UBC do re mi', 'something else that goes do re mi']]
+    for name, desc in club_info:
+        request, _ = server.app.test_client.post(
+            '/clubs',
+            data=json.dumps({
+                'name': name,
+                'description': desc,
+                'website_url': '',
+                'twitter_url': '',
+                'facebook_url': '',
+                'instagram_url': '',
+            }))
+
+    request, response = server.app.test_client.get('/clubs/search')
+    assert request.args['page'] == '0'
+    assert request.args['size'] == '20'
+
+    body = response.json
+    assert body.get('results')[0]['website_url'] == 'no link'
+    assert body.get('results')[0]['facebook_url'] == 'no link'
+    assert body.get('results')[0]['instagram_url'] == 'no link'
+    assert body.get('results')[0]['twitter_url'] == 'no link'
+    assert body.get('results')[1]['website_url'] == 'no link'
+    assert body.get('results')[1]['facebook_url'] == 'no link'
+    assert body.get('results')[1]['instagram_url'] == 'no link'
+    assert body.get('results')[1]['twitter_url'] == 'no link'
+    assert body.get('results')[1]['website_url'] == 'no link'
+    assert body.get('results')[1]['facebook_url'] == 'no link'
+    assert body.get('results')[1]['instagram_url'] == 'no link'
+    assert body.get('results')[1]['twitter_url'] == 'no link'

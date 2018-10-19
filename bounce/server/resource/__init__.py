@@ -70,23 +70,39 @@ def validate(request_cls, response_cls):
             body should match
     """
 
-    def set_defaults(schema, info, parent_key=None):
-        # if there is no value specified for the keys
-        # set the default values if there are
-        # corresponding default values found in the json schema
-        import pdb
-        pdb.set_trace()
+    def set_defaults(schema, info, parent_key=None, parent_schema=None):
+        """Sets the default values for params and bodies"""
         for key in schema:
             value = schema[key]
+            # base case used for recursion
             if key == 'default':
-                if parent_key not in info:
-                    info.update({parent_key: value})
-                elif not info[parent_key]:
-                    info.update({parent_key: value})
-            if isinstance(value, dict):
+                # need to make sure the key is in the schema,
+                # else we'd be putting in keys
+                # that are not valid properties
+                if parent_key in parent_schema:
+                    # if the key is not specified or there's
+                    # an empty string value for the key,
+                    # update info with the default value
+                    if parent_key not in info:
+                        info[parent_key] = value
+                    elif not info[parent_key]:
+                        info[parent_key] = value
+            # recurse if there's more keys at the next level of the schema
+            if isinstance(value, dict) and key != 'items':
                 sub_schema = value
                 parent_key = key
-                set_defaults(sub_schema, info, parent_key)
+                set_defaults(sub_schema, info, parent_key, schema)
+            # if value is an array, then update each item in the array
+            # using the json schema
+            if value == 'array':
+                sub_schema = schema['items']['properties']
+                # get the items in the array
+                items = info[parent_key]
+                for item in items:
+                    item = set_defaults(sub_schema, item, parent_key,
+                                        sub_schema)
+                # add updated items to info
+                info[parent_key] = items
         return info
 
     # pylint: disable=missing-docstring
@@ -98,14 +114,10 @@ def validate(request_cls, response_cls):
                 # required schema
                 # Body values come as arrays of length 1 so turn
                 # them into single values
-                body_no_defaults = {
-                    key: request.form.get(key)
-                    for key in request.form
-                }
-                body = set_defaults(request_cls.__body__, body_no_defaults)
+                set_defaults(request_cls.__body__, request.json)
                 try:
                     jsonschema.validate(
-                        body or {},
+                        request.json or {},
                         request_cls.__body__,
                         format_checker=jsonschema.FormatChecker())
                 except jsonschema.ValidationError as err:
@@ -119,15 +131,12 @@ def validate(request_cls, response_cls):
                 # required schema
                 # Params values always come as arrays of length 1 so turn
                 # them into single values
-                params_no_defaults = {
-                    key: request.args.get(key)
-                    for key in request.args
-                }
-                params = set_defaults(request_cls.__params__,
-                                      params_no_defaults)
+                for key in request.args:
+                    request.args[key] = request.args.get(key)
+                set_defaults(request_cls.__params__, request.args)
                 try:
                     jsonschema.validate(
-                        params,
+                        request.args,
                         request_cls.__params__,
                         format_checker=jsonschema.FormatChecker())
                 except jsonschema.ValidationError as err:
@@ -144,6 +153,8 @@ def validate(request_cls, response_cls):
                 # format and raise an error
                 body_no_defaults = json.loads(result.body)
                 body = set_defaults(response_cls.__body__, body_no_defaults)
+                # TODO: is this the right type of encoding
+                result.body = bytes(json.dumps(body), 'utf-8')
                 try:
                     jsonschema.validate(
                         body,
