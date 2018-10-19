@@ -10,7 +10,7 @@ from . import BASE
 import logging
 
 # Defining a enum type for role allocation
-role = ENUM('President', 'Admin', 'Member', name ='role', metadata=metadata) 
+role = ENUM('president', 'admin', 'member', name ='role', metadata=metadata) 
 
 class Membership(BASE):
     """
@@ -47,14 +47,43 @@ class Membership(BASE):
         return {
             'user_id': self.user_id,
             'club_id': self.club_id,
-            "role": self.role,
+            'role': self.role,
             'created_at': self.created_at,
         }
 
-from Role import President, Admin, Member
-# import Role so we don't need to specify the Role class every time we want to use President, Admin, or Member
-# for these CRUD methods
-# i.e. using President instead of Role.President
+def can_insert(editor_role=None, members_role=Member):
+    """
+    Determines whether user can insert a memberships to the database
+
+    Args:
+        editor_role (Role): the role of the member who is deleting the membership
+        members_role (Role): the role of the member who's membership is being deleted
+    """
+    if editor_role == 'President':
+        return True
+    # Admin can only insert Member memberships
+    elif editor_role == 'admin' and members_role == 'member':
+        return True
+    else return False
+
+
+def can_select(role=None):
+    # All members can read all memberships
+    if role == 'President' or role == 'admin' or role == 'member':
+        return True
+    else return False
+
+
+def can_delete(user_id=None, editor_id=None, editor_role=None, members_role=None):
+    # Owners can delete all memberships
+    if editor_role == 'President':
+        return True
+    # Admins can only delete Member memberships
+    if editor_role == 'admin' and members_role == 'member':
+        return True
+    else return True
+
+
 def insert(session, club_name, user_id, editor_role=None, members_role=Member):
     """Creates a new membership that associates the given user with the given
     club.
@@ -65,19 +94,7 @@ def insert(session, club_name, user_id, editor_role=None, members_role=Member):
     """
     # For now we do nothing on conflict, but when we have roles on these
     # memberships we need to update on conflict.
-    if editor_role == President:
-        query = f"""
-            INSERT INTO memberships (user_id, club_id, role) VALUES (
-                '{user_id}',
-                (SELECT id FROM clubs WHERE name = '{club_name}'),
-                '{members_role}'
-            )
-            ON CONFLICT DO NOTHING
-        """
-        session.execute(query)
-        session.commit()
-    # Admin can only insert Member memberships to the database
-    if editor_role == Admin and members_role != President members_role != Admin:
+    if can_insert(editor_role, members_role):
         query = f"""
             INSERT INTO memberships (user_id, club_id, role) VALUES (
                 '{user_id}',
@@ -98,7 +115,7 @@ def select(session, club_name, user_id=None, role=None):
     only the membership for the given user.
     """
     # All members can read all memberships
-    if role == President or role == Admin or role == Member:
+    if can_select(role):
         query = f"""
             SELECT users.id AS user_id,
             memberships.created_at, users.full_name, users.username FROM
@@ -129,7 +146,9 @@ def delete(session, club_name, user_id=None, editor_id=None, editor_role=None, m
         editor_role (Role): the role of the member who is deleting the membership
         members_role (Role): the role of the member who's membership is being deleted
     """
-    if editor_role == President:
+    if can_delete(user_id, editor_id, editor_role, members_role):
+        # TODO: this query deletes all memberships for the club without the
+        # exemption of owners
         query = f"""
             DELETE FROM memberships
             WHERE memberships.club_id IN (
@@ -137,25 +156,8 @@ def delete(session, club_name, user_id=None, editor_id=None, editor_role=None, m
             )
         """
         if user_id:
-            # Presidents can delete all memberships except other Presidents
-            if members_role == President and user_id != editor_id:
-                logging.info("db/membership.delete: President cannot delete another President's membership")
-                return
-            else:
-                query += f' AND user_id = {user_id}'
-                session.execute(query)
-                session.commit()
-    if editor_role == Admin:
-        query = f"""
-            DELETE FROM memberships
-            WHERE memberships.club_id IN (
-                SELECT id FROM clubs WHERE name = '{club_name}'
-            )
-        """
-        # Admins can only delete Member memberships
-        if user_id and members_role != President and members_role != Admin:
             query += f' AND user_id = {user_id}'
-        session.execute(query)
-        session.commit()
+            session.execute(query)
+            session.commit()
     # TODO: Ask Bruno what to output if permission denied 
     else: logging.info("db/membership.delete: User does not have permission to delete this membership")
