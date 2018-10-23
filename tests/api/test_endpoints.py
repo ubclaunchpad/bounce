@@ -106,7 +106,7 @@ def test_put_users_update_password__failure(server):
         headers={'Authorization': token})
     assert response.status == 400
 
-<<<<<<< e372bd16d6a52260e891d072a0657259378cae89
+
 def test_put_users_update_password__success(server):
     username = 'test'
     token = util.create_jwt(1, server.config.secret)
@@ -140,8 +140,6 @@ def test_put_users_update_password__failure(server):
         headers={'Authorization': token})
     assert response.status == 401
 
-=======
->>>>>>> update formatting
 
 def test_login__success(server):
     _, response = server.app.test_client.post(
@@ -396,8 +394,8 @@ def test_put_memberships__failure(server):
 def test_get_memberships__success(server):
     _, response = server.app.test_client.get('/memberships/newtest?user_id=2')
     assert response.status == 200
-    assert len(response.json['results']) == 1
-    membership = response.json['results'][0]
+    assert len(response.json) == 1
+    membership = response.json[0]
     assert membership['user_id'] == 2
     assert membership['full_name'] == 'Test Guy'
     assert membership['username'] == 'test'
