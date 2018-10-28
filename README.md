@@ -205,19 +205,15 @@ class SearchClubsResponse(metaclass=ResourceMeta):
                     },
                     'website_url': {
                         'type': 'string',
-                        'default': 'no link',
                     },
                     'facebook_url': {
                         'type': 'string',
-                        'default': 'no link',
                     },
                     'instagram_url': {
                         'type': 'string',
-                        'default': 'no link',
                     },
                     'twitter_url': {
                         'type': 'string',
-                        'default': 'no link',
                     },
                     'id': {
                         'type': 'integer',
