@@ -81,13 +81,33 @@ def can_select(role=None):
 
 def can_delete(user_id=None, editor_id=None, editor_role=None, members_role=None):
     # Owners can delete all memberships
-    if editor_role == 'President':
+    if editor_role == 'President' and members_role != 'President':
         return True
     # Admins can only delete Member memberships
-    if editor_role == 'Admin' and members_role == 'Member':
+    elif editor_role == 'Admin' and members_role == 'Member':
         return True
+    # TODO: Members can only delete their own membership
     else: return False
 
+def can_update(editor_role=None, members_role=None):
+    # President can update any memberships but other presidents
+    if editor_role == 'President' and members_role != 'President': 
+        return True 
+    # Admins can only update members membership     
+    elif editor_role == 'Admin' and members_role == 'Member':
+        return True
+    else:
+        False
+
+def update(session, club_name, user_id, editor_role, members_role, position, new_position, new_role):
+    """Updates membership that asscociates the give user with the given 
+    club
+    """
+
+    if can_update(editor_role, members_role):
+        member_role = new_role
+        position = new_position
+        
 
 def insert(session, club_name, user_id, editor_role=None, members_role=Member, position):
     """Creates a new membership that associates the given user with the given
@@ -95,7 +115,7 @@ def insert(session, club_name, user_id, editor_role=None, members_role=Member, p
     
     Args:
         editor_role (Role): the role of the member who is deleting the membership
-        members_role (Role): the role of the member who's membership is being deleted
+        members_role (Role): the role of the member who's membership is being edited
     """
     # For now we do nothing on conflict, but when we have roles on these
     # memberships we need to update on conflict.
