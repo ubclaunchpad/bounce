@@ -83,9 +83,7 @@ def validate(request_cls, response_cls):
                     # if the key is not specified or there's
                     # an empty string value for the key,
                     # update info with the default value
-                    if parent_key not in info:
-                        info[parent_key] = value
-                    elif not info[parent_key]:
+                    if parent_key not in info or not info[parent_key]:
                         info[parent_key] = value
             # recurse if there's more keys at the next level of the schema
             if isinstance(value, dict) and key != 'items':
