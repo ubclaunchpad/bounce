@@ -3,7 +3,7 @@
 from . import ResourceMeta
 
 
-class GetMembershipRequest(metaclass=ResourceMeta):
+class GetMembershipsRequest(metaclass=ResourceMeta):
     """Defines the schema for a GET /membership/<club_name> request."""
     __params__ = {
         'type': 'object',
@@ -17,31 +17,33 @@ class GetMembershipRequest(metaclass=ResourceMeta):
     }
 
 
-class GetMembershipResponse(metaclass=ResourceMeta):
+class GetMembershipsResponse(metaclass=ResourceMeta):
     """Defines the schema for a GET /membership/<club_name> response."""
     __body__ = {
-        'type': 'array',
-        'items': {
-            'type': 'object',
-            'required': [
-                'user_id',
-                'created_at',
-                'full_name',
-                'username',
-            ],
-            'properties': {
-                'user_id': {
-                    'type': 'integer'
-                },
-                'created_at': {
-                    'type': 'integer',
-                },
-                'full_name': {
-                    'type': 'string',
-                },
-                'username': {
-                    'type': 'string',
-                },
+        'results': {
+            'type': 'array',
+            'items': {
+                'type': 'object',
+                'required': [
+                    'user_id',
+                    'created_at',
+                    'full_name',
+                    'username',
+                ],
+                'properties': {
+                    'user_id': {
+                        'type': 'integer'
+                    },
+                    'created_at': {
+                        'type': 'integer',
+                    },
+                    'full_name': {
+                        'type': 'string',
+                    },
+                    'username': {
+                        'type': 'string',
+                    },
+                }
             }
         }
     }
