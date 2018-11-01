@@ -45,7 +45,6 @@ format:
 # Run linters to make sure there are no formatting issues
 .PHONY: lint
 lint:
-	@isort -rc -c bounce
 	@yapf --diff -r bounce
 	@pylint --rcfile setup.cfg bounce
 	@flake8

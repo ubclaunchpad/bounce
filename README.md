@@ -18,6 +18,7 @@ For Linux users, to use docker without using sudo for every command,
 follow the steps in this link:
 https://docs.docker.com/install/linux/linux-postinstall/#configuring-remote-access-with-systemd-unit-file
 
+
 ### Configuration
 
 Both the Python backend and Postgres need to be configured before they can run. Copy the [web](container/web.env.example) and [Postgres](container/postgres.env.example) example configuration files to `container/web.env` and `container/postgres.env` respectively. These files will contain the environment variables that our web server and Postgres rely on.
@@ -179,6 +180,68 @@ class GetUserResponse(metaclass=ResourceMeta):
 The `__body__` field is used to specify the schema that the response body must match. Specifically, the response to a `GET /users` request must contain the user's full name, username, email, ID and the time at which the user was created.
 
 Note that in this example our request resource contained only a schema for params, and our response resource contained only a schema for the body. If you like you can specify neither or both schemas for `__params__` and `__body__` on your resource class.
+
+If you need to add an array type to the schema, specify the array's items with an `items` as shown below.  The `items` key needs to be inside a parent key (such as `results`, but the name can whatever you'd like i.e. `sources`, `values`, etc.).  The `items` and parent keys are used by the middleware code to correctly set defaults for the array:
+
+```python
+class SearchClubsResponse(metaclass=ResourceMeta):
+    """Defines the schema for a search query response."""
+    __body__ = {
+        'results': {
+            'type': 'array',
+            'items': {
+                'type':
+                'object',
+                'required': [
+                    'name', 'description', 'website_url', 'facebook_url',
+                    'instagram_url', 'twitter_url', 'id', 'created_at'
+                ],
+                'additionalProperties':
+                False,
+                'properties': {
+                    'name': {
+                        'type': 'string',
+                    },
+                    'description': {
+                        'type': 'string',
+                    },
+                    'website_url': {
+                        'type': 'string',
+                    },
+                    'facebook_url': {
+                        'type': 'string',
+                    },
+                    'instagram_url': {
+                        'type': 'string',
+                    },
+                    'twitter_url': {
+                        'type': 'string',
+                    },
+                    'id': {
+                        'type': 'integer',
+                        'minimum': 0,
+                    },
+                    'created_at': {
+                        'type': 'integer',
+                    },
+                }
+            }
+        },
+        'resultCount': {
+            'type': 'integer',
+            'minimum': 0,
+        },
+        'page': {
+            'type': 'integer',
+            'minimum': 0,
+        },
+        'totalPages': {
+            'type': 'integer',
+            'minimum': 0,
+        }
+    }
+```
+
 
 **Step 2: Create a new Endpoint**
 
