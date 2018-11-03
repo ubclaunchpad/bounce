@@ -36,10 +36,10 @@ class PutUserRequest(metaclass=ResourceMeta):
             'full_name': {
                 'type': 'string'
             },
-            'old_password': {
+            'password': {
                 'type': 'string'
             },
-            'password': {
+            'new_password': {
                 'type': 'string'
             },
             'email': {

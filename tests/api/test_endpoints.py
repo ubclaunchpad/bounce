@@ -88,8 +88,8 @@ def test_put_users_update_password__success(server):
     _, response = server.app.test_client.put(
         f'/users/{username}',
         data=json.dumps({
-            'old_password': 'Val1dPassword!',
-            'password': 'Val1dPassword!s',
+            'password': 'Val1dPassword!',
+            'new_password': 'Val1dPassword!s',
         }),
         headers={'Authorization': token})
     assert response.status == 200
@@ -101,7 +101,7 @@ def test_put_users_update_password__failure(server):
     _, response = server.app.test_client.put(
         f'/users/{username}',
         data=json.dumps({
-            'password': 'Val1dPassword!123',
+            'new_password': 'Val1dPassword!123',
         }),
         headers={'Authorization': token})
     assert response.status == 400
@@ -109,8 +109,8 @@ def test_put_users_update_password__failure(server):
     _, response = server.app.test_client.put(
         f'/users/{username}',
         data=json.dumps({
-            'old_password': 'WrongPassword!',
-            'password': 'Val1dPassword!123',
+            'password': 'WrongPassword!',
+            'new_password': 'Val1dPassword!123',
         }),
         headers={'Authorization': token})
     assert response.status == 401
