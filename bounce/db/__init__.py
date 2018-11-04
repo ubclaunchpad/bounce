@@ -30,3 +30,8 @@ def get_sessionmaker(engine):
             used to interact with the DB
     """
     return sessionmaker(bind=engine)
+
+class PermissionError(Exception):
+    """Raised when permission is denied for the CRUD method"""
+    pass
+

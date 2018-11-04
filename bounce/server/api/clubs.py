@@ -9,7 +9,7 @@ from . import APIError, Endpoint, util
 from ...db import club
 from ..resource import validate
 from ..resource.club import (GetClubResponse, PostClubsRequest, PutClubRequest,
-                             SearchClubsRequest, SearchClubsResponse)
+                             SearchClubsRequest, SearchClubsResponse, DeleteClubRequest)
 
 MAX_SIZE = 20
 
@@ -37,6 +37,7 @@ class ClubEndpoint(Endpoint):
         """Handles a PUT /clubs/<name> request by updating the club with
         the given name and returning the updated club info."""
         # Decode the name, since special characters will be URL-encoded
+        # TODO: Check the schema for roles, and if it needs body.get()
         name = unquote(name)
         body = util.strip_whitespace(request.json)
         updated_club = club.update(
@@ -47,15 +48,19 @@ class ClubEndpoint(Endpoint):
             website_url=body.get('website_url', None),
             facebook_url=body.get('facebook_url', None),
             instagram_url=body.get('instagram_url', None),
-            twitter_url=body.get('twitter_url', None))
+            twitter_url=body.get('twitter_url', None),
+            editors_role=request.args['role'][0]
+        )
         return response.json(updated_club, status=200)
 
-    async def delete(self, _, name):
+    @validate(DeleteClubRequest, _)
+    async def delete(self, request, name):
         """Handles a DELETE /clubs/<name> request by deleting the club with
         the given name. """
         # Decode the name, since special characters will be URL-encoded
         name = unquote(name)
-        club.delete(self.server.db_session, name)
+        role = request.args['role'][0]
+        club.delete(self.server.db_session, name, role)
         return response.text('', status=204)
 
 
@@ -105,7 +110,7 @@ class SearchClubsEndpoint(Endpoint):
             raise APIError('size too high', status=400)
 
         queried_clubs, result_count, total_pages = club.search(
-            self.server.db_session, query, page, size)
+            self.server.db_session, page, size, query)
         if not queried_clubs:
             # Failed to find clubs that match the query
             raise APIError('No clubs match your query', status=404)

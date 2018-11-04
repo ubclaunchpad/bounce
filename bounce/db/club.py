@@ -5,17 +5,21 @@ Also provides methods to access and edit the DB.
 import math
 import logging
 
+from . import PermissionError
+
+from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy import Column, Integer, String, desc, func
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 
-from membership.Role import President, Admin, Member
 from . import BASE
 
 # The maximum number of results to return in one page.
 # Used in the search method.
 MAX_SIZE = 20
 
+# Defining a enum type for role allocation
+role = ENUM('President', 'Admin', 'Member', name ='role') 
 
 class Club(BASE):
     """
@@ -49,21 +53,32 @@ class Club(BASE):
         }
 
 
-def select(session, name, role=None):
+def can_delete(editors_role):
+    # Only President can delete club
+    if editors_role == 'President':
+        return True
+    # Admins can only delete Member memberships
+    else: return False
+
+def can_update(editors_role):
+    # President and Admin can update club
+    if editors_role == 'President' or editors_role == 'Admin':
+        return True
+    else: return False
+
+
+def select(session, name):
     # TODO: ask bruno about access to select being public (anyone can select a club)
     """
     Returns the club with the given name or None if
     there is no such club.
     """
-    # Presidents, Admins, and Members can read
-    if role == President or role == Admin or role == Member:
-        club = session.query(Club).filter(Club.name == name).first()
-        return None if club is None else club.to_dict()
-    # TODO: Ask Bruno what to return if permission is not granted
-    else: logging.info("db/club.select: User does not have permission to select club")
+    # Anyone should be able to read info on the club (including non-members)
+    club = session.query(Club).filter(Club.name == name).first()
+    return None if club is None else club.to_dict()
 
 
-def search(session, query=None, page=0, size=MAX_SIZE):
+def search(session, page=0, size=MAX_SIZE, query=None):
     """Returns a list of clubs that contain content from the user's query"""
     # number used for offset is the
     # page number multiplied by the size of each page
@@ -86,6 +101,8 @@ def search(session, query=None, page=0, size=MAX_SIZE):
 def insert(session, name, description, website_url, facebook_url,
            instagram_url, twitter_url):
     """Insert a new club into the Clubs table."""
+    """Any user should have the permission to insert"""
+
     club = Club(
         name=name,
         description=description,
@@ -98,11 +115,11 @@ def insert(session, name, description, website_url, facebook_url,
 
 
 def update(session, name, new_name, description, website_url, facebook_url,
-           instagram_url, twitter_url, role=None):
+           instagram_url, twitter_url, editors_role):
     """Updates an existing club in the Clubs table and returns the
     updated club."""
     # Only Presidents and Admins can update
-    if role == President or role == Admin:
+    if can_update(editors_role):
         club = session.query(Club).filter(Club.name == name).first()
         if new_name:
             club.name = new_name
@@ -118,16 +135,15 @@ def update(session, name, new_name, description, website_url, facebook_url,
             club.twitter_url = twitter_url
         session.commit()
         return club.to_dict()
-    # TODO: Ask Bruno what to return if permission is not granted
-    else: logging.info("db/club.update: User does not have permission to update club")
+    else: 
+        raise PermissionError("Permission denied for updating the club.")
 
 
-
-def delete(session, name, role=None):
+def delete(session, name, editors_role=None):
     """Deletes the club with the given name."""
     # Only Presidents can delete
-    if role == President:
+    if can_delete(editors_role):
         session.query(Club).filter(Club.name == name).delete()
         session.commit()
-    # TODO: Ask Bruno what to return if permission is not granted
-    else: logging.info("db/club.delete: User does not have permission to delete club")
+    else: 
+        raise PermissionError("Permission denied for deleting the club.")
