@@ -39,7 +39,6 @@ class UserEndpoint(Endpoint):
         body = util.strip_whitespace(request.json)
         secret = None
         email = None
-        # email = body.get('email', None)
         # Make sure the ID from the token is for the user we're updating
         user_row = user.select(self.server.db_session, username)
         if not user_row:

@@ -36,24 +36,6 @@ def test_post_users__failure(server):
     assert response.status == 400
     assert 'error' in response.json
 
-
-# def test_put_user__success(server):
-#     username = 'test'
-#     token = util.create_jwt(1, server.config.secret)
-#     _, response = server.app.test_client.put(
-#         f'/users/{username}',
-#         data=json.dumps({
-#             'full_name': 'New Name',
-#             'email': 'newemail@test.com'
-#         }),
-#         headers={'Authorization': token})
-#     assert response.status == 200
-#     assert response.json['username'] == username
-#     assert response.json['full_name'] == 'New Name'
-#     assert response.json['email'] == 'newemail@test.com'
-#     assert response.json['id'] == 1
-#     assert isinstance(response.json['created_at'], int)
-
 def test_put_user__success(server):
     username = 'test'
     token = util.create_jwt(1, server.config.secret)
