@@ -3,7 +3,6 @@
 import sqlalchemy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy_searchable import make_searchable
 
 BASE = declarative_base()
 
