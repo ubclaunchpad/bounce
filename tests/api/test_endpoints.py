@@ -236,7 +236,7 @@ def test_paginate_clubs__success(server):
                 'facebook_url': '',
                 'instagram_url': '',
             }))
-    _, response = server.app.test_client.get('/clubs/search?page=0&size=2')
+    _, response = server.app.test_client.get('/clubs/search?size=2')
     assert response.status == 200
     body = response.json
     assert body.get('result_count') == 4
@@ -370,7 +370,7 @@ def test_get_memberships__success(server):
     _, response = server.app.test_client.get('/memberships/newtest?user_id=2')
     assert response.status == 200
     assert len(response.json) == 1
-    membership = response.json[0]
+    membership = response.json['results'][0]
     assert membership['user_id'] == 2
     assert membership['full_name'] == 'Test Guy'
     assert membership['username'] == 'test'
