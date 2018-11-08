@@ -1,10 +1,17 @@
 """Defines the schema for the Users table in our DB."""
 
-from sqlalchemy import Column, Integer, String, func
+import math
+
+from sqlalchemy import Column, Integer, String, desc, func
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
+from sqlalchemy_utils.types import TSVectorType
 
 from . import BASE
+
+# The maximum number of results to return in one page.
+# Used in the search method.
+MAX_SIZE = 20
 
 
 class User(BASE):
@@ -21,6 +28,8 @@ class User(BASE):
     email = Column('email', String, nullable=False)
     created_at = Column(
         'created_at', TIMESTAMP, nullable=False, server_default=func.now())
+    search_vector = Column('search_vector',
+                           TSVectorType('full_name', 'username'))
     clubs = relationship('Membership', back_populates='member')
 
     def to_dict(self):
@@ -50,6 +59,26 @@ def select_by_id(session, user_id):
     there is no such user.
     """
     return session.query(User).filter(User.identifier == user_id).first()
+
+
+def search(session, query=None, page=0, size=MAX_SIZE):
+    """Returns a list of clubs that contain content from the user's query"""
+    # number used for offset is the
+    # page number multiplied by the size of each page
+    offset_num = page * size
+    users = session.query(User)
+
+    if query:
+        # show clubs that have a name that matches the query
+        users = users.filter(User.full_name.ilike(f'%{query}%'))
+    else:
+        # show clubs ordered by most recently created
+        users = users.order_by(desc(User.created_at))
+
+    result_count = users.count()
+    total_pages = math.ceil(result_count / size)
+    users = users.limit(size).offset(offset_num)
+    return users, result_count, total_pages
 
 
 def insert(session, full_name, username, secret, email):

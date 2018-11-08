@@ -18,6 +18,7 @@ CREATE TABLE users (
     username TEXT NOT NULL UNIQUE,
     secret TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
+    search_vector TSVECTOR,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT (now() at time zone 'utc')
 );
 
