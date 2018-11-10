@@ -53,7 +53,9 @@ class UserEndpoint(Endpoint):
             if not util.check_password(body['password'], user_row.secret):
                 raise APIError('Unauthorized', status=401)
             if body.get('new_password'):
-                raise APIError('New password should not be provided for email change', status=400)
+                raise APIError(
+                    'New password should not be provided for email change',
+                    status=400)
             email = body['email']
         elif body.get('new_password'):
             # Check that user current password is provided
