@@ -5,14 +5,13 @@ import os
 from sanic import response
 from sqlalchemy.exc import IntegrityError
 
-from . import APIError, Endpoint, util, verify_token, IMAGE_SIZE_LIMIT
+from . import IMAGE_SIZE_LIMIT, APIError, Endpoint, util, verify_token
 from ...db import image, user
 from ...db.image import EntityType
 from ...db.user import MAX_SIZE, MIN_SIZE
 from ..resource import validate
 from ..resource.user import (GetUserResponse, PostUsersRequest, PutUserRequest,
                              SearchUsersRequest, SearchUsersResponse)
-
 
 
 class UserEndpoint(Endpoint):

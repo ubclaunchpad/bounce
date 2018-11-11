@@ -18,6 +18,7 @@ HTTP_METHODS = set(
 # Maximum number of bytes in an image upload
 IMAGE_SIZE_LIMIT = 1000000
 
+
 class APIError(Exception):
     """Represents an error that occurs while handling a request."""
 

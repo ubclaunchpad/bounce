@@ -4,8 +4,8 @@ import pytest
 
 from bounce.server import Server
 from bounce.server.api.auth import LoginEndpoint
-from bounce.server.api.clubs import (ClubEndpoint, ClubsEndpoint,
-                                     SearchClubsEndpoint, ClubImagesEndpoint)
+from bounce.server.api.clubs import (ClubEndpoint, ClubImagesEndpoint,
+                                     ClubsEndpoint, SearchClubsEndpoint)
 from bounce.server.api.membership import MembershipEndpoint
 from bounce.server.api.users import (SearchUsersEndpoint, UserEndpoint,
                                      UserImagesEndpoint, UsersEndpoint)

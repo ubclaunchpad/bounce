@@ -9,7 +9,8 @@ from sanic.log import logger
 
 from .server import Server
 from .server.api.auth import LoginEndpoint
-from .server.api.clubs import ClubEndpoint, ClubsEndpoint, SearchClubsEndpoint, ClubImagesEndpoint
+from .server.api.clubs import (ClubEndpoint, ClubImagesEndpoint, ClubsEndpoint,
+                               SearchClubsEndpoint)
 from .server.api.membership import MembershipEndpoint
 from .server.api.users import (SearchUsersEndpoint, UserEndpoint,
                                UserImagesEndpoint, UsersEndpoint)

@@ -1,7 +1,6 @@
 """Request handlers for the /clubs endpoint."""
 
 import os
-
 from urllib.parse import unquote
 
 from sanic import response
@@ -126,12 +125,14 @@ class SearchClubsEndpoint(Endpoint):
 
         return response.json(info, status=200)
 
+
 class ClubImagesEndpoint(Endpoint):
     """Handles requests to /clubs/<club_name>/images/<image_name>."""
 
     __uri__ = '/clubs/<club_name>/images/<image_name>'
-    ##@validate(GetClubImageRequest, GetClubImageResponse)
-    async def get(self, _, club_name, image_name): 
+
+    # @validate(GetClubImageRequest, GetClubImageResponse)
+    async def get(self, _, club_name, image_name):
         """
         Handles a GET /clubs/<club_name>/images/<image_name> request
         by returning the club's image with the given name.
@@ -147,8 +148,8 @@ class ClubImagesEndpoint(Endpoint):
             raise APIError('No such image', status=404)
 
     @verify_token()
-    ##@validate(PutClubImageRequest, PutClubImageResponse)
-    async def put(self, request, club_name, image_name, id_from_token=None):
+    # @validate(PutClubImageRequest, PutClubImageResponse)
+    async def put(self, request, club_name, image_name):
         """
         Handles a PUT /clubs/<club_name>/images/<image_name> request
         by updating the image at the given path.
@@ -173,16 +174,16 @@ class ClubImagesEndpoint(Endpoint):
         if len(image_upload.body) > IMAGE_SIZE_LIMIT:
             raise APIError('Image too large', status=400)
         try:
-            image.save(self.server.config.image_dir, EntityType.CLUB, club_name,
-                       image_name, image_upload.body)
+            image.save(self.server.config.image_dir, EntityType.CLUB,
+                       club_name, image_name, image_upload.body)
         except FileExistsError:
             raise APIError('No such image', status=404)
 
         return response.text('', status=200)
 
     @verify_token()
-    ## @validate(DeleteClubImageRequest, DeleteClubImageResponse)
-    async def delete(self, _, club_name, image_name, id_from_token=None): 
+    # @validate(DeleteClubImageRequest, DeleteClubImageResponse)
+    async def delete(self, _, club_name, image_name):
         """Handles a DETELE by deleting the club's image by the given name."""
 
         if not util.check_image_name(image_name):
@@ -190,7 +191,7 @@ class ClubImagesEndpoint(Endpoint):
         # Make sure the user is deleting their own image
         club_info = club.select(self.server.db_session, club_name)
         if not club_info:
-            raise APIError('No such image', status=404)     
+            raise APIError('No such image', status=404)
         try:
             image.delete(
                 self.server.config.image_dir,
