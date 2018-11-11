@@ -262,6 +262,75 @@ def test_post_clubs__failure(server):
     assert response.status == 409
     assert 'error' in response.json
 
+def test_put_club_image__success(server):
+    # POST a dummy user to add a profile image to
+    token = util.create_jwt(2, server.config.secret)
+    data = FormData()
+    data.add_field('image', open('tests/testdata/large-logo.png', 'rb'))
+    _, response = server.app.test_client.put(
+        '/clubs/test/images/profile',
+        data=data,
+        headers={
+            'Authorization': token,
+        }
+        )
+    assert response.status == 200
+
+
+def test_put_club_image__failure(server):
+    #No such club
+    token = util.create_jwt(2, server.config.secret)
+    data = FormData()
+    _, response = server.app.test_client.put(
+        '/clubs/newtest/images/profile',
+        data=data,
+        headers={
+            'Authorization': token,
+        })
+    assert response.status == 404
+    #Invalid image name
+    _, response = server.app.test_client.put(
+        '/clubs/test/images/$%^&*(',
+        data=data,
+        headers={
+            'Authorization': token,
+        })
+    assert response.status == 400
+
+def test_get_club_image__success(server):
+    _, response = server.app.test_client.get('/clubs/test/images/profile')
+    assert response.status == 200
+
+
+def test_get_club_image__failure(server):
+    #No such club
+    _, response = server.app.test_client.get('/clubs/newTest/images/profile')
+    assert response.status == 404
+
+
+def test_delete_club_image__success(server):
+    token = util.create_jwt(2, server.config.secret)
+    _, response = server.app.test_client.delete(
+        '/clubs/test/images/profile', headers={
+            'Authorization': token,
+        })
+    assert response.status == 200
+
+
+def test_delete_club_image__failure(server):
+    token = util.create_jwt(2, server.config.secret)
+    # No such image
+    _, response = server.app.test_client.delete(
+        '/clubs/test/images/profile', headers={
+            'Authorization': token,
+        })
+    assert response.status == 404
+    # # Forbidden (user is trying to delete image of an unrelated club)
+    # _, response = server.app.test_client.delete(
+    #     '/clubs/newtest/images/profile', headers={
+    #         'Authorization': token,
+    #     })
+    # assert response.status == 403
 
 def test_put_club__success(server):
     _, response = server.app.test_client.put(
@@ -297,7 +366,6 @@ def test_get_club__success(server):
 def test_get_club__failure(server):
     _, response = server.app.test_client.get('/clubs/doesnotexist')
     assert response.status == 404
-
 
 def test_delete_club__success(server):
     _, response = server.app.test_client.delete('/clubs/test')
@@ -344,7 +412,6 @@ def test_search_clubs__success(server):
     assert body.get('results')[1]['name'] == 'UBC biomed'
     assert body.get('results')[1]['description'] == 'something else'
 
-
 def test_put_user_image__success(server):
     # POST a dummy user to add a profile image to
     server.app.test_client.post(
@@ -365,7 +432,6 @@ def test_put_user_image__success(server):
             'Authorization': token,
         })
     assert response.status == 200
-
 
 def test_put_user_image__failure(server):
     token = util.create_jwt(6, server.config.secret)

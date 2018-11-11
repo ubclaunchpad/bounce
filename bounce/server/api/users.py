@@ -5,7 +5,7 @@ import os
 from sanic import response
 from sqlalchemy.exc import IntegrityError
 
-from . import APIError, Endpoint, util, verify_token
+from . import APIError, Endpoint, util, verify_token, IMAGE_SIZE_LIMIT
 from ...db import image, user
 from ...db.image import EntityType
 from ...db.user import MAX_SIZE, MIN_SIZE
@@ -13,8 +13,6 @@ from ..resource import validate
 from ..resource.user import (GetUserResponse, PostUsersRequest, PutUserRequest,
                              SearchUsersRequest, SearchUsersResponse)
 
-# Maximum number of bytes in an image upload
-IMAGE_SIZE_LIMIT = 1000000
 
 
 class UserEndpoint(Endpoint):
@@ -203,7 +201,7 @@ class UserImagesEndpoint(Endpoint):
                 user_id,
                 image_name,
                 must_exist=True)
-        except FileExistsError:
+        except FileNotFoundError:
             raise APIError('No such image', status=404)
         return response.text('', status=200)
 

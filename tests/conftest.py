@@ -5,7 +5,7 @@ import pytest
 from bounce.server import Server
 from bounce.server.api.auth import LoginEndpoint
 from bounce.server.api.clubs import (ClubEndpoint, ClubsEndpoint,
-                                     SearchClubsEndpoint)
+                                     SearchClubsEndpoint, ClubImagesEndpoint)
 from bounce.server.api.membership import MembershipEndpoint
 from bounce.server.api.users import (SearchUsersEndpoint, UserEndpoint,
                                      UserImagesEndpoint, UsersEndpoint)
@@ -25,7 +25,7 @@ def server(config):
     serv = Server(config, [
         UserEndpoint, UsersEndpoint, ClubEndpoint, ClubsEndpoint,
         LoginEndpoint, UserImagesEndpoint, SearchClubsEndpoint,
-        SearchUsersEndpoint, MembershipEndpoint
+        SearchUsersEndpoint, ClubImagesEndpoint
     ])
     serv.start(test=True)
     return serv
