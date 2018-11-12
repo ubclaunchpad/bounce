@@ -11,7 +11,7 @@ class PostUsersRequest(metaclass=ResourceMeta):
         'additionalProperties': False,
         'properties': {
             'full_name': {
-                'type': 'string'
+                'type': 'string',
             },
             'username': {
                 'type': 'string',

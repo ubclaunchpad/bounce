@@ -8,7 +8,7 @@ class GetMembershipRequest(metaclass=ResourceMeta):
     __params__ = {
         'type': 'object',
         'additionalProperties': False,
-        'required': ['user_id', 'editor_role']
+        'required': ['user_id', 'editor_role'],
         'properties': {
             'user_id': {
                 'type': 'string',
@@ -102,7 +102,7 @@ class DeleteMembershipRequest(metaclass=ResourceMeta):
             },
             'editors_id': {
               'type': 'string',
-            }
+            },
             'editor_role': {
                 'enum': ["President", "Admin", "Member"]
             },

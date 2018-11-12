@@ -53,7 +53,7 @@ class ClubEndpoint(Endpoint):
         )
         return response.json(updated_club, status=200)
 
-    @validate(DeleteClubRequest, _)
+    @validate(DeleteClubRequest, None)
     async def delete(self, request, name):
         """Handles a DELETE /clubs/<name> request by deleting the club with
         the given name. """
