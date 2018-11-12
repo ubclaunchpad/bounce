@@ -5,7 +5,6 @@ import math
 from sqlalchemy import Column, Integer, String, desc, func
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
-from sqlalchemy_utils.types import TSVectorType
 
 from . import BASE
 
@@ -28,8 +27,6 @@ class User(BASE):
     email = Column('email', String, nullable=False)
     created_at = Column(
         'created_at', TIMESTAMP, nullable=False, server_default=func.now())
-    search_vector = Column('search_vector',
-                           TSVectorType('full_name', 'username'))
     clubs = relationship('Membership', back_populates='member')
 
     def to_dict(self):
@@ -71,6 +68,10 @@ def search(session, query=None, page=0, size=MAX_SIZE):
     if query:
         # show clubs that have a name that matches the query
         users = users.filter(User.full_name.ilike(f'%{query}%'))
+        # TODO: implement search_vector functionality:
+        # users = users.filter(User.search_vector.match(query))
+        # Currently search_vector column isn't working properly
+
     else:
         # show clubs ordered by most recently created
         users = users.order_by(desc(User.created_at))

@@ -6,10 +6,12 @@ from aiohttp import FormData
 
 from bounce.server.api import util
 
+
 def test_root_handler(server):
     _, response = server.app.test_client.get('/')
     assert response.status == 200
     assert response.body == b'Bounce API accepting requests!'
+
 
 def test_post_users__success(server):
     _, response = server.app.test_client.post(
@@ -22,6 +24,7 @@ def test_post_users__success(server):
         }))
     assert response.status == 201
 
+
 def test_post_users__failure(server):
     _, response = server.app.test_client.post(
         '/users',
@@ -32,6 +35,7 @@ def test_post_users__failure(server):
         }))
     assert response.status == 400
     assert 'error' in response.json
+
 
 def test_put_user__success(server):
     username = 'test'
@@ -108,10 +112,11 @@ def test_put_user_update_email__failure(server):
 
 
 def test_paginate_users__success(server):
-    # add dummy data to search for in database
+    # add 3 dummy data entries to search for in database.
+    # In total there's 4 with one coming from previous tests.
     user_info = [[
-        'matt', 'ginsstaahh', 'matthewgin10@gmail.com', 'Val1dPassword!'
-    ], ['david', 'dwu', 'dwu10@gmail.com', 'Val1dPassword!'],
+        'matt gin', 'ginsstaahh', 'matthewgin10@gmail.com', 'Val1dPassword!'
+    ], ['gin', 'ginsstaahh221', 'matt.gin@hotmail.com', 'Val1dPassword!'],
                  ['bruno', 'bfcbachman', 'bruno@gmail.com', 'Val1dPassword!']]
     for full_name, username, email, password in user_info:
         server.app.test_client.post(
@@ -131,13 +136,10 @@ def test_paginate_users__success(server):
 
 
 def test_search_users__success(server):
-    _, response = server.app.test_client.get('/users/search?query=matt')
+    _, response = server.app.test_client.get('/users/search?query=gin')
     assert response.status == 200
     body = response.json
-    assert len(body.get('results')) == 1
-    assert body.get('results')[0]['full_name'] == 'matt'
-    assert body.get('results')[0]['username'] == 'ginsstaahh'
-    assert body.get('results')[0]['email'] == 'matthewgin10@gmail.com'
+    assert len(body.get('results')) == 2
 
 
 def test_get_user__success(server):
@@ -149,9 +151,11 @@ def test_get_user__success(server):
     assert response.json['id'] == 1
     assert isinstance(response.json['created_at'], int)
 
+
 def test_get_user__failure(server):
     _, response = server.app.test_client.get('/users/doesnotexist')
     assert response.status == 404
+
 
 def test_put_users_update_password__success(server):
     username = 'test'
@@ -164,6 +168,7 @@ def test_put_users_update_password__success(server):
         }),
         headers={'Authorization': token})
     assert response.status == 200
+
 
 def test_put_users_update_password__failure(server):
     username = 'test'
@@ -185,6 +190,7 @@ def test_put_users_update_password__failure(server):
         headers={'Authorization': token})
     assert response.status == 401
 
+
 def test_login__success(server):
     _, response = server.app.test_client.post(
         '/auth/login',
@@ -195,6 +201,7 @@ def test_login__success(server):
     assert response.status == 200
     assert isinstance(response.json['token'], str)
 
+
 def test_login__failure(server):
     _, response = server.app.test_client.post(
         '/auth/login',
@@ -204,17 +211,20 @@ def test_login__failure(server):
         }))
     assert response.status == 401
 
+
 def test_delete_user__success(server):
     token = util.create_jwt(1, server.config.secret)
     _, response = server.app.test_client.delete(
         '/users/test', headers={'Authorization': token})
     assert response.status == 204
 
+
 def test_delete_user__failure(server):
     token = util.create_jwt(1, server.config.secret)
     _, response = server.app.test_client.delete(
         '/users/doesnotexist', headers={'Authorization': token})
     assert response.status == 404
+
 
 def test_post_clubs__success(server):
     _, response = server.app.test_client.post(
@@ -228,6 +238,7 @@ def test_post_clubs__success(server):
             'twitter_url': 'twitter.com/test',
         }))
     assert response.status == 201
+
 
 def test_post_clubs__failure(server):
     _, response = server.app.test_client.post(
@@ -243,6 +254,7 @@ def test_post_clubs__failure(server):
     assert response.status == 409
     assert 'error' in response.json
 
+
 def test_put_club__success(server):
     _, response = server.app.test_client.put(
         '/clubs/test',
@@ -256,12 +268,14 @@ def test_put_club__success(server):
     assert response.json['id'] == 1
     assert isinstance(response.json['created_at'], int)
 
+
 def test_put_club__failure(server):
     _, response = server.app.test_client.put(
         '/clubs/newtest', data=json.dumps({
             'garbage': True
         }))
     assert response.status == 400
+
 
 def test_get_club__success(server):
     _, response = server.app.test_client.get('/clubs/newtest')
@@ -271,13 +285,16 @@ def test_get_club__success(server):
     assert response.json['id'] == 1
     assert isinstance(response.json['created_at'], int)
 
+
 def test_get_club__failure(server):
     _, response = server.app.test_client.get('/clubs/doesnotexist')
     assert response.status == 404
 
+
 def test_delete_club__success(server):
     _, response = server.app.test_client.delete('/clubs/test')
     assert response.status == 204
+
 
 def test_paginate_clubs__success(server):
     # add dummy data to search for in database
@@ -301,6 +318,7 @@ def test_paginate_clubs__success(server):
     assert body.get('page') == 0
     assert body.get('total_pages') == 2
 
+
 def test_search_clubs__success(server):
     _, response = server.app.test_client.get('/clubs/search?query=UBC')
     assert response.status == 200
@@ -310,6 +328,7 @@ def test_search_clubs__success(server):
     assert body.get('results')[0]['description'] == 'software engineering team'
     assert body.get('results')[1]['name'] == 'UBC biomed'
     assert body.get('results')[1]['description'] == 'something else'
+
 
 def test_put_user_image__success(server):
     # POST a dummy user to add a profile image to
@@ -321,23 +340,24 @@ def test_put_user_image__success(server):
             'email': 'test@test.com',
             'password': 'Val1dPassword!'
         }))
-    token = util.create_jwt(2, server.config.secret)
+    token = util.create_jwt(5, server.config.secret)
     data = FormData()
     data.add_field('image', open('tests/testdata/large-logo.png', 'rb'))
     _, response = server.app.test_client.put(
-        '/users/2/images/profile',
+        '/users/5/images/profile',
         data=data,
         headers={
             'Authorization': token,
         })
     assert response.status == 200
 
+
 def test_put_user_image__failure(server):
-    token = util.create_jwt(3, server.config.secret)
+    token = util.create_jwt(6, server.config.secret)
     data = FormData()
     # No such user
     _, response = server.app.test_client.put(
-        '/users/3/images/profile',
+        '/users/6/images/profile',
         data=data,
         headers={
             'Authorization': token,
@@ -345,7 +365,7 @@ def test_put_user_image__failure(server):
     assert response.status == 404
     # Forbidden (the user is trying to update another user's image)
     _, response = server.app.test_client.put(
-        '/users/2/images/profile',
+        '/users/5/images/profile',
         data=data,
         headers={
             'Authorization': token,
@@ -354,43 +374,48 @@ def test_put_user_image__failure(server):
     # Invalid image name
     token = util.create_jwt(2, server.config.secret)
     _, response = server.app.test_client.put(
-        '/users/2/images/$%^&*(',
+        '/users/5/images/$%^&*(',
         data=data,
         headers={
             'Authorization': token,
         })
     assert response.status == 400
 
+
 def test_get_user_image__success(server):
-    _, response = server.app.test_client.get('/users/2/images/profile')
+    _, response = server.app.test_client.get('/users/5/images/profile')
     assert response.status == 200
 
+
 def test_get_user_image__failure(server):
-    _, response = server.app.test_client.get('/users/3/images/profile')
+    _, response = server.app.test_client.get('/users/6/images/profile')
     assert response.status == 404
 
+
 def test_delete_user_image__success(server):
-    token = util.create_jwt(2, server.config.secret)
+    token = util.create_jwt(5, server.config.secret)
     _, response = server.app.test_client.delete(
-        '/users/2/images/profile', headers={
+        '/users/5/images/profile', headers={
             'Authorization': token,
         })
     assert response.status == 200
 
+
 def test_delete_user_image__failure(server):
-    token = util.create_jwt(3, server.config.secret)
+    token = util.create_jwt(6, server.config.secret)
     # No such image
     _, response = server.app.test_client.delete(
-        '/users/3/images/profile', headers={
+        '/users/6/images/profile', headers={
             'Authorization': token,
         })
     assert response.status == 404
     # Forbidden (user is trying to delete another user's image)
     _, response = server.app.test_client.delete(
-        '/users/2/images/profile', headers={
+        '/users/5/images/profile', headers={
             'Authorization': token,
         })
     assert response.status == 403
+
 
 def test_put_memberships__success(server):
     _, response = server.app.test_client.post(
@@ -407,6 +432,7 @@ def test_put_memberships__success(server):
         '/memberships/newtest?user_id=2', headers={'Authorization': token})
     assert response.status == 201
 
+
 def test_put_memberships__failure(server):
     token = util.create_jwt(2, server.config.secret)
     _, response = server.app.test_client.put(
@@ -414,21 +440,24 @@ def test_put_memberships__failure(server):
         headers={'Authorization': token})
     assert response.status == 400
 
+
 def test_get_memberships__success(server):
     _, response = server.app.test_client.get('/memberships/newtest?user_id=2')
     assert response.status == 200
     assert len(response.json) == 1
     membership = response.json['results'][0]
     assert membership['user_id'] == 2
-    assert membership['full_name'] == 'Test Guy'
-    assert membership['username'] == 'test'
+    assert membership['full_name'] == 'matt gin'
+    assert membership['username'] == 'ginsstaahh'
     assert isinstance(membership['created_at'], int)
 
+
 def test_delete_membership__failure(server):
-    token = util.create_jwt(1, server.config.secret)
+    token = util.create_jwt(3, server.config.secret)
     _, response = server.app.test_client.delete(
         '/memberships/newtest?user_id=2', headers={'Authorization': token})
     assert response.status == 403
+
 
 def test_delete_membership__success(server):
     token = util.create_jwt(2, server.config.secret)
