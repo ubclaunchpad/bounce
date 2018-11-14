@@ -8,8 +8,9 @@ from sqlalchemy.exc import IntegrityError
 from . import APIError, Endpoint, util
 from ...db import club
 from ..resource import validate
-from ..resource.club import (GetClubResponse, PostClubsRequest, PutClubRequest,
-                             SearchClubsRequest, SearchClubsResponse, DeleteClubRequest)
+from ..resource.club import (DeleteClubRequest, GetClubResponse,
+                             PostClubsRequest, PutClubRequest,
+                             SearchClubsRequest, SearchClubsResponse)
 
 MAX_SIZE = 20
 
@@ -34,7 +35,7 @@ class ClubEndpoint(Endpoint):
 
     @validate(PutClubRequest, GetClubResponse)
     async def put(self, request, name):
-        """Handles a PUT /clubs/<name> request by updating the club with
+        """Handles a PUT /clubs/<name>?access=<role> request by updating the club with
         the given name and returning the updated club info."""
         # Decode the name, since special characters will be URL-encoded
         # TODO: Check the schema for roles, and if it needs body.get()
@@ -49,18 +50,17 @@ class ClubEndpoint(Endpoint):
             facebook_url=body.get('facebook_url', None),
             instagram_url=body.get('instagram_url', None),
             twitter_url=body.get('twitter_url', None),
-            editors_role=request.args['role'][0]
-        )
+            editor_role=request.args['access'][0])
         return response.json(updated_club, status=200)
 
     @validate(DeleteClubRequest, None)
     async def delete(self, request, name):
-        """Handles a DELETE /clubs/<name> request by deleting the club with
-        the given name. """
+        """Handles a DELETE /clubs/<name>?access=<role> request by deleting the club with
+        the given name."""
         # Decode the name, since special characters will be URL-encoded
         name = unquote(name)
-        role = request.args['role'][0]
-        club.delete(self.server.db_session, name, role)
+        editor_role = request.args['access'][0]
+        club.delete(self.server.db_session, name, editor_role=editor_role)
         return response.text('', status=204)
 
 

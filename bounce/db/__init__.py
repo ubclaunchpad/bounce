@@ -31,7 +31,7 @@ def get_sessionmaker(engine):
     """
     return sessionmaker(bind=engine)
 
+
 class PermissionError(Exception):
     """Raised when permission is denied for the CRUD method"""
     pass
-

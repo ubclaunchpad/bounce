@@ -2,24 +2,23 @@
 Defines the schema for the Clubs table in our DB.
 Also provides methods to access and edit the DB.
 """
-import math
 import logging
+import math
 
-from . import PermissionError
-
-from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy import Column, Integer, String, desc, func
+from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 
-from . import BASE
+from . import BASE, PermissionError
 
 # The maximum number of results to return in one page.
 # Used in the search method.
 MAX_SIZE = 20
 
 # Defining a enum type for role allocation
-role = ENUM('President', 'Admin', 'Member', name ='role') 
+role = ENUM('President', 'Admin', 'Member', name='role')
+
 
 class Club(BASE):
     """
@@ -53,18 +52,21 @@ class Club(BASE):
         }
 
 
-def can_delete(editors_role):
+def can_delete(editor_role):
     # Only President can delete club
-    if editors_role == 'President':
+    if editor_role == 'President':
         return True
     # Admins can only delete Member memberships
-    else: return False
+    else:
+        return False
 
-def can_update(editors_role):
+
+def can_update(editor_role):
     # President and Admin can update club
-    if editors_role == 'President' or editors_role == 'Admin':
+    if editor_role == 'President' or editor_role == 'Admin':
         return True
-    else: return False
+    else:
+        return False
 
 
 def select(session, name):
@@ -102,7 +104,6 @@ def insert(session, name, description, website_url, facebook_url,
            instagram_url, twitter_url):
     """Insert a new club into the Clubs table."""
     """Any user should have the permission to insert"""
-
     club = Club(
         name=name,
         description=description,
@@ -114,12 +115,19 @@ def insert(session, name, description, website_url, facebook_url,
     session.commit()
 
 
-def update(session, name, new_name, description, website_url, facebook_url,
-           instagram_url, twitter_url, editors_role):
+def update(session,
+           name,
+           new_name,
+           description,
+           website_url,
+           facebook_url,
+           instagram_url,
+           twitter_url,
+           editor_role=None):
     """Updates an existing club in the Clubs table and returns the
     updated club."""
     # Only Presidents and Admins can update
-    if can_update(editors_role):
+    if can_update(editor_role):
         club = session.query(Club).filter(Club.name == name).first()
         if new_name:
             club.name = new_name
@@ -135,15 +143,15 @@ def update(session, name, new_name, description, website_url, facebook_url,
             club.twitter_url = twitter_url
         session.commit()
         return club.to_dict()
-    else: 
+    else:
         raise PermissionError("Permission denied for updating the club.")
 
 
-def delete(session, name, editors_role=None):
+def delete(session, name, editor_role=None):
     """Deletes the club with the given name."""
     # Only Presidents can delete
-    if can_delete(editors_role):
+    if can_delete(editor_role):
         session.query(Club).filter(Club.name == name).delete()
         session.commit()
-    else: 
+    else:
         raise PermissionError("Permission denied for deleting the club.")

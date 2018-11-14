@@ -35,11 +35,10 @@ class PostClubsRequest(metaclass=ResourceMeta):
 class PutClubRequest(metaclass=ResourceMeta):
     """Defines the schema for a PUT /clubs/<name> request."""
     __params__ = {
-        'role': {
+        'access': {
             'enum': ["President", "Admin", "Member"]
         },
     }
-
     __body__ = {
         'type': 'object',
         'required': ['name'],
@@ -184,10 +183,11 @@ class SearchClubsResponse(metaclass=ResourceMeta):
         }
     }
 
+
 class DeleteClubRequest(metaclass=ResourceMeta):
     """Defines the schema for a GET /clubs/<name> request."""
     __params__ = {
-        'role': {
+        'access': {
             'enum': ["President", "Admin", "Member"]
         },
     }

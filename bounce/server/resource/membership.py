@@ -8,13 +8,13 @@ class GetMembershipRequest(metaclass=ResourceMeta):
     __params__ = {
         'type': 'object',
         'additionalProperties': False,
-        'required': ['user_id', 'editor_role'],
+        'required': ['user_id', 'access'],
         'properties': {
             'user_id': {
                 'type': 'string',
                 'minimum': 0,
             },
-            'role': {
+            'access': {
                 'enum': ["President", "Admin", "Member"]
             },
         }
@@ -26,10 +26,10 @@ class GetMembershipResponse(metaclass=ResourceMeta):
     __body__ = {
         'type': 'array',
         'items': {
-            'type': 'object',
+            'type':
+            'object',
             'required': [
                 'user_id',
-                'club_id',
                 'created_at',
                 'role',
                 'position',
@@ -38,9 +38,6 @@ class GetMembershipResponse(metaclass=ResourceMeta):
             ],
             'properties': {
                 'user_id': {
-                    'type': 'integer'
-                },
-                'club_id': {
                     'type': 'integer'
                 },
                 'created_at': {
@@ -57,7 +54,6 @@ class GetMembershipResponse(metaclass=ResourceMeta):
                 },
                 'username': {
                     'type': 'string',
-                
                 },
             }
         }
@@ -67,17 +63,20 @@ class GetMembershipResponse(metaclass=ResourceMeta):
 class PutMembershipRequest(metaclass=ResourceMeta):
     """Defines the schema for a PUT /memberships/<club_name> request."""
     __params__ = {
+        'user_id': {
+            'type': 'string',
+        },
+        'access': {
+            'enum': ["President", "Admin", "Member"]
+        }
+    }
+
+    __body__ = {
         'type': 'object',
         'additionalProperties': False,
-        'required': ['user_id', 'role', 'position'],       
+        'required': ['role', 'position'],
         'properties': {
-            'user_id': {
-                'type': 'string',
-            },
-            'editor_role': {
-                'enum': ["President", "Admin", "Member"]
-            },
-            'members_role': {
+            'role': {
                 'enum': ["President", "Admin", "Member"]
             },
             'position': {
@@ -92,16 +91,16 @@ class DeleteMembershipRequest(metaclass=ResourceMeta):
     __params__ = {
         'type': 'object',
         'additionalProperties': False,
-        'required': ['user_id', 'members_role', 'editors_id', 'editor_role'],
+        'required': ['user_id', 'member_role', 'editor_id', 'editor_role'],
         'properties': {
             'user_id': {
                 'type': 'string',
             },
-            'members_role': {
+            'member_role': {
                 'enum': ["President", "Admin", "Member"]
             },
-            'editors_id': {
-              'type': 'string',
+            'editor_id': {
+                'type': 'string',
             },
             'editor_role': {
                 'enum': ["President", "Admin", "Member"]

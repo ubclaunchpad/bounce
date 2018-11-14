@@ -21,7 +21,7 @@ class MembershipEndpoint(Endpoint):
     @validate(GetMembershipRequest, GetMembershipResponse)
     async def get(self, request, club_name):
         """
-        Handles a GET /memberships/<club_name>?user_id=<user_id> request
+        Handles a GET /memberships/<club_name>?user_id=<user_id>&access=<role> request
         by returning the membership that associates the given user with the
         given club. If no user ID is given, returns all memberships for the
         given club.
@@ -29,7 +29,7 @@ class MembershipEndpoint(Endpoint):
         # Decode the club name
         club_name = unquote(club_name)
         user_id = request.args.get('user_id', None)[0]
-        editor_role = request.args.get('role')[0]
+        editor_role = request.args.get('access')
 
         # Make sure the club exists
         club_row = club.select(self.server.db_session, club_name)
@@ -37,29 +37,31 @@ class MembershipEndpoint(Endpoint):
             raise APIError('No such club', status=404)
 
         # Fetch the club's memberships
-        membership_info = membership.select(
-            self.server.db_session, club_name, user_id, editor_role)
+        membership_info = membership.select(self.server.db_session, club_name,
+                                            user_id, editor_role)
         return response.json(membership_info, status=200)
 
     # pylint: disable=unused-argument
     @verify_token()
     @validate(PutMembershipRequest, None)
     async def put(self, request, club_name, id_from_token=None):
-        """Handles a PUT /memberships/<club_name>?user_id=<user_id>&editor_role=<role>&members_role=<role>&position=<position>
+        """Handles a PUT /memberships/<club_name>?user_id=<user_id>&access=<role>
         creating or updating the membership for the given user and club."""
         # Decode the club name
         club_name = unquote(club_name)
-        editor_role = request.args.get('editor_role')[0]
-        members_role = request.args.get('members_role')[0]
-        position = request.args.get('position')[0]
+        user_id = 0  # TODO: default user id
+        access = request.args.get('access')
+        body = request.json
+        # body = util.strip_whitespace(request.json)
+        members_role = body.get('role')
+        position = body.get('position')
         try:
-            user_id = int(request.args.get('user_id'))
+            user_id = int(request.args.get('user_id')[0])
         except Exception:
             raise APIError('Invalid user ID', status=400)
         try:
-            membership.insert(
-                self.server.db_session, club_name, user_id, 
-                editor_role, members_role, position)
+            membership.insert(self.server.db_session, club_name, user_id,
+                              access, members_role, position)
         except IntegrityError:
             raise APIError('Invalid user or club ID', status=400)
         return response.text('', status=201)
@@ -70,7 +72,7 @@ class MembershipEndpoint(Endpoint):
     @validate(DeleteMembershipRequest, None)
     async def delete(self, request, club_name, id_from_token=None):
         """
-        Handles a DELETE /memberships/<club_name>?user_id=<user_id> request
+        Handles a DELETE /memberships/<club_name>?user_id=<id>&editor_id=<id>editor_role=<role>&members_role=<role> request
         by deleting the membership that associates the given user with the
         given club.
         """
@@ -80,9 +82,10 @@ class MembershipEndpoint(Endpoint):
 
         # Decode the club name
         club_name = unquote(club_name)
-        editors_id = request.args.get('editor_id')[0]
-        editor_role = request.args.get('editor_role')[0]
-        members_role = request.args.get('members_role')[0]
+        user_id = 0  # TODO: default value
+        editors_id = int(request.args.get('editor_id')[0])
+        editors_role = request.args.get('editor_role')[0]
+        members_role = request.args.get('member_role')[0]
         try:
             user_id = int(request.args.get('user_id')[0])
         except ValueError:
@@ -99,8 +102,10 @@ class MembershipEndpoint(Endpoint):
 
         # Delete the memberships
         if user_id:
-            membership.delete(self.server.db_session, club_name, editors_id, user_id, editor_role, members_role)
+            membership.delete(self.server.db_session, club_name, editors_id,
+                              user_id, editors_role, members_role)
             return response.text('', status=204)
         else:
-            membership.delete_all(self.server.db_session, club_name, editor_role, members_role)
+            membership.delete_all(self.server.db_session, club_name,
+                                  editors_role, members_role)
             return response.text('', status=204)
