@@ -33,7 +33,7 @@ def test_put_memberships__success(server):
 
 
 def test_put_memberships__failure(server):
-    # TODO: add permission error
+    # Club does not exist
     token = util.create_jwt(3, server.config.secret)
     _, response = server.app.test_client.put(
         '/memberships/doesnotexist?user_id=3&access=President',
@@ -44,9 +44,18 @@ def test_put_memberships__failure(server):
         headers={'Authorization': token})
     assert response.status == 400
 
+    # Permission denied
+    _, response = server.app.test_client.put(
+        '/memberships/testclub?user_id=3&access=Member',
+        data=json.dumps({
+            'role': 'President',
+            'position': 'VP'
+        }),
+        headers={'Authorization': token})
+    assert response.status == 403
+
 
 def test_get_memberships__success(server):
-    # TODO: add permission error
     _, response = server.app.test_client.get(
         '/memberships/testclub?user_id=3&access=President')
     assert response.status == 200
@@ -58,11 +67,17 @@ def test_get_memberships__success(server):
     assert isinstance(membership['created_at'], int)
 
 
+def test_get_membership__failure(server):
+    # Permission denied
+    _, response = server.app.test_client.get('/memberships/testclub?user_id=3')
+    assert response.status == 403
+
+
 def test_delete_membership__failure(server):
-    # TODO: Add permission error
+    # Members can't delete other memberships
     token = util.create_jwt(1, server.config.secret)
     _, response = server.app.test_client.delete(
-        '/memberships/testclub?user_id=3&editor_id=3&editor_role=President&member_role=President',
+        '/memberships/testclub?user_id=3&editor_id=1&editor_role=Member&member_role=President',
         headers={'Authorization': token})
     assert response.status == 403
 

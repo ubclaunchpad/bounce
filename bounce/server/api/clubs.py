@@ -6,7 +6,7 @@ from sanic import response
 from sqlalchemy.exc import IntegrityError
 
 from . import APIError, Endpoint, util
-from ...db import club
+from ...db import PermissionError, club
 from ..resource import validate
 from ..resource.club import (DeleteClubRequest, GetClubResponse,
                              PostClubsRequest, PutClubRequest,
@@ -41,16 +41,19 @@ class ClubEndpoint(Endpoint):
         # TODO: Check the schema for roles, and if it needs body.get()
         name = unquote(name)
         body = util.strip_whitespace(request.json)
-        updated_club = club.update(
-            self.server.db_session,
-            name,
-            new_name=body.get('name', None),
-            description=body.get('description', None),
-            website_url=body.get('website_url', None),
-            facebook_url=body.get('facebook_url', None),
-            instagram_url=body.get('instagram_url', None),
-            twitter_url=body.get('twitter_url', None),
-            editor_role=request.args['access'][0])
+        try:
+            updated_club = club.update(
+                self.server.db_session,
+                name,
+                new_name=body.get('name', None),
+                description=body.get('description', None),
+                website_url=body.get('website_url', None),
+                facebook_url=body.get('facebook_url', None),
+                instagram_url=body.get('instagram_url', None),
+                twitter_url=body.get('twitter_url', None),
+                editor_role=request.args['access'][0])
+        except PermissionError:
+            raise APIError('Unauthorized', status=403)
         return response.json(updated_club, status=200)
 
     @validate(DeleteClubRequest, None)
@@ -60,7 +63,10 @@ class ClubEndpoint(Endpoint):
         # Decode the name, since special characters will be URL-encoded
         name = unquote(name)
         editor_role = request.args['access'][0]
-        club.delete(self.server.db_session, name, editor_role=editor_role)
+        try:
+            club.delete(self.server.db_session, name, editor_role=editor_role)
+        except PermissionError:
+            raise APIError('Unauthorized', status=403)
         return response.text('', status=204)
 
 

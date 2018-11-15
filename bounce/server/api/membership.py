@@ -6,7 +6,7 @@ from sanic import response
 from sqlalchemy.exc import IntegrityError
 
 from . import APIError, Endpoint, verify_token
-from ...db import club, membership
+from ...db import PermissionError, club, membership
 from ..resource import validate
 from ..resource.membership import (DeleteMembershipRequest,
                                    GetMembershipRequest, GetMembershipResponse,
@@ -29,16 +29,18 @@ class MembershipEndpoint(Endpoint):
         # Decode the club name
         club_name = unquote(club_name)
         user_id = request.args.get('user_id', None)[0]
-        editor_role = request.args.get('access')
+        editor_role = request.args.get('access', None)
 
         # Make sure the club exists
         club_row = club.select(self.server.db_session, club_name)
         if not club_row:
             raise APIError('No such club', status=404)
-
-        # Fetch the club's memberships
-        membership_info = membership.select(self.server.db_session, club_name,
-                                            user_id, editor_role)
+        try:
+            # Fetch the club's memberships
+            membership_info = membership.select(
+                self.server.db_session, club_name, user_id, editor_role)
+        except PermissionError:
+            raise APIError('Unauthorized', status=403)
         return response.json(membership_info, status=200)
 
     # pylint: disable=unused-argument
@@ -62,6 +64,8 @@ class MembershipEndpoint(Endpoint):
         try:
             membership.insert(self.server.db_session, club_name, user_id,
                               access, members_role, position)
+        except PermissionError:
+            raise APIError('Unauthorized', status=403)
         except IntegrityError:
             raise APIError('Invalid user or club ID', status=400)
         return response.text('', status=201)
@@ -72,7 +76,8 @@ class MembershipEndpoint(Endpoint):
     @validate(DeleteMembershipRequest, None)
     async def delete(self, request, club_name, id_from_token=None):
         """
-        Handles a DELETE /memberships/<club_name>?user_id=<id>&editor_id=<id>editor_role=<role>&members_role=<role> request
+        Handles a DELETE /memberships/<club_name>?user_id=<id>
+        &editor_id=<id>editor_role=<role>&members_role=<role> request
         by deleting the membership that associates the given user with the
         given club.
         """
@@ -83,29 +88,34 @@ class MembershipEndpoint(Endpoint):
         # Decode the club name
         club_name = unquote(club_name)
         user_id = 0  # TODO: default value
-        editors_id = int(request.args.get('editor_id')[0])
-        editors_role = request.args.get('editor_role')[0]
-        members_role = request.args.get('member_role')[0]
+        editors_id = id_from_token
+        editors_role = request.args.get('editor_role')
+        members_role = request.args.get('member_role')
         try:
             user_id = int(request.args.get('user_id')[0])
         except ValueError:
             raise APIError('Invalid user ID', status=400)
 
-        if id_from_token != user_id:
-            # Regular members can only delete their own memberships
-            raise APIError('Forbidden', status=403)
+        # TODO: do we need this if statement?  We already test if the
+        # member can delete in db/membership.py
+        # if id_from_token != user_id and editors_role == 'Member':
+        #     # Regular members can only delete their own memberships
+        #     raise APIError('Forbidden', status=403)
 
         # Make sure the club exists
         club_row = club.select(self.server.db_session, club_name)
         if not club_row:
             raise APIError('No such club', status=404)
 
-        # Delete the memberships
-        if user_id:
-            membership.delete(self.server.db_session, club_name, editors_id,
-                              user_id, editors_role, members_role)
-            return response.text('', status=204)
-        else:
-            membership.delete_all(self.server.db_session, club_name,
-                                  editors_role, members_role)
-            return response.text('', status=204)
+        try:
+            # Delete the memberships
+            if user_id:
+                membership.delete(self.server.db_session, club_name,
+                                  editors_id, user_id, editors_role,
+                                  members_role)
+            else:
+                membership.delete_all(self.server.db_session, club_name,
+                                      editors_role, members_role)
+        except PermissionError:
+            raise APIError('Unauthorized', status=403)
+        return response.text('', status=204)

@@ -61,6 +61,8 @@ def test_put_club__success(server):
         headers={'Authorization': token})
     assert response.status == 201
 
+    import pdb
+    pdb.set_trace()
     # check the user's role given the id from his/her token
     id = util.check_jwt(token, server.config.secret)
     _, response = server.app.test_client.get('/memberships/test?user_id=' +
@@ -83,10 +85,18 @@ def test_put_club__success(server):
 
 def test_put_club__failure(server):
     _, response = server.app.test_client.put(
-        '/clubs/newtest', data=json.dumps({
+        '/clubs/newtest?access=President', data=json.dumps({
             'garbage': True
         }))
     assert response.status == 400
+
+    _, response = server.app.test_client.put(
+        '/clubs/newtest?access=Member',
+        data=json.dumps({
+            'name': 'newtest',
+            'description': 'new description',
+        }))
+    assert response.status == 403
 
 
 def test_get_club__success(server):
@@ -118,6 +128,11 @@ def test_delete_club__success(server):
     _, response = server.app.test_client.delete('/clubs/newtest?access=' +
                                                 role)
     assert response.status == 204
+
+
+def test_delete_club__failure(server):
+    _, response = server.app.test_client.delete('/clubs/newtest?access=Member')
+    assert response.status == 403
 
 
 def test_paginate_clubs__success(server):

@@ -2,7 +2,6 @@
 Defines the schema for the Clubs table in our DB.
 Also provides methods to access and edit the DB.
 """
-import logging
 import math
 
 from sqlalchemy import Column, Integer, String, desc, func
@@ -17,7 +16,8 @@ from . import BASE, PermissionError
 MAX_SIZE = 20
 
 # Defining a enum type for role allocation
-role = ENUM('President', 'Admin', 'Member', name='role')
+# TODO: Do we need this?  What's the reason we have this in db/club.py?
+ROLE = ENUM('President', 'Admin', 'Member', name='role')
 
 
 class Club(BASE):
@@ -56,17 +56,12 @@ def can_delete(editor_role):
     # Only President can delete club
     if editor_role == 'President':
         return True
-    # Admins can only delete Member memberships
-    else:
-        return False
 
 
 def can_update(editor_role):
     # President and Admin can update club
     if editor_role == 'President' or editor_role == 'Admin':
         return True
-    else:
-        return False
 
 
 def select(session, name):

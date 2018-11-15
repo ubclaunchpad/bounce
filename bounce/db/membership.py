@@ -1,7 +1,5 @@
 """Defines the schema for the Memberships table in our DB."""
 
-import logging
-
 from sqlalchemy import Column, ForeignKey, Integer, String, func
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import relationship
@@ -10,7 +8,7 @@ from sqlalchemy.types import TIMESTAMP
 from . import BASE, PermissionError
 
 # Defining a enum type for role allocation
-role = ENUM('President', 'Admin', 'Member', name='role')
+ROLE = ENUM('President', 'Admin', 'Member', name='role')
 
 
 class Membership(BASE):
@@ -34,11 +32,11 @@ class Membership(BASE):
         primary_key=True)
     role = Column(
         'role',
-        role,
+        ROLE,
         nullable=False,
     )
     position = Column(
-        'position', String, ForeignKey('positions.'), nullable=False),
+        'position', String, ForeignKey('positions.'), nullable=False)
 
     member = relationship('User', back_populates='clubs')
     club = relationship('Club', back_populates='members')
@@ -69,13 +67,11 @@ def can_insert(editors_role, members_role):
     # Admin can only insert Member memberships
     elif editors_role == 'Admin' and members_role == 'Member':
         return True
-    else:
-        return False
 
 
 def can_select(editors_role):
     # All members can read all memberships
-    if editors_role == None:
+    if editors_role is None:
         return False
     else:
         return True
@@ -85,8 +81,6 @@ def can_delete_all(editors_role=None, members_role=None):
     # Owners can delete all memberships except other presidents
     if editors_role == 'President' and members_role != 'President':
         return True
-    else:
-        return False
 
 
 def can_delete_user(editors_id,
@@ -102,8 +96,6 @@ def can_delete_user(editors_id,
     # Admins can only delete Member memberships or themselves
     elif editors_role == 'Admin' and members_role == 'Member':
         return True
-    else:
-        return False
 
 
 def can_update(editors_role=None, members_role=None):
@@ -113,13 +105,11 @@ def can_update(editors_role=None, members_role=None):
     # Admins can only update members membership
     elif editors_role == 'Admin' and members_role == 'Member':
         return True
-    else:
-        False
 
 
 def update(session, club_name, user_id, editors_role, members_role, position,
            new_position, new_role):
-    """Updates membership that asscociates the give user with the given 
+    """Updates membership that asscociates the give user with the given
     club
     """
 
@@ -140,7 +130,7 @@ def update(session, club_name, user_id, editors_role, members_role, position,
 def insert(session, club_name, user_id, editors_role, members_role, position):
     """Creates a new membership that associates the given user with the given
     club.
-    
+
     Args:
         editors_role (Role): the role of the member who is deleting the membership
         members_role (Role): the role of the member who's membership is being edited
