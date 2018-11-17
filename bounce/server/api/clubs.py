@@ -12,7 +12,8 @@ from . import APIError, Endpoint, util, verify_token, IMAGE_SIZE_LIMIT
 from ...db import club, image
 from ...db.image import EntityType
 from ..resource import validate
-from ..resource.club import (GetClubResponse, PostClubsRequest, PutClubRequest,
+from ..resource.club import (ClubImageRequest, GetClubResponse,
+                             PostClubsRequest, PutClubRequest,
                              SearchClubsRequest, SearchClubsResponse)
 
 
@@ -131,7 +132,7 @@ class ClubImagesEndpoint(Endpoint):
 
     __uri__ = '/clubs/<club_name>/images/<image_name>'
 
-    # @validate(GetClubImageRequest, GetClubImageResponse)
+    @validate(ClubImageRequest, None)
     async def get(self, _, club_name, image_name):
         """
         Handles a GET /clubs/<club_name>/images/<image_name> request
@@ -147,8 +148,8 @@ class ClubImagesEndpoint(Endpoint):
         except FileNotFoundError:
             raise APIError('No such image', status=404)
 
-    @verify_token()
-    # @validate(PutClubImageRequest, PutClubImageResponse)
+    # @verify_token()
+    @validate(ClubImageRequest, None)
     async def put(self, request, club_name, image_name):
         """
         Handles a PUT /clubs/<club_name>/images/<image_name> request
@@ -181,8 +182,8 @@ class ClubImagesEndpoint(Endpoint):
 
         return response.text('', status=200)
 
-    @verify_token()
-    # @validate(DeleteClubImageRequest, DeleteClubImageResponse)
+    # @verify_token()
+    @validate(ClubImageRequest, None)
     async def delete(self, _, club_name, image_name):
         """Handles a DETELE by deleting the club's image by the given name."""
 
