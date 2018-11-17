@@ -38,35 +38,48 @@ class UserEndpoint(Endpoint):
         the given username and returning the updated user info. """
         body = util.strip_whitespace(request.json)
         secret = None
+        email = None
         # Make sure the ID from the token is for the user we're updating
         user_row = user.select(self.server.db_session, username)
         if not user_row:
             raise APIError('No such user', status=404)
         if user_row.identifier != id_from_token:
             raise APIError('Forbidden', status=403)
-        if body.get('password'):
-            # Check that user old password is provided
-            if not body.get('old_password'):
-                raise APIError('Old Password not provided', status=400)
+        if body.get('email'):
+            # Check that user password is provided
+            if not body.get('password'):
+                raise APIError('Password not provided', status=400)
+            # Check that user's password is correct
+            if not util.check_password(body['password'], user_row.secret):
+                raise APIError('Unauthorized', status=401)
+            if body.get('new_password'):
+                raise APIError(
+                    'New password should not be provided for email change',
+                    status=400)
+            email = body['email']
+        elif body.get('new_password'):
+            # Check that user current password is provided
+            if not body.get('password'):
+                raise APIError('Current Password not provided', status=400)
             # Check that the user's password is correct
-            if not util.check_password(body['old_password'], user_row.secret):
+            if not util.check_password(body['password'], user_row.secret):
                 raise APIError('Unauthorized', status=401)
             # Make sure the password is valid (no need
             # to check email, this is done
             # by a jsonschema formatter)
-            if not util.validate_password(body['password']):
-                raise APIError('Invalid password', status=400)
+            if not util.validate_password(body['new_password']):
+                raise APIError('Invalid new password', status=400)
             # Create a secret from the user's password
             #  that we can use to securely
             # verify their password when they log in
-            secret = util.hash_password(body['password'])
+            secret = util.hash_password(body['new_password'])
         # Update the user
         updated_user = user.update(
             self.server.db_session,
             username,
             secret=secret,
             full_name=body.get('full_name', None),
-            email=body.get('email', None))
+            email=email)
         # Returns the updated user info
         return response.json(updated_user.to_dict(), status=200)
 
