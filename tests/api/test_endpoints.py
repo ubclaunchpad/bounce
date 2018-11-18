@@ -290,7 +290,37 @@ def test_put_club_image__failure(server):
     assert response.status == 404
     # Invalid image name
     _, response = server.app.test_client.put(
-        '/clubs/test/images/$%^&*(',
+        '/clubs/test/images/profile',
+        data=data,
+        headers={
+            'Authorization': token,
+        })
+    assert response.status == 400
+
+    data.add_field('image', open('tests/testdata/gif-file.gif', 'rb'))
+
+    _, response = server.app.test_client.put(
+        '/clubs/test/images/profile',
+        data=data,
+        headers={
+            'Authorization': token,
+        })
+    assert response.status == 400
+
+    data = FormData()
+    data.add_field('image', open('tests/testdata/large-png-file.png', 'rb'))
+    _, response = server.app.test_client.put(
+        '/clubs/test/images/profile',
+        data=data,
+        headers={
+            'Authorization': token,
+        })
+    assert response.status == 400
+
+    data = FormData()
+    data.add_field('image', open('tests/testdata/large-logo.png', 'rb'))
+    _, response = server.app.test_client.put(
+        '/clubs/test/images/@$@3(',
         data=data,
         headers={
             'Authorization': token,
@@ -307,6 +337,9 @@ def test_get_club_image__failure(server):
     # No such club
     _, response = server.app.test_client.get('/clubs/newTest/images/profile')
     assert response.status == 404
+
+    _, response = server.app.test_client.get('/clubs/test/images/adw0@?dow')
+    assert response.status == 400
 
 
 def test_delete_club_image__success(server):
@@ -326,6 +359,12 @@ def test_delete_club_image__failure(server):
             'Authorization': token,
         })
     assert response.status == 404
+
+    _, response = server.app.test_client.delete(
+        '/clubs/test/images/adw0@?dow', headers={
+            'Authorization': token,
+        })
+    assert response.status == 400
     # # Forbidden (user is trying to delete image of an unrelated club)
     # _, response = server.app.test_client.delete(
     #     '/clubs/newtest/images/profile', headers={

@@ -12,8 +12,7 @@ from . import APIError, Endpoint, util, verify_token, IMAGE_SIZE_LIMIT
 from ...db import club, image
 from ...db.image import EntityType
 from ..resource import validate
-from ..resource.club import (ClubImageRequest, GetClubResponse,
-                             PostClubsRequest, PutClubRequest,
+from ..resource.club import (GetClubResponse, PostClubsRequest, PutClubRequest,
                              SearchClubsRequest, SearchClubsResponse)
 
 
@@ -94,9 +93,9 @@ class SearchClubsEndpoint(Endpoint):
         clubs that contain content from the query."""
 
         # default values, TODO: set default value in json-schema
-        query = ''
+        query = None
         page = 0
-        size = 20
+        size = MAX_SIZE
 
         if 'query' in request.args:
             query = request.args['query'][0]
@@ -132,7 +131,6 @@ class ClubImagesEndpoint(Endpoint):
 
     __uri__ = '/clubs/<club_name>/images/<image_name>'
 
-    @validate(ClubImageRequest, None)
     async def get(self, _, club_name, image_name):
         """
         Handles a GET /clubs/<club_name>/images/<image_name> request
@@ -149,7 +147,6 @@ class ClubImagesEndpoint(Endpoint):
             raise APIError('No such image', status=404)
 
     # @verify_token()
-    @validate(ClubImageRequest, None)
     async def put(self, request, club_name, image_name):
         """
         Handles a PUT /clubs/<club_name>/images/<image_name> request
@@ -174,16 +171,13 @@ class ClubImagesEndpoint(Endpoint):
                 'Only png and jpeg images are supported', status=400)
         if len(image_upload.body) > IMAGE_SIZE_LIMIT:
             raise APIError('Image too large', status=400)
-        try:
-            image.save(self.server.config.image_dir, EntityType.CLUB,
-                       club_name, image_name, image_upload.body)
-        except FileExistsError:
-            raise APIError('No such image', status=404)
+
+        image.save(self.server.config.image_dir, EntityType.CLUB, club_name,
+                   image_name, image_upload.body)
 
         return response.text('', status=200)
 
     # @verify_token()
-    @validate(ClubImageRequest, None)
     async def delete(self, _, club_name, image_name):
         """Handles a DETELE by deleting the club's image by the given name."""
 

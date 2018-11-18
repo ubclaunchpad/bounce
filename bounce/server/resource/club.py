@@ -177,19 +177,3 @@ class SearchClubsResponse(metaclass=ResourceMeta):
             'minimum': 0,
         }
     }
-
-
-class ClubImageRequest(metaclass=ResourceMeta):
-    """
-    Defines the schema for a GET, PUT, DELETE
-    /clubs/<club_name>/images/<image_name> request.
-    """
-    __params__ = {
-        'club_name': {
-            'type': 'string',
-        },
-        'image_name': {
-            'type': 'string',
-            'default': '0',
-        }
-    }
