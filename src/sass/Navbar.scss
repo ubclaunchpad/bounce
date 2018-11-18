@@ -1,10 +1,103 @@
-#navbar {
+@import 'App';
 
-    .container {
+#navbar {
+    a:first{
         display: block;
     }
 
     form {
+        margin: 0px;
+    }
+
+    hr {
+        margin: 0px;
+    }
+
+    .navbar-form {
+        padding: 0;
         margin: 0;
+        border: none;
+        padding-left: 0;
+        padding-right: 0;
+
+        .form-group {
+            display: inline-block;
+            width: calc(100% - 40px);
+            margin: 0;
+        }
+
+        button {
+            box-sizing: border-box;
+            vertical-align: top;
+        }
+    }
+
+    ul.nav.navbar-nav {
+        margin-top: 0;
+        margin-bottom: 0;
+
+        a {
+            padding-top: 8px;
+            padding-bottom: 0px;
+            @media screen and (min-width: 768px) {
+                padding-bottom: 8px;
+            }
+        }
+
+        .dropdown {
+            display: block;
+        }
+
+        .navButton {
+            display: inline-block;
+            a {
+                padding-right: 0px;
+                button {
+                    width: 110px;
+                }
+            }
+        }
+
+        &:last-child {
+                a {
+                    padding-bottom: 8px;
+                }
+        }
+
+        .dropdown {
+            .accountButton {
+                display: inline-block;
+                img {
+                    display: none;
+                }
+                span {
+                    display: list-item;
+                    color: $pallete-dark-grey;
+                    margin-left: 10px;
+                    font-size: 18px;
+                }
+                @media screen and (min-width: 768px) {
+                    img {
+                        display: list-item;
+                    }
+                    span {
+                        display: none;
+                    }
+                }
+            }
+
+            .caret {
+                @media screen and (min-width: 768px) {
+                    display: none;
+                }
+            }
+        }
+    }
+
+    button{
+        margin-right: 0;
+        .btn-secondary {
+            margin-left: 15px; 
+        }
     }
 }
