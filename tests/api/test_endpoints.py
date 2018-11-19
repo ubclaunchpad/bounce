@@ -365,6 +365,7 @@ def test_delete_club_image__failure(server):
             'Authorization': token,
         })
     assert response.status == 400
+    # TODO : Uncomment this portion of code once memberships code is merged in
     # # Forbidden (user is trying to delete image of an unrelated club)
     # _, response = server.app.test_client.delete(
     #     '/clubs/newtest/images/profile', headers={
