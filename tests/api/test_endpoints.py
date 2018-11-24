@@ -43,7 +43,24 @@ def test_put_user__success(server):
     _, response = server.app.test_client.put(
         f'/users/{username}',
         data=json.dumps({
+            'full_name': 'NewName'
+        }),
+        headers={'Authorization': token})
+    assert response.status == 200
+    assert response.json['username'] == username
+    assert response.json['full_name'] == 'NewName'
+    assert response.json['id'] == 1
+    assert isinstance(response.json['created_at'], int)
+
+
+def test_put_user_update_email__success(server):
+    username = 'test'
+    token = util.create_jwt(1, server.config.secret)
+    _, response = server.app.test_client.put(
+        f'/users/{username}',
+        data=json.dumps({
             'full_name': 'New Name',
+            'password': 'Val1dPassword!',
             'email': 'newemail@test.com'
         }),
         headers={'Authorization': token})
@@ -55,13 +72,40 @@ def test_put_user__success(server):
     assert isinstance(response.json['created_at'], int)
 
 
-def test_put_user__failure(server):
+def test_put_user_update_email__failure(server):
     username = 'test'
     token = util.create_jwt(1, server.config.secret)
     _, response = server.app.test_client.put(
         f'/users/{username}',
         data=json.dumps({
             'garbage': True
+        }),
+        headers={'Authorization': token})
+    assert response.status == 400
+
+    _, response = server.app.test_client.put(
+        f'/users/{username}',
+        data=json.dumps({
+            'email': 'newemailfail@test.com'
+        }),
+        headers={'Authorization': token})
+    assert response.status == 400
+
+    _, response = server.app.test_client.put(
+        f'/users/{username}',
+        data=json.dumps({
+            'email': 'newemailfail@test.com',
+            'password': 'WrongPassword!'
+        }),
+        headers={'Authorization': token})
+    assert response.status == 401
+
+    _, response = server.app.test_client.put(
+        f'/users/{username}',
+        data=json.dumps({
+            'email': 'newemailfail@test.com',
+            'password': 'Val1dPassword!',
+            'new_password': 'NewVal1dPassword!'
         }),
         headers={'Authorization': token})
     assert response.status == 400
@@ -88,8 +132,8 @@ def test_put_users_update_password__success(server):
     _, response = server.app.test_client.put(
         f'/users/{username}',
         data=json.dumps({
-            'old_password': 'Val1dPassword!',
-            'password': 'Val1dPassword!s',
+            'password': 'Val1dPassword!',
+            'new_password': 'Val1dPassword!s',
         }),
         headers={'Authorization': token})
     assert response.status == 200
@@ -101,7 +145,7 @@ def test_put_users_update_password__failure(server):
     _, response = server.app.test_client.put(
         f'/users/{username}',
         data=json.dumps({
-            'password': 'Val1dPassword!123',
+            'new_password': 'Val1dPassword!123',
         }),
         headers={'Authorization': token})
     assert response.status == 400
@@ -109,8 +153,8 @@ def test_put_users_update_password__failure(server):
     _, response = server.app.test_client.put(
         f'/users/{username}',
         data=json.dumps({
-            'old_password': 'WrongPassword!',
-            'password': 'Val1dPassword!123',
+            'password': 'WrongPassword!',
+            'new_password': 'Val1dPassword!123',
         }),
         headers={'Authorization': token})
     assert response.status == 401
