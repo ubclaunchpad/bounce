@@ -11,10 +11,10 @@ from ...db.image import EntityType
 from ..resource import validate
 from ..resource.user import (GetUserResponse, PostUsersRequest, PutUserRequest,
                              SearchUsersRequest, SearchUsersResponse)
+from ...db.user import MAX_SIZE
 
 # Maximum number of bytes in an image upload
 IMAGE_SIZE_LIMIT = 1000000
-MAX_SIZE = 20
 
 
 class UserEndpoint(Endpoint):

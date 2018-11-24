@@ -87,10 +87,12 @@ class SearchUsersRequest(metaclass=ResourceMeta):
         'page': {
             'type': 'string',
             'default': '0',
+            'minimum': '0',
         },
         'size': {
             'type': 'string',
             'default': '20',
+            'minimum': '0',
         }
     }
 
