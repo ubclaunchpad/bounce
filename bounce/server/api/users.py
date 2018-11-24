@@ -8,10 +8,10 @@ from sqlalchemy.exc import IntegrityError
 from . import APIError, Endpoint, util, verify_token
 from ...db import image, user
 from ...db.image import EntityType
+from ...db.user import MAX_SIZE
 from ..resource import validate
 from ..resource.user import (GetUserResponse, PostUsersRequest, PutUserRequest,
                              SearchUsersRequest, SearchUsersResponse)
-from ...db.user import MAX_SIZE
 
 # Maximum number of bytes in an image upload
 IMAGE_SIZE_LIMIT = 1000000
