@@ -76,3 +76,70 @@ class GetUserResponse(metaclass=ResourceMeta):
             },
         }
     }
+
+
+class SearchUsersRequest(metaclass=ResourceMeta):
+    """Defines the schema for a GET /users/search request."""
+    __params__ = {
+        'query': {
+            'type': 'string',
+        },
+        'page': {
+            'type': 'string',
+            'default': '0',
+            'minimum': '0',
+        },
+        'size': {
+            'type': 'string',
+            'default': '20',
+            'minimum': '0',
+        }
+    }
+
+
+class SearchUsersResponse(metaclass=ResourceMeta):
+    """Defines the schema for a search query response."""
+    __body__ = {
+        'results': {
+            'type': 'array',
+            'items': {
+                'type':
+                'object',
+                'required':
+                ['full_name', 'username', 'email', 'id', 'created_at'],
+                'additionalProperties':
+                False,
+                'properties': {
+                    'full_name': {
+                        'type': 'string'
+                    },
+                    'username': {
+                        'type': 'string',
+                    },
+                    'email': {
+                        'type': 'string',
+                        'format': 'email',
+                    },
+                    'id': {
+                        'type': 'integer',
+                        'minimum': 0,
+                    },
+                    'created_at': {
+                        'type': 'integer',
+                    },
+                }
+            }
+        },
+        'resultCount': {
+            'type': 'integer',
+            'minimum': 0,
+        },
+        'page': {
+            'type': 'integer',
+            'minimum': 0,
+        },
+        'totalPages': {
+            'type': 'integer',
+            'minimum': 0,
+        }
+    }

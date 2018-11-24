@@ -111,6 +111,37 @@ def test_put_user_update_email__failure(server):
     assert response.status == 400
 
 
+def test_paginate_users__success(server):
+    # add 3 dummy data entries to search for in database.
+    # In total there's 4 with one coming from previous tests.
+    user_info = [[
+        'matt gin', 'ginsstaahh', 'matthewgin10@gmail.com', 'Val1dPassword!'
+    ], ['gin', 'ginsstaahh221', 'matt.gin@hotmail.com', 'Val1dPassword!'],
+                 ['bruno', 'bfcbachman', 'bruno@gmail.com', 'Val1dPassword!']]
+    for full_name, username, email, password in user_info:
+        server.app.test_client.post(
+            '/users',
+            data=json.dumps({
+                'full_name': full_name,
+                'username': username,
+                'email': email,
+                'password': password,
+            }))
+    _, response = server.app.test_client.get('/users/search?size=2')
+    assert response.status == 200
+    body = response.json
+    assert body.get('result_count') == 4
+    assert body.get('page') == 0
+    assert body.get('total_pages') == 2
+
+
+def test_search_users__success(server):
+    _, response = server.app.test_client.get('/users/search?query=gin')
+    assert response.status == 200
+    body = response.json
+    assert len(body.get('results')) == 2
+
+
 def test_get_user__success(server):
     _, response = server.app.test_client.get('/users/test')
     assert response.status == 200
@@ -309,11 +340,11 @@ def test_put_user_image__success(server):
             'email': 'test@test.com',
             'password': 'Val1dPassword!'
         }))
-    token = util.create_jwt(2, server.config.secret)
+    token = util.create_jwt(5, server.config.secret)
     data = FormData()
     data.add_field('image', open('tests/testdata/large-logo.png', 'rb'))
     _, response = server.app.test_client.put(
-        '/users/2/images/profile',
+        '/users/5/images/profile',
         data=data,
         headers={
             'Authorization': token,
@@ -322,11 +353,11 @@ def test_put_user_image__success(server):
 
 
 def test_put_user_image__failure(server):
-    token = util.create_jwt(3, server.config.secret)
+    token = util.create_jwt(6, server.config.secret)
     data = FormData()
     # No such user
     _, response = server.app.test_client.put(
-        '/users/3/images/profile',
+        '/users/6/images/profile',
         data=data,
         headers={
             'Authorization': token,
@@ -334,7 +365,7 @@ def test_put_user_image__failure(server):
     assert response.status == 404
     # Forbidden (the user is trying to update another user's image)
     _, response = server.app.test_client.put(
-        '/users/2/images/profile',
+        '/users/5/images/profile',
         data=data,
         headers={
             'Authorization': token,
@@ -343,7 +374,7 @@ def test_put_user_image__failure(server):
     # Invalid image name
     token = util.create_jwt(2, server.config.secret)
     _, response = server.app.test_client.put(
-        '/users/2/images/$%^&*(',
+        '/users/5/images/$%^&*(',
         data=data,
         headers={
             'Authorization': token,
@@ -352,35 +383,35 @@ def test_put_user_image__failure(server):
 
 
 def test_get_user_image__success(server):
-    _, response = server.app.test_client.get('/users/2/images/profile')
+    _, response = server.app.test_client.get('/users/5/images/profile')
     assert response.status == 200
 
 
 def test_get_user_image__failure(server):
-    _, response = server.app.test_client.get('/users/3/images/profile')
+    _, response = server.app.test_client.get('/users/6/images/profile')
     assert response.status == 404
 
 
 def test_delete_user_image__success(server):
-    token = util.create_jwt(2, server.config.secret)
+    token = util.create_jwt(5, server.config.secret)
     _, response = server.app.test_client.delete(
-        '/users/2/images/profile', headers={
+        '/users/5/images/profile', headers={
             'Authorization': token,
         })
     assert response.status == 200
 
 
 def test_delete_user_image__failure(server):
-    token = util.create_jwt(3, server.config.secret)
+    token = util.create_jwt(6, server.config.secret)
     # No such image
     _, response = server.app.test_client.delete(
-        '/users/3/images/profile', headers={
+        '/users/6/images/profile', headers={
             'Authorization': token,
         })
     assert response.status == 404
     # Forbidden (user is trying to delete another user's image)
     _, response = server.app.test_client.delete(
-        '/users/2/images/profile', headers={
+        '/users/5/images/profile', headers={
             'Authorization': token,
         })
     assert response.status == 403
@@ -416,13 +447,13 @@ def test_get_memberships__success(server):
     assert len(response.json) == 1
     membership = response.json['results'][0]
     assert membership['user_id'] == 2
-    assert membership['full_name'] == 'Test Guy'
-    assert membership['username'] == 'test'
+    assert membership['full_name'] == 'matt gin'
+    assert membership['username'] == 'ginsstaahh'
     assert isinstance(membership['created_at'], int)
 
 
 def test_delete_membership__failure(server):
-    token = util.create_jwt(1, server.config.secret)
+    token = util.create_jwt(3, server.config.secret)
     _, response = server.app.test_client.delete(
         '/memberships/newtest?user_id=2', headers={'Authorization': token})
     assert response.status == 403
