@@ -114,10 +114,11 @@ def test_put_user_update_email__failure(server):
 def test_paginate_users__success(server):
     # add 3 dummy data entries to search for in database.
     # In total there's 4 with one coming from previous tests.
-    user_info = [(
-        'matt gin', 'ginsstaahh', 'matthewgin10@gmail.com', 'Val1dPassword!'
-    ), ('gin', 'ginsstaahh221', 'matt.gin@hotmail.com', 'Val1dPassword!'),
-                 ('bruno', 'bfcbachman', 'bruno@gmail.com', 'Val1dPassword!')]
+    user_info = [('matt gin', 'ginsstaahh', 'matthewgin10@gmail.com',
+                  'Val1dPassword!'),
+                 ('gin', 'ginsstaahh221', 'matt.gin@hotmail.com',
+                  'Val1dPassword!'), ('bruno', 'bfcbachman', 'bruno@gmail.com',
+                                      'Val1dPassword!')]
     for full_name, username, email, password in user_info:
         server.app.test_client.post(
             '/users',
@@ -140,6 +141,7 @@ def test_paginate_users__failure(server):
     assert response.status == 400
     _, response = server.app.test_client.get('/users/search?size=25')
     assert response.status == 400
+
 
 def test_search_users__success(server):
     _, response = server.app.test_client.get('/users/search?query=gin')
@@ -323,6 +325,7 @@ def test_paginate_clubs__success(server):
     assert body.get('result_count') == 4
     assert body.get('page') == 0
     assert body.get('total_pages') == 2
+
 
 def test_paginate_clubs__failure(server):
     _, response = server.app.test_client.get('/clubs/search?size=-1')

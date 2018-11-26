@@ -223,8 +223,6 @@ class SearchUsersEndpoint(Endpoint):
             query = request.args['query']
         page = int(request.args['page'])
         size = int(request.args['size'])
-        import pdb
-        pdb.set_trace()
         if size > MAX_SIZE:
             raise APIError('size too high', status=400)
         if size < MIN_SIZE:
