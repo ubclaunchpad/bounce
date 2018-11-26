@@ -7,11 +7,10 @@ from sqlalchemy.exc import IntegrityError
 
 from . import APIError, Endpoint, util
 from ...db import club
+from ...db.club import MAX_SIZE, MIN_SIZE
 from ..resource import validate
 from ..resource.club import (GetClubResponse, PostClubsRequest, PutClubRequest,
                              SearchClubsRequest, SearchClubsResponse)
-
-MAX_SIZE = 20
 
 
 class ClubEndpoint(Endpoint):
@@ -96,6 +95,8 @@ class SearchClubsEndpoint(Endpoint):
         size = int(request.args['size'])
         if size > MAX_SIZE:
             raise APIError('size too high', status=400)
+        if size < MIN_SIZE:
+            raise APIError('size too low', status=400)
 
         queried_clubs, result_count, total_pages = club.search(
             self.server.db_session, query, page, size)

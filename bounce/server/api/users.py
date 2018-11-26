@@ -8,7 +8,7 @@ from sqlalchemy.exc import IntegrityError
 from . import APIError, Endpoint, util, verify_token
 from ...db import image, user
 from ...db.image import EntityType
-from ...db.user import MAX_SIZE
+from ...db.user import MAX_SIZE, MIN_SIZE
 from ..resource import validate
 from ..resource.user import (GetUserResponse, PostUsersRequest, PutUserRequest,
                              SearchUsersRequest, SearchUsersResponse)
@@ -223,8 +223,12 @@ class SearchUsersEndpoint(Endpoint):
             query = request.args['query']
         page = int(request.args['page'])
         size = int(request.args['size'])
+        import pdb
+        pdb.set_trace()
         if size > MAX_SIZE:
             raise APIError('size too high', status=400)
+        if size < MIN_SIZE:
+            raise APIError('size too low', status=400)
 
         queried_users, result_count, total_pages = user.search(
             self.server.db_session, query, page, size)
