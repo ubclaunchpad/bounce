@@ -137,7 +137,7 @@ def test_paginate_users__success(server):
 
 
 def test_paginate_users__failure(server):
-    _, response = server.app.test_client.get('/users/search?size=-1')
+    _, response = server.app.test_client.get('/users/search?size=0')
     assert response.status == 400
     _, response = server.app.test_client.get('/users/search?size=25')
     assert response.status == 400
@@ -328,7 +328,7 @@ def test_paginate_clubs__success(server):
 
 
 def test_paginate_clubs__failure(server):
-    _, response = server.app.test_client.get('/clubs/search?size=-1')
+    _, response = server.app.test_client.get('/clubs/search?size=0')
     assert response.status == 400
     _, response = server.app.test_client.get('/clubs/search?size=25')
     assert response.status == 400

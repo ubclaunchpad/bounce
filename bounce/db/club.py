@@ -13,7 +13,7 @@ from . import BASE
 # The max and min number of results to return in one page.
 # Used in the search method.
 MAX_SIZE = 20
-MIN_SIZE = 0
+MIN_SIZE = 1
 
 
 class Club(BASE):

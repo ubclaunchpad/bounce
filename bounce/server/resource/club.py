@@ -116,7 +116,7 @@ class SearchClubsRequest(metaclass=ResourceMeta):
         'size': {
             'type': 'string',
             'default': '20',
-            'minimum': '0',
+            'minimum': '1',
         }
     }
 
