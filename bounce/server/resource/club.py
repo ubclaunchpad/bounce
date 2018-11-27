@@ -61,7 +61,10 @@ class PutClubRequest(metaclass=ResourceMeta):
             },
             'twitter_url': {
                 'type': 'string',
-            }
+            },
+            'editor_role': {
+                'enum': ['President', 'Admin', 'Member']
+            },
         }
     }
 
@@ -186,8 +189,8 @@ class SearchClubsResponse(metaclass=ResourceMeta):
 
 class DeleteClubRequest(metaclass=ResourceMeta):
     """Defines the schema for a GET /clubs/<name> request."""
-    __params__ = {
-        'access': {
-            'enum': ["President", "Admin", "Member"]
-        },
+    __body__ = {
+        'editor_role': {
+            'enum': ['President', 'Admin', 'Member']
+        }
     }

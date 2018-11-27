@@ -8,17 +8,13 @@ from sqlalchemy import Column, Integer, String, desc, func
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
+from membership import ROLE
 
-from . import BASE, PermissionError
+from . import BASE, PermissionError, Roles, ROLE
 
 # The maximum number of results to return in one page.
 # Used in the search method.
 MAX_SIZE = 20
-
-# Defining a enum type for role allocation
-# TODO: Do we need this?  What's the reason we have this in db/club.py?
-ROLE = ENUM('President', 'Admin', 'Member', name='role')
-
 
 class Club(BASE):
     """
@@ -54,18 +50,20 @@ class Club(BASE):
 
 def can_delete(editor_role):
     # Only President can delete club
-    if editor_role == 'President':
+    if editor_role == Roles.president:
         return True
+    else:
+        return False
 
 
 def can_update(editor_role):
     # President and Admin can update club
-    if editor_role == 'President' or editor_role == 'Admin':
+    if editor_role == Roles.president or editor_role == Roles.admin:
         return True
-
+    else:
+        return False
 
 def select(session, name):
-    # TODO: ask bruno about access to select being public (anyone can select a club)
     """
     Returns the club with the given name or None if
     there is no such club.
@@ -97,8 +95,8 @@ def search(session, page=0, size=MAX_SIZE, query=None):
 
 def insert(session, name, description, website_url, facebook_url,
            instagram_url, twitter_url):
-    """Insert a new club into the Clubs table."""
-    """Any user should have the permission to insert"""
+    """Insert a new club into the Clubs table.
+    Any user should have the permission to insert"""
     club = Club(
         name=name,
         description=description,

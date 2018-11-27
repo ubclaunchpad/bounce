@@ -33,9 +33,10 @@ class ClubEndpoint(Endpoint):
             raise APIError('No such club', status=404)
         return response.json(club_data, status=200)
 
+    @verify_token()
     @validate(PutClubRequest, GetClubResponse)
-    async def put(self, request, name):
-        """Handles a PUT /clubs/<name>?access=<role> request by updating the club with
+    async def put(self, request, name, id_from_token=None):
+        """Handles a PUT /clubs/<name> request by updating the club with
         the given name and returning the updated club info."""
         # Decode the name, since special characters will be URL-encoded
         # TODO: Check the schema for roles, and if it needs body.get()
@@ -51,7 +52,7 @@ class ClubEndpoint(Endpoint):
                 facebook_url=body.get('facebook_url', None),
                 instagram_url=body.get('instagram_url', None),
                 twitter_url=body.get('twitter_url', None),
-                editor_role=request.args['access'][0])
+                editor_role)
         except PermissionError:
             raise APIError('Unauthorized', status=403)
         return response.json(updated_club, status=200)
@@ -62,9 +63,12 @@ class ClubEndpoint(Endpoint):
         the given name."""
         # Decode the name, since special characters will be URL-encoded
         name = unquote(name)
-        editor_role = request.args['access'][0]
+        body = util.strip_whitespace(request.json)
         try:
-            club.delete(self.server.db_session, name, editor_role=editor_role)
+            club.delete(
+                self.server.db_session,
+                name,
+                editor_role=body.get('editor_role', None))
         except PermissionError:
             raise APIError('Unauthorized', status=403)
         return response.text('', status=204)
@@ -82,10 +86,13 @@ class ClubsEndpoint(Endpoint):
         body = util.strip_whitespace(request.json)
         try:
             club.insert(
-                self.server.db_session, body['name'].strip(),
-                body['description'].strip(), body['website_url'].strip(),
-                body['facebook_url'].strip(), body['instagram_url'].strip(),
-                body['twitter_url'].strip())
+                self.server.db_session,
+                name = body.get('name', None),
+                description=body.get('description', None),
+                website_url=body.get('website_url', None),
+                facebook_url=body.get('facebook_url', None),
+                instagram_url=body.get('instagram_url', None)
+                twitter_url=body.get('twitter_url', None)
         except IntegrityError:
             raise APIError('Club already exists', status=409)
         return response.text('', status=201)

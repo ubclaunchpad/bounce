@@ -1,14 +1,13 @@
 """Defines the schema for the Memberships table in our DB."""
-
+from enum import Enum
 from sqlalchemy import Column, ForeignKey, Integer, String, func
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 
 from . import BASE, PermissionError
+from . import ROLE, Roles
 
-# Defining a enum type for role allocation
-ROLE = ENUM('President', 'Admin', 'Member', name='role')
 
 
 class Membership(BASE):
@@ -56,18 +55,19 @@ class Membership(BASE):
 
 def can_insert(editors_role, members_role):
     """
-    Determines whether user can insert a memberships to the database
+    Determines whether user can insert a membership to the database
     Args:
         editors_role (Role): the role of the member who is deleting the membership
         members_role (Role): the role of the member who's membership is being deleted
     """
 
-    if editors_role == 'President':
+    if editors_role == Roles.president:
         return True
     # Admin can only insert Member memberships
-    elif editors_role == 'Admin' and members_role == 'Member':
+    elif editors_role == Roles.admin and members_role == Roles.member:
         return True
-
+    else:
+        return False
 
 def can_select(editors_role):
     # All members can read all memberships
@@ -79,8 +79,10 @@ def can_select(editors_role):
 
 def can_delete_all(editors_role=None, members_role=None):
     # Owners can delete all memberships except other presidents
-    if editors_role == 'President' and members_role != 'President':
+    if editors_role == Roles.president and members_role != Roles.president:
         return True
+    else: 
+        return False
 
 
 def can_delete_user(editors_id,
@@ -91,26 +93,31 @@ def can_delete_user(editors_id,
     if editors_id == members_id:
         return True
     # Presidents can delete all memberships
-    elif editors_role == 'President' and members_role != 'President':
+    elif editors_role == Roles.president and members_role != Roles.president:
         return True
     # Admins can only delete Member memberships or themselves
-    elif editors_role == 'Admin' and members_role == 'Member':
+    elif editors_role == Roles.admin and members_role == Roles.member:
         return True
+    else:
+        return False
 
 
 def can_update(editors_role=None, members_role=None):
     # President can update any memberships but other presidents
-    if editors_role == 'President' and members_role != 'President':
+    if editors_role == Roles.president and members_role != Roles.president:
         return True
     # Admins can only update members membership
-    elif editors_role == 'Admin' and members_role == 'Member':
+    elif editors_role == Roles.admin and members_role == Roles.member:
         return True
+    else:
+        return False
 
 
 def update(session, club_name, user_id, editors_role, members_role, position,
            new_position, new_role):
-    """Updates membership that asscociates the give user with the given
-    club
+    """
+    Updates membership that asscociates the give user with the given
+    club.
     """
 
     if can_update(editors_role, members_role):
@@ -170,14 +177,14 @@ def select(session, club_name, user_id, editors_role):
         if user_id:
             query += f' AND user_id = {user_id}'
         result_proxy = session.execute(query)
-        results = []
+        results = {}
         for row in result_proxy.fetchall():
-            results.append(
-                {key: row[i]
-                 for i, key in enumerate(result_proxy.keys())})
+            for i, key in enumerate(result_proxy.keys()):
+                results[key] = row[i] 
         return results
     else:
         raise PermissionError('Permission denied for selecting membership.')
+
 
 
 def delete_all(session, club_name, editors_role, members_role):

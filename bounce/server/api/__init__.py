@@ -7,8 +7,12 @@ import asyncio
 import logging
 from functools import wraps
 
+from enum import Enum
+
 from sanic import response
 from sanic.log import logger
+
+from sqlalchemy.dialects.postgresql import ENUM
 
 from . import util
 
@@ -185,3 +189,14 @@ def verify_token():
         return wrapper
 
     return decorator
+
+# The mysqlalchemy way of initializing an enum
+# Used to input a enum column to a table
+ROLE = ENUM('President', 'Admin', 'Member', name='role')
+
+# The pythonic way of intiailizing an enum
+# Used for getting the vaalue of an enum member
+class Roles(Enum):
+    president = ROLE.enums[0]
+    admin = ROLE.enums[1]
+    member = ROLE.enums[2]

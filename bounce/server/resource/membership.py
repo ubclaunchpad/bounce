@@ -14,7 +14,7 @@ class GetMembershipRequest(metaclass=ResourceMeta):
                 'type': 'string',
                 'minimum': 0,
             },
-            'access': {
+            'editor_role': {
                 'enum': ["President", "Admin", "Member"]
             },
         }
@@ -44,7 +44,7 @@ class GetMembershipResponse(metaclass=ResourceMeta):
                     'type': 'integer',
                 },
                 'role': {
-                    'enum': ["President", "Admin", "Member"]
+                    'enum': ['President', 'Admin', 'Member']
                 },
                 'position': {
                     'type': 'string'
@@ -66,9 +66,6 @@ class PutMembershipRequest(metaclass=ResourceMeta):
         'user_id': {
             'type': 'string',
         },
-        'access': {
-            'enum': ["President", "Admin", "Member"]
-        }
     }
 
     __body__ = {
@@ -76,7 +73,7 @@ class PutMembershipRequest(metaclass=ResourceMeta):
         'additionalProperties': False,
         'required': ['role', 'position'],
         'properties': {
-            'role': {
+            'members_role': {
                 'enum': ["President", "Admin", "Member"]
             },
             'position': {
@@ -94,16 +91,21 @@ class DeleteMembershipRequest(metaclass=ResourceMeta):
         'required': ['user_id', 'member_role', 'editor_id', 'editor_role'],
         'properties': {
             'user_id': {
-                'type': 'string',
+                'type': 'integer',
             },
-            'member_role': {
+        }
+    }
+
+    __body__ = {
+        'type': 'object',
+        'additionalProperties': False,
+        'required': ['role', 'position'],
+        'properties': {
+            'members_role': {
                 'enum': ["President", "Admin", "Member"]
             },
-            'editor_id': {
-                'type': 'string',
-            },
-            'editor_role': {
-                'enum': ["President", "Admin", "Member"]
+            'position': {
+                'type': 'string'
             },
         }
     }
