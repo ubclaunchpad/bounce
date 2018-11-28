@@ -8,9 +8,10 @@ from sqlalchemy.types import TIMESTAMP
 
 from . import BASE
 
-# The maximum number of results to return in one page.
+# The max and min number of results to return in one page.
 # Used in the search method.
 MAX_SIZE = 20
+MIN_SIZE = 1
 
 
 class User(BASE):
