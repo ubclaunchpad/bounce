@@ -5,8 +5,8 @@ from urllib.parse import unquote
 from sanic import response
 from sqlalchemy.exc import IntegrityError
 
-from . import APIError, Endpoint, util
-from ...db import PermissionError, club
+from . import APIError, Endpoint, util, Roles
+from ...db import PermissionError, club, membership
 from ..resource import validate
 from ..resource.club import (DeleteClubRequest, GetClubResponse,
                              PostClubsRequest, PutClubRequest,
@@ -43,6 +43,13 @@ class ClubEndpoint(Endpoint):
         name = unquote(name)
         body = util.strip_whitespace(request.json)
         try:
+            membership_attr = membership.select(
+                self.server.db_session,
+                club_name,
+                id_from_token,
+                Roles.president
+            )                
+            editors_role = membership_attr.get('role')
             updated_club = club.update(
                 self.server.db_session,
                 name,
@@ -52,11 +59,12 @@ class ClubEndpoint(Endpoint):
                 facebook_url=body.get('facebook_url', None),
                 instagram_url=body.get('instagram_url', None),
                 twitter_url=body.get('twitter_url', None),
-                editor_role)
+                editors_role)
         except PermissionError:
             raise APIError('Unauthorized', status=403)
         return response.json(updated_club, status=200)
 
+    @verify_token()
     @validate(DeleteClubRequest, None)
     async def delete(self, request, name):
         """Handles a DELETE /clubs/<name>?access=<role> request by deleting the club with
@@ -65,10 +73,18 @@ class ClubEndpoint(Endpoint):
         name = unquote(name)
         body = util.strip_whitespace(request.json)
         try:
+            membership_attr = membership.select(
+                self.server.db_session,
+                club_name,
+                id_from_token,
+                Roles.president
+            )
+            editors_role = membership_attr.get('role')  
             club.delete(
                 self.server.db_session,
                 name,
-                editor_role=body.get('editor_role', None))
+                editors_role
+            )
         except PermissionError:
             raise APIError('Unauthorized', status=403)
         return response.text('', status=204)
@@ -91,8 +107,9 @@ class ClubsEndpoint(Endpoint):
                 description=body.get('description', None),
                 website_url=body.get('website_url', None),
                 facebook_url=body.get('facebook_url', None),
-                instagram_url=body.get('instagram_url', None)
+                instagram_url=body.get('instagram_url', None),
                 twitter_url=body.get('twitter_url', None)
+            )
         except IntegrityError:
             raise APIError('Club already exists', status=409)
         return response.text('', status=201)

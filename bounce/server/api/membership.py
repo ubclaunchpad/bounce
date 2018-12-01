@@ -50,8 +50,8 @@ class MembershipEndpoint(Endpoint):
                 self.server.db_session, 
                 club_name,
                 user_id,
-                editors_role)
-
+                editors_role
+            )
         except PermissionError:
             raise APIError('Unauthorized', status=403)
         return response.json(membership_info, status=200)
@@ -140,7 +140,6 @@ class MembershipEndpoint(Endpoint):
                     editors_role,
                     members_role
                 )               
-
         except PermissionError:
             raise APIError('Unauthorized', status=403)
         except IntegrityError:
