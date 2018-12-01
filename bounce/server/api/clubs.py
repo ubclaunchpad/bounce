@@ -5,7 +5,7 @@ from urllib.parse import unquote
 from sanic import response
 from sqlalchemy.exc import IntegrityError
 
-from . import APIError, Endpoint, util, Roles
+from . import APIError, Endpoint, util, verify_token, Roles
 from ...db import PermissionError, club, membership
 from ..resource import validate
 from ..resource.club import (DeleteClubRequest, GetClubResponse,
@@ -35,12 +35,12 @@ class ClubEndpoint(Endpoint):
 
     @verify_token()
     @validate(PutClubRequest, GetClubResponse)
-    async def put(self, request, name, id_from_token=None):
+    async def put(self, request, club_name, id_from_token=None):
         """Handles a PUT /clubs/<name> request by updating the club with
         the given name and returning the updated club info."""
         # Decode the name, since special characters will be URL-encoded
         # TODO: Check the schema for roles, and if it needs body.get()
-        name = unquote(name)
+        club_name = unquote(club_name)
         body = util.strip_whitespace(request.json)
         try:
             membership_attr = membership.select(
@@ -52,25 +52,25 @@ class ClubEndpoint(Endpoint):
             editors_role = membership_attr.get('role')
             updated_club = club.update(
                 self.server.db_session,
-                name,
+                club_name,
+                editors_role,
                 new_name=body.get('name', None),
                 description=body.get('description', None),
                 website_url=body.get('website_url', None),
                 facebook_url=body.get('facebook_url', None),
                 instagram_url=body.get('instagram_url', None),
-                twitter_url=body.get('twitter_url', None),
-                editors_role)
+                twitter_url=body.get('twitter_url', None))
         except PermissionError:
             raise APIError('Unauthorized', status=403)
         return response.json(updated_club, status=200)
 
     @verify_token()
     @validate(DeleteClubRequest, None)
-    async def delete(self, request, name):
+    async def delete(self, request, club_name, id_from_token=None):
         """Handles a DELETE /clubs/<name>?access=<role> request by deleting the club with
         the given name."""
         # Decode the name, since special characters will be URL-encoded
-        name = unquote(name)
+        club_name = unquote(club_name)
         body = util.strip_whitespace(request.json)
         try:
             membership_attr = membership.select(
@@ -82,7 +82,7 @@ class ClubEndpoint(Endpoint):
             editors_role = membership_attr.get('role')  
             club.delete(
                 self.server.db_session,
-                name,
+                club_name,
                 editors_role
             )
         except PermissionError:

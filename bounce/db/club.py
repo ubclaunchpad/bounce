@@ -47,14 +47,12 @@ class Club(BASE):
             'created_at': self.created_at,
         }
 
-
 def can_delete(editor_role):
     # Only President can delete club
     if editor_role == Roles.president:
         return True
     else:
         return False
-
 
 def can_update(editor_role):
     # President and Admin can update club
@@ -110,17 +108,17 @@ def insert(session, name, description, website_url, facebook_url,
 
 def update(session,
            name,
+           editors_role,
            new_name,
            description,
            website_url,
            facebook_url,
            instagram_url,
-           twitter_url,
-           editor_role=None):
+           twitter_url):
     """Updates an existing club in the Clubs table and returns the
     updated club."""
     # Only Presidents and Admins can update
-    if can_update(editor_role):
+    if can_update(editors_role):
         club = session.query(Club).filter(Club.name == name).first()
         if new_name:
             club.name = new_name
@@ -140,10 +138,10 @@ def update(session,
         raise PermissionError("Permission denied for updating the club.")
 
 
-def delete(session, name, editor_role=None):
+def delete(session, name, editors_role):
     """Deletes the club with the given name."""
     # Only Presidents can delete
-    if can_delete(editor_role):
+    if can_delete(editors_role):
         session.query(Club).filter(Club.name == name).delete()
         session.commit()
     else:

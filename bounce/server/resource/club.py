@@ -34,11 +34,6 @@ class PostClubsRequest(metaclass=ResourceMeta):
 
 class PutClubRequest(metaclass=ResourceMeta):
     """Defines the schema for a PUT /clubs/<name> request."""
-    __params__ = {
-        'access': {
-            'enum': ["President", "Admin", "Member"]
-        },
-    }
     __body__ = {
         'type': 'object',
         'required': ['name'],
@@ -61,9 +56,6 @@ class PutClubRequest(metaclass=ResourceMeta):
             },
             'twitter_url': {
                 'type': 'string',
-            },
-            'editor_role': {
-                'enum': ['President', 'Admin', 'Member']
             },
         }
     }

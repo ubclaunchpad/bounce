@@ -13,10 +13,7 @@ class GetMembershipRequest(metaclass=ResourceMeta):
             'user_id': {
                 'type': 'string',
                 'minimum': 0,
-            },
-            'editor_role': {
-                'enum': ["President", "Admin", "Member"]
-            },
+            }
         }
     }
 
@@ -24,15 +21,15 @@ class GetMembershipRequest(metaclass=ResourceMeta):
 class GetMembershipResponse(metaclass=ResourceMeta):
     """Defines the schema for a GET /membership/<club_name> response."""
     __body__ = {
-        'type': 'array',
+        'type': 'dictionary',
         'items': {
             'type':
             'object',
             'required': [
                 'user_id',
                 'created_at',
-                'role',
                 'position',
+                'role',
                 'full_name',
                 'username',
             ],
