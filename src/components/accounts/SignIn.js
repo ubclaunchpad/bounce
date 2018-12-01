@@ -86,7 +86,7 @@ class SignIn extends Component {
         }
 
         return (
-            <div className='container'>
+            <div className='container page'>
                 <PageHeader>Sign In</PageHeader>
                 <form onSubmit={this.handleSubmit}>
                     {errorMsg}

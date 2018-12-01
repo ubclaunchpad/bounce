@@ -263,7 +263,7 @@ class CreateAccount extends Component {
         }
 
         return (
-            <div className='container'>
+            <div className='container page'>
                 <PageHeader>Create an Account</PageHeader>
                 {errorMsg}
                 <form onSubmit={this.handleSubmit}>

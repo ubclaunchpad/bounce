@@ -54,7 +54,7 @@ class Clubs extends Component {
 
     render() {
         return (
-            <div className='container'>
+            <div className='container page'>
                 {this.props.isNewAccount &&
                     <Alert bsStyle='success'>
                         Welcome, {this.props.client.getUsername()}!

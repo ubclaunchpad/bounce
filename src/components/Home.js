@@ -27,7 +27,7 @@ class Home extends Component {
         }
 
         return (
-            <div className='container home'>
+            <div className='container home page'>
                 <Row>
                     <Col sm={6}>
                         <h1>Huddle</h1>

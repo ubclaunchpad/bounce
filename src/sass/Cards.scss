@@ -8,11 +8,13 @@
 
 .card {
     width: 30%;
-	margin: 1%;
+    min-width: 200px;
+    margin: 1%;
+    flex-direction: column;
 }
 
 .card-body {
-    background-image: url('../media/small-logo.png');
+    height: 100%;
     background-repeat: no-repeat;
     background-size: auto;
     filter: grayscale(100%);
@@ -26,4 +28,8 @@
     margin: 2px;
     padding: 5px;
     color: $pallete-dark-grey;
+}
+
+.card-desc {
+    padding: 5px;
 }

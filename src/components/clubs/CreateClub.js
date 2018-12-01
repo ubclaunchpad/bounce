@@ -89,7 +89,7 @@ class CreateClub extends Component {
             errorMsg = <Alert bsStyle='warning'> {this.state.errorMsg} </Alert>;
         }
         return (
-            <div className='container'>
+            <div className='container page'>
                 <PageHeader>Create a Club</PageHeader>
                 {errorMsg}
                 <form onSubmit={this.handleSubmit}>

@@ -324,7 +324,7 @@ class ViewClub extends Component {
         }
 
         return (
-            <div className='container'>
+            <div className='container page'>
                 <PageHeader>
                     {this.props.name || this.state.name}
                 </PageHeader>

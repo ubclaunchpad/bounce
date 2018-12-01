@@ -20,7 +20,8 @@ class Cards extends Component {
     }
 
     render() {
-        // Create HTML elements from items
+        // Create HTML elements from items. Note that no more that 100 items
+        // should be displayed at a time.
         const cards = this.state.items.map((item, index) => {
             let style;
             if (item.imageUrl) {
@@ -28,16 +29,18 @@ class Cards extends Component {
             }
             return (
                 <div className='card' key={index}>
-                    <h4
-                        key={index + 100}
-                        className='card-title'>
-                        {item.name}
-                    </h4>
                     <div
                         className='card-body'
                         key={index + 200}
                         style={style}>
-                        <p>{item.description}</p>
+                        <h4
+                            key={index + 100}
+                            className='card-title'>
+                            {item.name}
+                        </h4>
+                        <p className='card-desc'>
+                            {item.description}
+                        </p>
                     </div>
                 </div>
             );
