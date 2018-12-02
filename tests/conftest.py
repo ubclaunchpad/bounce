@@ -25,7 +25,7 @@ def server(config):
     serv = Server(config, [
         UserEndpoint, UsersEndpoint, ClubEndpoint, ClubsEndpoint,
         LoginEndpoint, UserImagesEndpoint, SearchClubsEndpoint,
-        SearchUsersEndpoint, ClubImagesEndpoint
+        SearchUsersEndpoint, ClubImagesEndpoint, MembershipEndpoint
     ])
     serv.start(test=True)
     return serv
