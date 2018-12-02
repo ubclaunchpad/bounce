@@ -85,7 +85,7 @@ def start(port, secret, pg_host, pg_port, pg_user, pg_password, pg_database,
     # Register your new endpoints here
     endpoints = [
         UsersEndpoint, UserEndpoint, UserImagesEndpoint, ClubsEndpoint,
-        ClubEndpoint, ClubImagesEndpoint, SearchClubsEndpoint, 
+        ClubEndpoint, ClubImagesEndpoint, SearchClubsEndpoint,
         SearchUsersEndpoint, LoginEndpoint, MembershipEndpoint
     ]
     serv = Server(conf, endpoints)

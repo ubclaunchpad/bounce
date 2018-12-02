@@ -6,10 +6,9 @@ from urllib.parse import unquote
 from sanic import response
 from sqlalchemy.exc import IntegrityError
 
-from . import APIError, Endpoint, util
-from ...db.club import MAX_SIZE, MIN_SIZE
-from . import APIError, Endpoint, util, verify_token, IMAGE_SIZE_LIMIT
+from . import IMAGE_SIZE_LIMIT, APIError, Endpoint, util
 from ...db import club, image
+from ...db.club import MAX_SIZE, MIN_SIZE
 from ...db.image import EntityType
 from ..resource import validate
 from ..resource.club import (GetClubResponse, PostClubsRequest, PutClubRequest,
