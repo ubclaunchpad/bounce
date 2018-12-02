@@ -92,17 +92,11 @@ class SearchClubsEndpoint(Endpoint):
         """Handles a GET /club/search request by returning
         clubs that contain content from the query."""
 
-        # default values, TODO: set default value in json-schema
         query = None
-        page = 0
-        size = MAX_SIZE
-
         if 'query' in request.args:
-            query = request.args['query'][0]
-        if 'page' in request.args:
-            page = int(request.args['page'][0])
-        if 'size' in request.args:
-            size = int(request.args['size'][0])
+            query = request.args['query']
+        page = int(request.args['page'])
+        size = int(request.args['size'])
         if size > MAX_SIZE:
             raise APIError('size too high', status=400)
         if size < MIN_SIZE:
