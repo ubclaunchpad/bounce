@@ -1,6 +1,7 @@
 """Utilities for interacting with the DB."""
 
 from enum import Enum
+
 import sqlalchemy
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.ext.declarative import declarative_base
@@ -12,12 +13,14 @@ BASE = declarative_base()
 # Used to input a enum column to a table
 ROLE = ENUM('President', 'Admin', 'Member', name='role')
 
+
 # The pythonic way of intiailizing an enum
 # Used for getting the vaalue of an enum member
 class Roles(Enum):
     president = ROLE.enums[0]
     admin = ROLE.enums[1]
     member = ROLE.enums[2]
+
 
 def create_engine(driver, user, password, host, port, db_name):
     """Create an Engine for interacting with the DB.

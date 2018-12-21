@@ -8,13 +8,15 @@ from sqlalchemy import Column, Integer, String, desc, func
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
+
 from membership import ROLE
 
-from . import BASE, PermissionError, Roles, ROLE
+from . import BASE, PermissionError, Roles
 
 # The maximum number of results to return in one page.
 # Used in the search method.
 MAX_SIZE = 20
+
 
 class Club(BASE):
     """
@@ -47,6 +49,7 @@ class Club(BASE):
             'created_at': self.created_at,
         }
 
+
 def can_delete(editor_role):
     # Only President can delete club
     if editor_role == Roles.president:
@@ -54,12 +57,14 @@ def can_delete(editor_role):
     else:
         return False
 
+
 def can_update(editor_role):
     # President and Admin can update club
     if editor_role == Roles.president or editor_role == Roles.admin:
         return True
     else:
         return False
+
 
 def select(session, name):
     """
@@ -106,15 +111,8 @@ def insert(session, name, description, website_url, facebook_url,
     session.commit()
 
 
-def update(session,
-           name,
-           editors_role,
-           new_name,
-           description,
-           website_url,
-           facebook_url,
-           instagram_url,
-           twitter_url):
+def update(session, name, editors_role, new_name, description, website_url,
+           facebook_url, instagram_url, twitter_url):
     """Updates an existing club in the Clubs table and returns the
     updated club."""
     # Only Presidents and Admins can update

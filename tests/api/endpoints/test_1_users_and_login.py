@@ -41,6 +41,7 @@ def test_put_user__success(server):
             'email': 'newemail@test.com',
         }),
         headers={'Authorization': token})
+
     assert response.status == 200
     assert response.json['username'] == username
     assert response.json['full_name'] == 'New Name'

@@ -5,8 +5,8 @@ from urllib.parse import unquote
 from sanic import response
 from sqlalchemy.exc import IntegrityError
 
-from . import APIError, Endpoint, verify_token, util, Roles
-from ...db import PermissionError, club, membership
+from . import APIError, Endpoint, util, verify_token
+from ...db import PermissionError, Roles, club, membership
 from ..resource import validate
 from ..resource.membership import (DeleteMembershipRequest,
                                    GetMembershipRequest, GetMembershipResponse,
@@ -29,29 +29,23 @@ class MembershipEndpoint(Endpoint):
         """
         # Decode the club name
         club_name = unquote(club_name)
-        # Get the body from the JSON requests
-        body = util.strip_whitespace(request.json)
 
         # Make sure the club exists
         club_row = club.select(self.server.db_session, club_name)
         if not club_row:
             raise APIError('No such club', status=404)
+
+        body = util.strip_whitespace(request.json)
+        user_id = body.get('user_id', None)
+
         try:
-            user_id=body.get('user_id', None),
-            membership_attr=membership.select(
-                self.server.db_session,
-                club_name,
-                id_from_token,
-                Roles.president                
-            )
-            editors_role=membership_attr.get('role')
+            membership_attr = membership.select(self.server.db_session,
+                                                club_name, id_from_token,
+                                                Roles.president)
+            editors_role = membership_attr.get('role')
             # Fetch the club's memberships
             membership_info = membership.select(
-                self.server.db_session, 
-                club_name,
-                user_id,
-                editors_role
-            )
+                self.server.db_session, club_name, user_id, editors_role)
         except PermissionError:
             raise APIError('Unauthorized', status=403)
         return response.json(membership_info, status=200)
@@ -64,7 +58,6 @@ class MembershipEndpoint(Endpoint):
         creating or updating the membership for the given user and club."""
         # Decode the club name
         club_name = unquote(club_name)
-        user_id = 0  # TODO: default user id
         body = util.strip_whitespace(request.json)
         members_role = body.get('members_role', None)
         position = body.get('position', None)
@@ -73,15 +66,12 @@ class MembershipEndpoint(Endpoint):
         except Exception:
             raise APIError('Invalid user ID', status=400)
         try:
-            membership_attr = membership.select(
-                self.server.db_session,
-                club_name,
-                id_from_token,
-                Roles.president)                
+            membership_attr = membership.select(self.server.db_session,
+                                                club_name, id_from_token,
+                                                Roles.president)
             editors_role = membership_attr.get('role')
-            membership.insert(
-                self.server.db_session, club_name, user_id,
-                editors_role, members_role, position)
+            membership.insert(self.server.db_session, club_name, user_id,
+                              editors_role, members_role, position)
         except PermissionError:
             raise APIError('Unauthorized', status=403)
         except IntegrityError:
@@ -120,26 +110,17 @@ class MembershipEndpoint(Endpoint):
             raise APIError('Invalid user ID', status=400)
 
         try:
-            membership_attr = membership.select(
-                self.server.db_session,
-                club_name,
-                id_from_token,
-                Roles.president                
-            )
+            membership_attr = membership.select(self.server.db_session,
+                                                club_name, id_from_token,
+                                                Roles.president)
             editors_role = membership_attr.get('role')
             if user_id:
-                membership.delete(
-                    self.server.db_session, club_name,
-                    id_from_token, user_id, editors_role,
-                    members_role
-                )
+                membership.delete(self.server.db_session, club_name,
+                                  id_from_token, user_id, editors_role,
+                                  members_role)
             else:
-                membership.delete_all(
-                    self.server.db_session,
-                    club_name,
-                    editors_role,
-                    members_role
-                )               
+                membership.delete_all(self.server.db_session, club_name,
+                                      editors_role, members_role)
         except PermissionError:
             raise APIError('Unauthorized', status=403)
         except IntegrityError:

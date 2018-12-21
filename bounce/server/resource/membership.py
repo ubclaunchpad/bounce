@@ -11,7 +11,7 @@ class GetMembershipRequest(metaclass=ResourceMeta):
         'required': ['user_id'],
         'properties': {
             'user_id': {
-                'type': 'string',
+                'type': 'integer',
                 'minimum': 0,
             }
         }
@@ -61,14 +61,14 @@ class PutMembershipRequest(metaclass=ResourceMeta):
     """Defines the schema for a PUT /memberships/<club_name> request."""
     __params__ = {
         'user_id': {
-            'type': 'string',
+            'type': 'integer',
         },
     }
 
     __body__ = {
         'type': 'object',
         'additionalProperties': False,
-        'required': ['role', 'position'],
+        'required': ['members_role', 'position'],
         'properties': {
             'members_role': {
                 'enum': ["President", "Admin", "Member"]
@@ -85,7 +85,7 @@ class DeleteMembershipRequest(metaclass=ResourceMeta):
     __params__ = {
         'type': 'object',
         'additionalProperties': False,
-        'required': ['user_id', 'member_role', 'editor_id', 'editor_role'],
+        'required': ['user_id'],
         'properties': {
             'user_id': {
                 'type': 'integer',
@@ -100,9 +100,6 @@ class DeleteMembershipRequest(metaclass=ResourceMeta):
         'properties': {
             'members_role': {
                 'enum': ["President", "Admin", "Member"]
-            },
-            'position': {
-                'type': 'string'
-            },
+            }
         }
     }

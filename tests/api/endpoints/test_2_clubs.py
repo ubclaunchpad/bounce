@@ -61,12 +61,10 @@ def test_put_club__success(server):
         headers={'Authorization': token})
     assert response.status == 201
 
-    import pdb
-    pdb.set_trace()
     # check the user's role given the id from his/her token
     id = util.check_jwt(token, server.config.secret)
     _, response = server.app.test_client.get('/memberships/test?user_id=' +
-                                             str(id) + '&access=President')
+                                             str(id))
     role = response.json[0].get('role')
 
     # test if the club is successfully edited by President

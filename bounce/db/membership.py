@@ -1,13 +1,12 @@
 """Defines the schema for the Memberships table in our DB."""
 from enum import Enum
+
 from sqlalchemy import Column, ForeignKey, Integer, String, func
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 
-from . import BASE, PermissionError
-from . import ROLE, Roles
-
+from . import BASE, ROLE, PermissionError, Roles
 
 
 class Membership(BASE):
@@ -34,8 +33,7 @@ class Membership(BASE):
         ROLE,
         nullable=False,
     )
-    position = Column(
-        'position', String, ForeignKey('positions.'), nullable=False)
+    position = Column('position', String, nullable=False)
 
     member = relationship('User', back_populates='clubs')
     club = relationship('Club', back_populates='members')
@@ -69,6 +67,7 @@ def can_insert(editors_role, members_role):
     else:
         return False
 
+
 def can_select(editors_role):
     # All members can read all memberships
     if editors_role is None:
@@ -81,7 +80,7 @@ def can_delete_all(editors_role=None, members_role=None):
     # Owners can delete all memberships except other presidents
     if editors_role == Roles.president and members_role != Roles.president:
         return True
-    else: 
+    else:
         return False
 
 
@@ -180,11 +179,10 @@ def select(session, club_name, user_id, editors_role):
         results = {}
         for row in result_proxy.fetchall():
             for i, key in enumerate(result_proxy.keys()):
-                results[key] = row[i] 
+                results[key] = row[i]
         return results
     else:
         raise PermissionError('Permission denied for selecting membership.')
-
 
 
 def delete_all(session, club_name, editors_role, members_role):
