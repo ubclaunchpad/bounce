@@ -1,18 +1,24 @@
 """Request handlers for the /clubs endpoint."""
 
+import os
 from urllib.parse import unquote
 
 from sanic import response
 from sqlalchemy.exc import IntegrityError
 
+<<<<<<< HEAD
 from . import APIError, Endpoint, util, verify_token
 from ...db import PermissionError, Roles, club, membership
+=======
+from . import IMAGE_SIZE_LIMIT, APIError, Endpoint, util
+from ...db import club, image
+from ...db.club import MAX_SIZE, MIN_SIZE
+from ...db.image import EntityType
+>>>>>>> 66d04dfda62d525ba9715dc863eec8f2e201f0f9
 from ..resource import validate
 from ..resource.club import (DeleteClubRequest, GetClubResponse,
                              PostClubsRequest, PutClubRequest,
                              SearchClubsRequest, SearchClubsResponse)
-
-MAX_SIZE = 20
 
 
 class ClubEndpoint(Endpoint):
@@ -112,19 +118,15 @@ class SearchClubsEndpoint(Endpoint):
         """Handles a GET /club/search request by returning
         clubs that contain content from the query."""
 
-        # default values, TODO: set default value in json-schema
-        query = ''
-        page = 0
-        size = 20
-
+        query = None
         if 'query' in request.args:
-            query = request.args['query'][0]
-        if 'page' in request.args:
-            page = int(request.args['page'][0])
-        if 'size' in request.args:
-            size = int(request.args['size'][0])
+            query = request.args['query']
+        page = int(request.args['page'])
+        size = int(request.args['size'])
         if size > MAX_SIZE:
             raise APIError('size too high', status=400)
+        if size < MIN_SIZE:
+            raise APIError('size too low', status=400)
 
         queried_clubs, result_count, total_pages = club.search(
             self.server.db_session, page, size, query)
@@ -142,3 +144,76 @@ class SearchClubsEndpoint(Endpoint):
         }
 
         return response.json(info, status=200)
+
+
+class ClubImagesEndpoint(Endpoint):
+    """Handles requests to /clubs/<club_name>/images/<image_name>."""
+
+    __uri__ = '/clubs/<club_name>/images/<image_name>'
+
+    async def get(self, _, club_name, image_name):
+        """
+        Handles a GET /clubs/<club_name>/images/<image_name> request
+        by returning the club's image with the given name.
+        """
+
+        if not util.check_image_name(image_name):
+            raise APIError('Invalid image name', status=400)
+        try:
+            return await response.file(
+                os.path.join(self.server.config.image_dir,
+                             EntityType.CLUB.value, club_name, image_name))
+        except FileNotFoundError:
+            raise APIError('No such image', status=404)
+
+    # @verify_token()
+    async def put(self, request, club_name, image_name):
+        """
+        Handles a PUT /clubs/<club_name>/images/<image_name> request
+        by updating the image at the given path.
+        """
+        # For now, only allow clubs to upload profile pictures
+        if image_name != 'profile' or not util.check_image_name(image_name):
+            raise APIError('Invalid image name', status=400)
+
+        # Make sure the user is updating an image they own
+        club_info = club.select(self.server.db_session, club_name)
+        if not club_info:
+            raise APIError('No such image', status=404)
+
+        # Save the image
+        image_upload = request.files.get('image')
+        if not image_upload:
+            raise APIError('No image provided', status=400)
+        if (image_upload.type != 'image/png'
+                and image_upload.type != 'image/jpeg'):
+            raise APIError(
+                'Only png and jpeg images are supported', status=400)
+        if len(image_upload.body) > IMAGE_SIZE_LIMIT:
+            raise APIError('Image too large', status=400)
+
+        image.save(self.server.config.image_dir, EntityType.CLUB, club_name,
+                   image_name, image_upload.body)
+
+        return response.text('', status=200)
+
+    # @verify_token()
+    async def delete(self, _, club_name, image_name):
+        """Handles a DETELE by deleting the club's image by the given name."""
+
+        if not util.check_image_name(image_name):
+            raise APIError('Invalid image name', status=400)
+        # Make sure the user is deleting their own image
+        club_info = club.select(self.server.db_session, club_name)
+        if not club_info:
+            raise APIError('No such image', status=404)
+        try:
+            image.delete(
+                self.server.config.image_dir,
+                EntityType.CLUB,
+                club_name,
+                image_name,
+                must_exist=True)
+        except FileNotFoundError:
+            raise APIError('No such image', status=404)
+        return response.text('', status=200)

@@ -11,7 +11,7 @@ class PostClubsRequest(metaclass=ResourceMeta):
         'additionalProperties': False,
         'properties': {
             'name': {
-                'type': 'string'
+                'type': 'string',
             },
             'description': {
                 'type': 'string',
@@ -40,7 +40,7 @@ class PutClubRequest(metaclass=ResourceMeta):
         'additionalProperties': False,
         'properties': {
             'name': {
-                'type': 'string'
+                'type': 'string',
             },
             'description': {
                 'type': 'string',
@@ -74,7 +74,7 @@ class GetClubResponse(metaclass=ResourceMeta):
         False,
         'properties': {
             'name': {
-                'type': 'string'
+                'type': 'string',
             },
             'description': {
                 'type': 'string',
@@ -109,14 +109,14 @@ class SearchClubsRequest(metaclass=ResourceMeta):
             'type': 'string',
         },
         'page': {
-            'type': 'integer',
-            'default':
-            0,  # TODO: defaults aren't being set when param is not specified
+            'type': 'string',
+            'default': '0',
+            'minimum': '0',
         },
         'size': {
-            'type': 'integer',
-            'default':
-            5,  # TODO: defaults aren't being set when param is not specified
+            'type': 'string',
+            'default': '20',
+            'minimum': '1',
         }
     }
 
@@ -137,7 +137,7 @@ class SearchClubsResponse(metaclass=ResourceMeta):
                 False,
                 'properties': {
                     'name': {
-                        'type': 'string'
+                        'type': 'string',
                     },
                     'description': {
                         'type': 'string',

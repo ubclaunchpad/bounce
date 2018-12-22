@@ -13,9 +13,10 @@ from membership import ROLE
 
 from . import BASE, PermissionError, Roles
 
-# The maximum number of results to return in one page.
+# The max and min number of results to return in one page.
 # Used in the search method.
 MAX_SIZE = 20
+MIN_SIZE = 1
 
 
 class Club(BASE):
@@ -76,7 +77,13 @@ def select(session, name):
     return None if club is None else club.to_dict()
 
 
+<<<<<<< HEAD
 def search(session, page=0, size=MAX_SIZE, query=None):
+=======
+def search(session, query=None, page=0, size=MAX_SIZE):
+    # TODO: does query, page and size need default values if it's
+    # already being set using the JSON schema?
+>>>>>>> 66d04dfda62d525ba9715dc863eec8f2e201f0f9
     """Returns a list of clubs that contain content from the user's query"""
     # number used for offset is the
     # page number multiplied by the size of each page

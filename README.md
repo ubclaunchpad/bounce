@@ -14,9 +14,10 @@ Before you can install and run Bounce you'll need the following:
 * Docker (see [Install Docker](https://docs.docker.com/install/))
 * Docker Compose (see [Install Docker Compose](https://docs.docker.com/compose/install/))
 
-For linux users, to use docker without using sudo for every command,
+For Linux users, to use docker without using sudo for every command,
 follow the steps in this link:
 https://docs.docker.com/install/linux/linux-postinstall/#configuring-remote-access-with-systemd-unit-file
+
 
 ### Configuration
 
@@ -39,8 +40,8 @@ Both the Python backend and Postgres need to be configured before they can run. 
 * `POSTGRES_USER`: Should match the setting by the same name in `postgres.env`.
 * `POSTGRES_PASSWORD`: Should match the setting by the same name in `postgres.env`.
 * `POSTGRES_DB`: Should match the setting by the same name in `postgres.env`.
-* `ALLOWED_ORIGIN`: The domain that is allowed to access the API. For local development you can set this to your front-end URL (`http://localhost:3000`).
-* `IMAGE_DIR`: The directory to store images in. For local development you can set this to `/var/bounce/images`.
+* `ALLOWED_ORIGIN`: The domain that is allowed to access the API. For local development, you can set this to your front-end URL (`http://localhost:3000`).
+* `IMAGE_DIR`: The directory to store images in. For local development, you can set this to `/var/bounce/images`.
 
 ### Running the Server
 
@@ -86,7 +87,7 @@ Bounce is packaged as a Python package. [setup.py](setup.py) is used by tools li
 
 We use [requirements.in](requirements.in) to specify our dependencies and their versions. When you add a new dependency to the project make sure you specify it in this file, along with a specific version.
 
-We use `pip-compile` to parse our depenencies and make sure they are all compatible. When you update [requirements.in](requirements.in) make sure you run
+We use `pip-compile` to parse our dependencies and make sure they are all compatible. When you update [requirements.in](requirements.in) make sure you run
 
 ```bash
 $ make requirements
@@ -98,11 +99,11 @@ to update [requirements.txt](requirements.txt) accordingly.
 
 To ensure our code is nicely formatted and documented we use `isort`, `flake8`, and `pylint` through the `lint` Make target.
 
-Before your commit your code, have `isort` and `yapf` auto-format your code by running `make format` from inside your dev container.
+Before you commit your code, have `isort` and `yapf` auto-format your code by running `make format` from inside your dev container.
 
 To check for code formatting issues, run `make lint` from inside your dev container.
 
-Linter configuration can be found in [setup.cfg](setup.cfg). If you feel that specific lint rules are too restricitve, you can disable them in that file.
+Linter configuration can be found in [setup.cfg](setup.cfg). If you feel that specific lint rules are too restrictive, you can disable them in that file.
 
 ### Testing
 
@@ -127,7 +128,7 @@ Adding a route that serves RESTful requests is best illustrated by example. In t
 
 First we need to figure out what we want our requests and responses to look like on this endpoint. For simplicity our endpoint will only accept GET requests. To make sure that requests and responses on this endpoint fit the required format we'll specify a schema for each, and we'll use these schemas to validate incoming requests and outgoing responses.
 
-We want our GET requests to specify a `username` as we'll use it to retreive information about a user. We create a file in `bounce/server/resource` called `users.py` and put our schema for the `GetUserRequest` in it:
+We want our GET requests to specify a `username` as we'll use it to retrieve information about a user. We create a file in `bounce/server/resource` called `users.py` and put our schema for the `GetUserRequest` in it:
 
 ```python
 class GetUserRequest(metaclass=ResourceMeta):
@@ -179,6 +180,68 @@ class GetUserResponse(metaclass=ResourceMeta):
 The `__body__` field is used to specify the schema that the response body must match. Specifically, the response to a `GET /users` request must contain the user's full name, username, email, ID and the time at which the user was created.
 
 Note that in this example our request resource contained only a schema for params, and our response resource contained only a schema for the body. If you like you can specify neither or both schemas for `__params__` and `__body__` on your resource class.
+
+If you need to add an array type to the schema, specify the array's items with an `items` as shown below.  The `items` key needs to be inside a parent key (such as `results`, but the name can whatever you'd like i.e. `sources`, `values`, etc.).  The `items` and parent keys are used by the middleware code to correctly set defaults for the array:
+
+```python
+class SearchClubsResponse(metaclass=ResourceMeta):
+    """Defines the schema for a search query response."""
+    __body__ = {
+        'results': {
+            'type': 'array',
+            'items': {
+                'type':
+                'object',
+                'required': [
+                    'name', 'description', 'website_url', 'facebook_url',
+                    'instagram_url', 'twitter_url', 'id', 'created_at'
+                ],
+                'additionalProperties':
+                False,
+                'properties': {
+                    'name': {
+                        'type': 'string',
+                    },
+                    'description': {
+                        'type': 'string',
+                    },
+                    'website_url': {
+                        'type': 'string',
+                    },
+                    'facebook_url': {
+                        'type': 'string',
+                    },
+                    'instagram_url': {
+                        'type': 'string',
+                    },
+                    'twitter_url': {
+                        'type': 'string',
+                    },
+                    'id': {
+                        'type': 'integer',
+                        'minimum': 0,
+                    },
+                    'created_at': {
+                        'type': 'integer',
+                    },
+                }
+            }
+        },
+        'resultCount': {
+            'type': 'integer',
+            'minimum': 0,
+        },
+        'page': {
+            'type': 'integer',
+            'minimum': 0,
+        },
+        'totalPages': {
+            'type': 'integer',
+            'minimum': 0,
+        }
+    }
+```
+
 
 **Step 2: Create a new Endpoint**
 

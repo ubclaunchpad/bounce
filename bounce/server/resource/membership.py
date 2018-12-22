@@ -3,7 +3,7 @@
 from . import ResourceMeta
 
 
-class GetMembershipRequest(metaclass=ResourceMeta):
+class GetMembershipsRequest(metaclass=ResourceMeta):
     """Defines the schema for a GET /membership/<club_name> request."""
     __params__ = {
         'type': 'object',
@@ -18,7 +18,7 @@ class GetMembershipRequest(metaclass=ResourceMeta):
     }
 
 
-class GetMembershipResponse(metaclass=ResourceMeta):
+class GetMembershipsResponse(metaclass=ResourceMeta):
     """Defines the schema for a GET /membership/<club_name> response."""
     __body__ = {
         'type': 'dictionary',

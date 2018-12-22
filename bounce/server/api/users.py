@@ -5,14 +5,13 @@ import os
 from sanic import response
 from sqlalchemy.exc import IntegrityError
 
-from . import APIError, Endpoint, util, verify_token
+from . import IMAGE_SIZE_LIMIT, APIError, Endpoint, util, verify_token
 from ...db import image, user
 from ...db.image import EntityType
+from ...db.user import MAX_SIZE, MIN_SIZE
 from ..resource import validate
-from ..resource.user import GetUserResponse, PostUsersRequest, PutUserRequest
-
-# Maximum number of bytes in an image upload
-IMAGE_SIZE_LIMIT = 1000000
+from ..resource.user import (GetUserResponse, PostUsersRequest, PutUserRequest,
+                             SearchUsersRequest, SearchUsersResponse)
 
 
 class UserEndpoint(Endpoint):
@@ -37,18 +36,49 @@ class UserEndpoint(Endpoint):
         """Handles a PUT /users/<username> request by updating the user with
         the given username and returning the updated user info. """
         body = util.strip_whitespace(request.json)
+        secret = None
+        email = None
         # Make sure the ID from the token is for the user we're updating
         user_row = user.select(self.server.db_session, username)
         if not user_row:
             raise APIError('No such user', status=404)
         if user_row.identifier != id_from_token:
             raise APIError('Forbidden', status=403)
+        if body.get('email'):
+            # Check that user password is provided
+            if not body.get('password'):
+                raise APIError('Password not provided', status=400)
+            # Check that user's password is correct
+            if not util.check_password(body['password'], user_row.secret):
+                raise APIError('Unauthorized', status=401)
+            if body.get('new_password'):
+                raise APIError(
+                    'New password should not be provided for email change',
+                    status=400)
+            email = body['email']
+        elif body.get('new_password'):
+            # Check that user current password is provided
+            if not body.get('password'):
+                raise APIError('Current Password not provided', status=400)
+            # Check that the user's password is correct
+            if not util.check_password(body['password'], user_row.secret):
+                raise APIError('Unauthorized', status=401)
+            # Make sure the password is valid (no need
+            # to check email, this is done
+            # by a jsonschema formatter)
+            if not util.validate_password(body['new_password']):
+                raise APIError('Invalid new password', status=400)
+            # Create a secret from the user's password
+            #  that we can use to securely
+            # verify their password when they log in
+            secret = util.hash_password(body['new_password'])
         # Update the user
         updated_user = user.update(
             self.server.db_session,
             username,
+            secret=secret,
             full_name=body.get('full_name', None),
-            email=body.get('email', None))
+            email=email)
         # Returns the updated user info
         return response.json(updated_user.to_dict(), status=200)
 
@@ -170,6 +200,44 @@ class UserImagesEndpoint(Endpoint):
                 user_id,
                 image_name,
                 must_exist=True)
-        except FileExistsError:
+        except FileNotFoundError:
             raise APIError('No such image', status=404)
         return response.text('', status=200)
+
+
+class SearchUsersEndpoint(Endpoint):
+    """Handles requests to /users/search."""
+
+    __uri__ = '/users/search'
+
+    @validate(SearchUsersRequest, SearchUsersResponse)
+    async def get(self, request):
+        """Handles a GET /club/search request by returning
+        users that contain content from the query."""
+
+        query = None
+        if 'query' in request.args:
+            query = request.args['query']
+        page = int(request.args['page'])
+        size = int(request.args['size'])
+        if size > MAX_SIZE:
+            raise APIError('size too high', status=400)
+        if size < MIN_SIZE:
+            raise APIError('size too low', status=400)
+
+        queried_users, result_count, total_pages = user.search(
+            self.server.db_session, query, page, size)
+        if not queried_users:
+            # Failed to find users that match the query
+            raise APIError('No users match your query', status=404)
+        results = []
+        for result in queried_users.all():
+            results.append(result.to_dict())
+        info = {
+            'results': results,
+            'result_count': result_count,
+            'page': page,
+            'total_pages': total_pages
+        }
+
+        return response.json(info, status=200)
