@@ -52,7 +52,7 @@ def insert(session, club_name, user_id):
         )
         ON CONFLICT DO NOTHING
     """
-    session.execute(query, {'user_id' : user_id, 'club_name' : club_name})
+    session.execute(query, {'user_id': user_id, 'club_name': club_name})
     session.commit()
 
 
@@ -71,7 +71,10 @@ def select(session, club_name, user_id=None):
     """
     if user_id:
         query += ' AND user_id = :user_id'
-    result_proxy = session.execute(query, {'user_id' : user_id, 'club_name' : club_name})
+    result_proxy = session.execute(query, {
+        'user_id': user_id,
+        'club_name': club_name
+    })
     results = []
     for row in result_proxy.fetchall():
         results.append(
@@ -93,5 +96,5 @@ def delete(session, club_name, user_id=None):
     """
     if user_id:
         query += ' AND user_id = :user_id'
-    session.execute(query, {'user_id' : user_id, 'club_name' : club_name})
+    session.execute(query, {'user_id': user_id, 'club_name': club_name})
     session.commit()
