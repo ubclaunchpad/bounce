@@ -6,15 +6,10 @@ from urllib.parse import unquote
 from sanic import response
 from sqlalchemy.exc import IntegrityError
 
-<<<<<<< HEAD
-from . import APIError, Endpoint, util, verify_token
-from ...db import PermissionError, Roles, club, membership
-=======
 from . import IMAGE_SIZE_LIMIT, APIError, Endpoint, util
 from ...db import club, image
 from ...db.club import MAX_SIZE, MIN_SIZE
 from ...db.image import EntityType
->>>>>>> 66d04dfda62d525ba9715dc863eec8f2e201f0f9
 from ..resource import validate
 from ..resource.club import (DeleteClubRequest, GetClubResponse,
                              PostClubsRequest, PutClubRequest,

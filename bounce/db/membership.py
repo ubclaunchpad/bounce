@@ -76,7 +76,7 @@ def can_select(editors_role):
         return True
 
 
-def can_delete_all(editors_role=None, members_role=None):
+def can_delete_all(editors_role):
     # Owners can delete all memberships except other presidents
     if editors_role == Roles.president and members_role != Roles.president:
         return True
@@ -84,10 +84,10 @@ def can_delete_all(editors_role=None, members_role=None):
         return False
 
 
-def can_delete_user(editors_id,
+def can_delete_member(editors_id,
                     members_id,
-                    editors_role=None,
-                    members_role=None):
+                    editors_role,
+                    members_role):
     # Anyone can delete their own membership
     if editors_id == members_id:
         return True
@@ -101,7 +101,7 @@ def can_delete_user(editors_id,
         return False
 
 
-def can_update(editors_role=None, members_role=None):
+def can_update(editors_role, members_role):
     # President can update any memberships but other presidents
     if editors_role == Roles.president and members_role != Roles.president:
         return True

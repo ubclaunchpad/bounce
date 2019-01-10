@@ -18,14 +18,9 @@ class MembershipEndpoint(Endpoint):
 
     __uri__ = "/memberships/<club_name:string>"
 
-<<<<<<< HEAD
-    @verify_token()
+    @verify_token() 
     @validate(GetMembershipRequest, GetMembershipResponse)
     async def get(self, request, club_name, id_from_token=None):
-=======
-    @validate(GetMembershipsRequest, GetMembershipsResponse)
-    async def get(self, request, club_name):
->>>>>>> 66d04dfda62d525ba9715dc863eec8f2e201f0f9
         """
         Handles a GET /memberships/<club_name> request
         by returning the membership that associates the given user with the
@@ -40,14 +35,13 @@ class MembershipEndpoint(Endpoint):
         if not club_row:
             raise APIError('No such club', status=404)
 
-<<<<<<< HEAD
         body = util.strip_whitespace(request.json)
         user_id = body.get('user_id', None)
 
         try:
             membership_attr = membership.select(self.server.db_session,
                                                 club_name, id_from_token,
-                                                Roles.president)
+                                                Roles.member)
             editors_role = membership_attr.get('role')
             # Fetch the club's memberships
             membership_info = membership.select(
@@ -55,13 +49,6 @@ class MembershipEndpoint(Endpoint):
         except PermissionError:
             raise APIError('Unauthorized', status=403)
         return response.json(membership_info, status=200)
-=======
-        # Fetch the club's memberships
-        results = membership.select(
-            self.server.db_session, club_name, user_id=user_id)
-        info = {'results': results}
-        return response.json(info, status=200)
->>>>>>> 66d04dfda62d525ba9715dc863eec8f2e201f0f9
 
     # pylint: disable=unused-argument
     @verify_token()
