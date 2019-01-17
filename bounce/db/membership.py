@@ -76,7 +76,7 @@ def can_select(editors_role):
         return True
 
 
-def can_delete_all(editors_role):
+def can_delete_all(editors_role, members_role):
     # Owners can delete all memberships except other presidents
     if editors_role == Roles.president and members_role != Roles.president:
         return True
@@ -218,7 +218,7 @@ def delete(session, club_name, editors_id, members_id, editors_role,
         editors_role (Role): the role of the member who is deleting the membership
         members_role (Role): the role of the member whose membership is being deleted
     """
-    if can_delete_user(editors_id, members_id, editors_role, members_role):
+    if can_delete_member(editors_id, members_id, editors_role, members_role):
         query = f"""
         DELETE FROM memberships
         WHERE memberships.club_id IN (

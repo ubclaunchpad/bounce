@@ -9,7 +9,7 @@ from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 
-from membership import ROLE
+from . import ROLE
 
 from . import BASE, PermissionError, Roles
 

@@ -19,7 +19,7 @@ class MembershipEndpoint(Endpoint):
     __uri__ = "/memberships/<club_name:string>"
 
     @verify_token() 
-    @validate(GetMembershipRequest, GetMembershipResponse)
+    @validate(GetMembershipsRequest, GetMembershipsResponse)
     async def get(self, request, club_name, id_from_token=None):
         """
         Handles a GET /memberships/<club_name> request

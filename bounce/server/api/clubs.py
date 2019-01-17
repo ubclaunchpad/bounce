@@ -6,7 +6,7 @@ from urllib.parse import unquote
 from sanic import response
 from sqlalchemy.exc import IntegrityError
 
-from . import IMAGE_SIZE_LIMIT, APIError, Endpoint, util
+from . import IMAGE_SIZE_LIMIT, APIError, Endpoint, util, verify_token
 from ...db import club, image
 from ...db.club import MAX_SIZE, MIN_SIZE
 from ...db.image import EntityType
