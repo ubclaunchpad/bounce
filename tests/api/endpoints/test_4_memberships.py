@@ -23,7 +23,7 @@ def test_put_memberships__success(server):
     # use the dummy user's id created from test_put_user_image__success
     token = util.create_jwt(3, server.config.secret)
     _, response = server.app.test_client.put(
-        '/memberships/<club_name>',
+        '/memberships/testclub',
         data=json.dumps({
             'role': 'President',
             'position': 'VP'

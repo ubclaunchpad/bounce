@@ -39,6 +39,7 @@ def test_put_user__success(server):
         data=json.dumps({
             'full_name': 'New Name',
             'email': 'newemail@test.com',
+            'password': 'Val1dPassword!'
         }),
         headers={'Authorization': token})
 

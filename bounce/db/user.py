@@ -94,6 +94,7 @@ def insert(session, full_name, username, secret, email):
 def update(session, username, secret=None, full_name=None, email=None):
     """Updates an existing user in the Users table and returns the
     updated user."""
+    user = session.query(User).filter(User.username == username).first()
     if full_name:
         user.full_name = full_name
     if email:
