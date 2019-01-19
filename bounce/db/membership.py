@@ -45,14 +45,14 @@ def insert(session, club_name, user_id):
     club. """
     # For now we do nothing on conflict, but when we have roles on these
     # memberships we need to update on conflict.
-    query = f"""
+    query = """
         INSERT INTO memberships (user_id, club_id) VALUES (
-            '{user_id}',
-            (SELECT id FROM clubs WHERE name = '{club_name}')
+            :user_id,
+            (SELECT id FROM clubs WHERE name = :club_name)
         )
         ON CONFLICT DO NOTHING
     """
-    session.execute(query)
+    session.execute(query, {'user_id': user_id, 'club_name': club_name})
     session.commit()
 
 
@@ -61,17 +61,20 @@ def select(session, club_name, user_id=None):
     Returns all memberships for the given club. If user_id is given, returns
     only the membership for the given user.
     """
-    query = f"""
+    query = """
         SELECT users.id AS user_id,
         memberships.created_at, users.full_name, users.username FROM
         memberships INNER JOIN users ON (memberships.user_id = users.id)
         WHERE memberships.club_id IN (
-            SELECT id FROM clubs WHERE name = '{club_name}'
+            SELECT id FROM clubs WHERE name = :club_name
         )
     """
     if user_id:
-        query += f' AND user_id = {user_id}'
-    result_proxy = session.execute(query)
+        query += ' AND user_id = :user_id'
+    result_proxy = session.execute(query, {
+        'user_id': user_id,
+        'club_name': club_name
+    })
     results = []
     for row in result_proxy.fetchall():
         results.append(
@@ -85,13 +88,13 @@ def delete(session, club_name, user_id=None):
     Deletes all memberships for the given club. If user_id is given, deletes
     only the membership for the given user.
     """
-    query = f"""
+    query = """
         DELETE FROM memberships
         WHERE memberships.club_id IN (
-            SELECT id FROM clubs WHERE name = '{club_name}'
+            SELECT id FROM clubs WHERE name = :club_name
         )
     """
     if user_id:
-        query += f' AND user_id = {user_id}'
-    session.execute(query)
+        query += ' AND user_id = :user_id'
+    session.execute(query, {'user_id': user_id, 'club_name': club_name})
     session.commit()
