@@ -60,9 +60,14 @@ class GetMembershipsResponse(metaclass=ResourceMeta):
 class PutMembershipRequest(metaclass=ResourceMeta):
     """Defines the schema for a PUT /memberships/<club_name> request."""
     __params__ = {
-        'user_id': {
-            'type': 'integer',
-        },
+        'type': 'object',
+        'additionalProperties': False,
+        'required': ['user_id'],
+        'properties': {
+            'user_id': {
+                'type': 'integer',
+            },
+        }
     }
 
     __body__ = {

@@ -7,7 +7,7 @@ from sanic import response
 from sqlalchemy.exc import IntegrityError
 
 from . import IMAGE_SIZE_LIMIT, APIError, Endpoint, util, verify_token
-from ...db import club, image
+from ...db import club, image, membership, Roles
 from ...db.club import MAX_SIZE, MIN_SIZE
 from ...db.image import EntityType
 from ..resource import validate
@@ -100,7 +100,11 @@ class ClubsEndpoint(Endpoint):
                 twitter_url=body.get('twitter_url', None))
         except IntegrityError:
             raise APIError('Club already exists', status=409)
+        
+        
         return response.text('', status=201)
+
+
 
 
 class SearchClubsEndpoint(Endpoint):

@@ -41,6 +41,8 @@ def test_put_club__success(server):
     # therefore we must set a user to have an Admin/President membership
 
     # add a test user
+    import pdb
+    pdb.set_trace()
     _, response = server.app.test_client.post(
         '/users',
         data=json.dumps({
@@ -49,13 +51,14 @@ def test_put_club__success(server):
             'email': 'something@anotherthing.com',
             'password': 'Val1dPassword!'
         }))
-
+    _, response = server.app.test_client.get('/users/user2')
+    id = response.json['id']
     # add a President membership for this user to this club
     token = util.create_jwt(2, server.config.secret)
     _, response = server.app.test_client.put(
-        '/memberships/test?user_id=2&access=President',
+        '/memberships/test?user_id=' + str(id),
         data=json.dumps({
-            'role': 'President',
+            'members_role': 'President',
             'position': 'VP'
         }),
         headers={'Authorization': token})
