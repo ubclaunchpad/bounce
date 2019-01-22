@@ -52,8 +52,6 @@ class Membership(BASE):
 
 
 def can_insert(editors_role, members_role):
-    import pdb
-    pdb.set_trace()
     """
     Determines whether user can insert a membership to the database
     Args:
