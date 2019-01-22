@@ -84,8 +84,11 @@ class ClubsEndpoint(Endpoint):
 
     __uri__ = '/clubs'
 
+    @verify_token()
     @validate(PostClubsRequest, None)
-    async def post(self, request):
+    async def post(self, request, id_from_token=None):
+        import pdb
+        pdb.set_trace()
         """Handles a POST /clubs request by creating a new club."""
         # Put the club in the DB
         body = util.strip_whitespace(request.json)
@@ -100,11 +103,11 @@ class ClubsEndpoint(Endpoint):
                 twitter_url=body.get('twitter_url', None))
         except IntegrityError:
             raise APIError('Club already exists', status=409)
-        
-        
+        # Make the creator have a President membership of this club.
+        # Use the creators id from token to create the membership.
+        membership.insert(self.server.db_session, body.get(
+            'name'), id_from_token, Roles.president, Roles.president, 'Owner')
         return response.text('', status=201)
-
-
 
 
 class SearchClubsEndpoint(Endpoint):

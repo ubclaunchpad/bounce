@@ -52,6 +52,8 @@ class Membership(BASE):
 
 
 def can_insert(editors_role, members_role):
+    import pdb
+    pdb.set_trace()
     """
     Determines whether user can insert a membership to the database
     Args:
@@ -139,14 +141,14 @@ def insert(session, club_name, user_id, editors_role, members_role, position):
 
     Args:
         editors_role (Role): the role of the member who is deleting the membership
-        members_role (Role): the role of the member who's membership is being edited
+        members_role (Role): the role of the member who's membership is being added
     """
     if can_insert(editors_role, members_role):
         query = f"""
             INSERT INTO memberships (user_id, club_id, role, position) VALUES (
                 '{user_id}',
                 (SELECT id FROM clubs WHERE name = '{club_name}'),
-                '{members_role}',
+                '{members_role.value}',
                 '{position}'
             )
             ON CONFLICT DO NOTHING
