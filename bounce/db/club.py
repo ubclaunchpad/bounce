@@ -9,9 +9,7 @@ from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 
-from . import ROLE
-
-from . import BASE, PermissionError, Roles
+from . import BASE, ROLE, PermissionError, Roles
 
 # The max and min number of results to return in one page.
 # Used in the search method.

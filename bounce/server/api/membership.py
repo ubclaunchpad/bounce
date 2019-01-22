@@ -18,7 +18,7 @@ class MembershipEndpoint(Endpoint):
 
     __uri__ = "/memberships/<club_name:string>"
 
-    @verify_token() 
+    @verify_token()
     @validate(GetMembershipsRequest, GetMembershipsResponse)
     async def get(self, request, club_name, id_from_token=None):
         """
@@ -39,9 +39,8 @@ class MembershipEndpoint(Endpoint):
         user_id = body.get('user_id', None)
 
         try:
-            membership_attr = membership.select(self.server.db_session,
-                                                club_name, id_from_token,
-                                                Roles.member)
+            membership_attr = membership.select(
+                self.server.db_session, club_name, id_from_token, Roles.member)
             editors_role = membership_attr.get('role')
             # Fetch the club's memberships
             membership_info = membership.select(

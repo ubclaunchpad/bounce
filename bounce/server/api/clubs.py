@@ -7,7 +7,7 @@ from sanic import response
 from sqlalchemy.exc import IntegrityError
 
 from . import IMAGE_SIZE_LIMIT, APIError, Endpoint, util, verify_token
-from ...db import club, image, membership, Roles
+from ...db import Roles, club, image, membership
 from ...db.club import MAX_SIZE, MIN_SIZE
 from ...db.image import EntityType
 from ..resource import validate
@@ -87,8 +87,13 @@ class ClubsEndpoint(Endpoint):
     @verify_token()
     @validate(PostClubsRequest, None)
     async def post(self, request, id_from_token=None):
+<<<<<<< 0300759654c5e6488b42fe466dbb77d5fd1bc653
         # import pdb
         # pdb.set_trace()
+=======
+        import pdb
+        pdb.set_trace()
+>>>>>>> add owner membership when posting a new club
         """Handles a POST /clubs request by creating a new club."""
         # Put the club in the DB
         body = util.strip_whitespace(request.json)
@@ -101,12 +106,19 @@ class ClubsEndpoint(Endpoint):
                 facebook_url=body.get('facebook_url', None),
                 instagram_url=body.get('instagram_url', None),
                 twitter_url=body.get('twitter_url', None))
+
         except IntegrityError:
             raise APIError('Club already exists', status=409)
+<<<<<<< 0300759654c5e6488b42fe466dbb77d5fd1bc653
         # Make the creator have a President membership of this club.
         # Use the creators id from token to create the membership.
         membership.insert(self.server.db_session, body.get(
             'name'), id_from_token, Roles.president, Roles.president, 'Owner')
+=======
+        membership.insert(self.server.db_session, body.get('name', None),
+                            id_from_token, Roles.president, Roles.president,
+                            'Owner')
+>>>>>>> add owner membership when posting a new club
         return response.text('', status=201)
 
 
