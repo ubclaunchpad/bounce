@@ -5,9 +5,19 @@ import json
 from aiohttp import FormData
 from bounce.server.api import util
 
-
 def test_post_clubs__success(server):
-    token = util.create_jwt(2, server.config.secret)
+    # A user is required to create the club
+    _, response = server.app.test_client.post(
+        '/users',
+        data=json.dumps({
+            'username': 'test2',
+            'full_name': 'Test Guy',
+            'email': 'test@test.com',
+            'password': 'Val1dPassword!'
+        }))
+    _, response = server.app.test_client.get('/users/test2')
+    user_id = response.json['id']
+    token = util.create_jwt(user_id, server.config.secret)
     _, response = server.app.test_client.post(
         '/clubs',
         data=json.dumps({
@@ -22,67 +32,49 @@ def test_post_clubs__success(server):
     assert response.status == 201
 
 
-# def test_post_clubs__failure(server):
-#     _, response = server.app.test_client.post(
-#         '/clubs',
-#         data=json.dumps({
-#             'name': 'test',
-#             'description': 'club called test',
-#             'website_url': 'club.com',
-#             'facebook_url': 'facebook.com/test',
-#             'instagram_url': 'instagram.com/test',
-#             'twitter_url': 'twitter.com/test',
-#         }))
-#     assert response.status == 409
-#     assert 'error' in response.json
+def test_post_clubs__failure(server):
+    # Get token for creator
+    _, response = server.app.test_client.get('/users/test2')
+    user_id = response.json['id']
+    token = util.create_jwt(user_id, server.config.secret)
+    _, response = server.app.test_client.post(
+        '/clubs',
+        data=json.dumps({
+            'name': 'test',
+            'description': 'club called test',
+            'website_url': 'club.com',
+            'facebook_url': 'facebook.com/test',
+            'instagram_url': 'instagram.com/test',
+            'twitter_url': 'twitter.com/test',
+        }),
+        headers={'Authorization': token})
+    assert response.status == 409
+    assert 'error' in response.json
 
 
-# def test_put_club__success(server):
-#     # updating clubs requires Admin or President privileges
-#     # therefore we must set a user to have an Admin/President membership
+def test_put_club__success(server):
+    # updating clubs requires Admin or President privileges
+    # therefore we will get the owners id to get access
+    import pdb 
+    pdb.set_trace()
+    _, response = server.app.test_client.get('/users/test2')
+    user_id = response.json['id']
+    token = util.create_jwt(user_id, server.config.secret)
 
-#     # add a test user
-#     # import pdb
-#     # pdb.set_trace()
-#     _, response = server.app.test_client.post(
-#         '/users',
-#         data=json.dumps({
-#             'username': 'user2',
-#             'full_name': 'Hello WOrld',
-#             'email': 'something@anotherthing.com',
-#             'password': 'Val1dPassword!'
-#         }))
-#     _, response = server.app.test_client.get('/users/user2')
-#     id = response.json['id']
-#     # add a President membership for this user to this club
-#     token = util.create_jwt(2, server.config.secret)
-#     _, response = server.app.test_client.put(
-#         '/memberships/test?user_id=' + str(id),
-#         data=json.dumps({
-#             'members_role': 'President',
-#             'position': 'VP'
-#         }),
-#         headers={'Authorization': token})
-#     assert response.status == 201
-
-#     # check the user's role given the id from his/her token
-#     id = util.check_jwt(token, server.config.secret)
-#     _, response = server.app.test_client.get('/memberships/test?user_id=' +
-#                                              str(id))
-#     role = response.json[0].get('role')
-
-#     # test if the club is successfully edited by President
-#     _, response = server.app.test_client.put(
-#         '/clubs/test?access=' + role,
-#         data=json.dumps({
-#             'name': 'newtest',
-#             'description': 'club called new test',
-#         }))
-#     assert response.status == 200
-#     assert response.json['name'] == 'newtest'
-#     assert response.json['description'] == 'club called new test'
-#     assert response.json['id'] == 1
-#     assert isinstance(response.json['created_at'], int)
+    # test if the club is successfully edited by President
+    _, response = server.app.test_client.put(
+        '/clubs/test',
+        'test',
+        data=json.dumps({
+            'name': 'test',
+            'description': 'club with a new description',
+        }),
+        headers={'Authorization': token})
+    assert response.status == 200
+    assert response.json['name'] == 'newtest'
+    assert response.json['description'] == 'club called new test'
+    assert response.json['id'] == 1
+    assert isinstance(response.json['created_at'], int)
 
 
 # def test_put_club__failure(server):
