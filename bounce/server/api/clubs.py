@@ -36,20 +36,20 @@ class ClubEndpoint(Endpoint):
 
     @verify_token()
     @validate(PutClubRequest, GetClubResponse)
-    async def put(self, request, club_name, id_from_token=None):
+    async def put(self, request, name, id_from_token=None):
         """Handles a PUT /clubs/<name> request by updating the club with
         the given name and returning the updated club info."""
         # Decode the name, since special characters will be URL-encoded
-        club_name = unquote(club_name)
+        name = unquote(name)
         body = util.strip_whitespace(request.json)
         try:
             membership_attr = membership.select(self.server.db_session,
-                                                club_name, id_from_token,
-                                                Roles.president)
+                                                name, id_from_token,
+                                                Roles.president.value)
             editors_role = membership_attr.get('role')
             updated_club = club.update(
                 self.server.db_session,
-                club_name,
+                name,
                 editors_role,
                 new_name=body.get('name', None),
                 description=body.get('description', None),
@@ -58,6 +58,8 @@ class ClubEndpoint(Endpoint):
                 instagram_url=body.get('instagram_url', None),
                 twitter_url=body.get('twitter_url', None))
         except PermissionError:
+            import pdb
+            pdb.set_trace()
             raise APIError('Unauthorized', status=403)
         return response.json(updated_club, status=200)
 
@@ -71,7 +73,7 @@ class ClubEndpoint(Endpoint):
         try:
             membership_attr = membership.select(self.server.db_session,
                                                 club_name, id_from_token,
-                                                Roles.president)
+                                                Roles.president.value)
             editors_role = membership_attr.get('role')
             club.delete(self.server.db_session, club_name, editors_role)
         except PermissionError:
@@ -104,10 +106,10 @@ class ClubsEndpoint(Endpoint):
 
         except IntegrityError:
             raise APIError('Club already exists', status=409)
-        # Make the creator have a President membership of this club.
-        # Use the creators id from token to create the membership.
-        membership.insert(self.server.db_session, body.get(
-            'name'), id_from_token, Roles.president, Roles.president, 'Owner')
+        # Give the creator of the club a President membership
+        membership.insert(self.server.db_session, body.get('name', None),
+                            id_from_token, Roles.president.value, Roles.president.value,
+                            'Owner')
         return response.text('', status=201)
 
 

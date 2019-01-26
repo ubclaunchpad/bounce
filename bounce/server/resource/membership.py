@@ -65,7 +65,7 @@ class PutMembershipRequest(metaclass=ResourceMeta):
         'required': ['user_id'],
         'properties': {
             'user_id': {
-                'type': 'integer',
+                'type': 'string',
             },
         }
     }

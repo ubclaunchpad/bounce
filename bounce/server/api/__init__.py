@@ -109,7 +109,7 @@ class Endpoint:
     async def handle_request(self, request, *args, **kwargs):
         """Routes requests to other handlers on this Endpoint
         based on their HTTP method.
-
+        
         Args:
             request (Request): the incoming request to route
         """
@@ -172,7 +172,9 @@ def verify_token():
                 return await coro(endpoint, request, *args, **kwargs)
             except APIError as err:
                 return response.json({'error': err.message}, status=err.status)
-            except Exception:
+            except Exception as err:
+                import pdb
+                pdb.set_trace()
                 logger.exception(
                     'An error occurred during the hanlding of a request')
                 # Return an error response if an error occurred in

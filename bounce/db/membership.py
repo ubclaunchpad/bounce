@@ -59,10 +59,10 @@ def can_insert(editors_role, members_role):
         members_role (Role): the role of the member who's membership is being deleted
     """
 
-    if editors_role == Roles.president:
+    if editors_role == Roles.president.value:
         return True
     # Admin can only insert Member memberships
-    elif editors_role == Roles.admin and members_role == Roles.member:
+    elif editors_role == Roles.admin.value and members_role == Roles.member.value:
         return True
     else:
         return False
@@ -78,7 +78,7 @@ def can_select(editors_role):
 
 def can_delete_all(editors_role, members_role):
     # Owners can delete all memberships except other presidents
-    if editors_role == Roles.president and members_role != Roles.president:
+    if editors_role == Roles.president.value and members_role != Roles.president.value:
         return True
     else:
         return False
@@ -92,10 +92,10 @@ def can_delete_member(editors_id,
     if editors_id == members_id:
         return True
     # Presidents can delete all memberships
-    elif editors_role == Roles.president and members_role != Roles.president:
+    elif editors_role == Roles.president.value and members_role != Roles.president.value:
         return True
     # Admins can only delete Member memberships or themselves
-    elif editors_role == Roles.admin and members_role == Roles.member:
+    elif editors_role == Roles.admin.value and members_role == Roles.member.value:
         return True
     else:
         return False
@@ -103,10 +103,10 @@ def can_delete_member(editors_id,
 
 def can_update(editors_role, members_role):
     # President can update any memberships but other presidents
-    if editors_role == Roles.president and members_role != Roles.president:
+    if editors_role == Roles.president.value and members_role != Roles.president.value:
         return True
     # Admins can only update members membership
-    elif editors_role == Roles.admin and members_role == Roles.member:
+    elif editors_role == Roles.admin.value and members_role == Roles.member.value:
         return True
     else:
         return False
@@ -146,7 +146,7 @@ def insert(session, club_name, user_id, editors_role, members_role, position):
             INSERT INTO memberships (user_id, club_id, role, position) VALUES (
                 '{user_id}',
                 (SELECT id FROM clubs WHERE name = '{club_name}'),
-                '{members_role.value}',
+                '{members_role}',
                 '{position}'
             )
             ON CONFLICT DO NOTHING

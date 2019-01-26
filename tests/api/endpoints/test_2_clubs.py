@@ -18,6 +18,8 @@ def test_post_clubs__success(server):
     _, response = server.app.test_client.get('/users/test2')
     user_id = response.json['id']
     token = util.create_jwt(user_id, server.config.secret)
+
+    # post club using the id of the user from token
     _, response = server.app.test_client.post(
         '/clubs',
         data=json.dumps({
@@ -55,8 +57,6 @@ def test_post_clubs__failure(server):
 def test_put_club__success(server):
     # updating clubs requires Admin or President privileges
     # therefore we will get the owners id to get access
-    import pdb 
-    pdb.set_trace()
     _, response = server.app.test_client.get('/users/test2')
     user_id = response.json['id']
     token = util.create_jwt(user_id, server.config.secret)
@@ -64,47 +64,88 @@ def test_put_club__success(server):
     # test if the club is successfully edited by President
     _, response = server.app.test_client.put(
         '/clubs/test',
-        'test',
         data=json.dumps({
-            'name': 'test',
+            'name': 'newtest',
             'description': 'club with a new description',
         }),
         headers={'Authorization': token})
     assert response.status == 200
-    assert response.json['name'] == 'newtest'
-    assert response.json['description'] == 'club called new test'
+    assert response.json['description'] == 'club with a new description'
     assert response.json['id'] == 1
     assert isinstance(response.json['created_at'], int)
 
 
-# def test_put_club__failure(server):
-#     _, response = server.app.test_client.put(
-#         '/clubs/newtest?access=President', data=json.dumps({
-#             'garbage': True
-#         }))
-#     assert response.status == 400
+def test_put_club__failure(server):
+    # updating clubs requires Admin or President privileges
+    # therefore we will get the owners id to get access
+    _, response = server.app.test_client.get('/users/test2')
+    user_id = response.json['id']
+    token = util.create_jwt(user_id, server.config.secret)
 
-#     _, response = server.app.test_client.put(
-#         '/clubs/newtest?access=Member',
-#         data=json.dumps({
-#             'name': 'newtest',
-#             'description': 'new description',
-#         }))
-#     assert response.status == 403
+    # bad json data
+    _, response = server.app.test_client.put(
+        '/clubs/newtest', 
+        data=json.dumps({
+            'garbage': True
+        }),
+        headers={'Authorization': token})
+    assert response.status == 400
+    
+    # create user whom we will give a member membership
+    _, response = server.app.test_client.post(
+        '/users',
+        data=json.dumps({
+            'username': 'mattgin',
+            'full_name': 'Matthew Gin',
+            'email': 'matt@gin.com',
+            'password': 'Val1dPassword!'
+        }))
+    # get the owner's id and his membership to get access
+    # to add the member to the memberships table
+    _, response = server.app.test_client.get('/users/test2')
+    editor_id = response.json['id']
+    token = util.create_jwt(editor_id, server.config.secret)
+    
+    # get user's id to add to the memberships table
+    _, response = server.app.test_client.get('/users/mattgin')
+    user_id = response.json['id']
+
+    # give user a member membership to the club
+    _, response = server.app.test_client.put(
+        '/memberships/newtest?user_id=' + str(user_id),
+        data=json.dumps({
+            'members_role': 'Member',
+            'position': 'Student'
+        }),
+        headers={'Authorization': token})
+    assert response.status == 201
+
+    import pdb
+    pdb.set_trace()
+    # now try editing the club with the Member membership
+    token = util.create_jwt(user_id, server.config.secret)
+    _, response = server.app.test_client.put(
+        '/clubs/newtest',
+        data=json.dumps({
+            'name': 'newtest',
+            'description': 'new description',
+        }),
+        headers={'Authorization': token})
+    assert response.status == 403
 
 
-# def test_get_club__success(server):
-#     _, response = server.app.test_client.get('/clubs/newtest')
-#     assert response.status == 200
-#     assert response.json['name'] == 'newtest'
-#     assert response.json['description'] == 'club called new test'
-#     assert response.json['id'] == 1
-#     assert isinstance(response.json['created_at'], int)
+def test_get_club__success(server):
+    _, response = server.app.test_client.get('/clubs/newtest')
+    assert response.status == 200
+    assert response.json['name'] == 'newtest'
+    assert response.json['description'] == 'club with a new description'
+    assert response.json['id'] == 1
+    assert isinstance(response.json['created_at'], int)
 
 
-# def test_get_club__failure(server):
-#     _, response = server.app.test_client.get('/clubs/doesnotexist')
-#     assert response.status == 404
+def test_get_club__failure(server):
+    _, response = server.app.test_client.get('/clubs/doesnotexist')
+    assert response.status == 404
 
 
 # def test_delete_club__success(server):

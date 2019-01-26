@@ -61,10 +61,13 @@ class MembershipEndpoint(Endpoint):
         members_role = body.get('members_role', None)
         position = body.get('position', None)
         try:
+            # get the id of the user we want to add a membership
             user_id = int(request.args.get('user_id')[0])
         except Exception:
             raise APIError('Invalid user ID', status=400)
         try:
+            # get the editors role using his id from token
+            # to see if he has access to insert into the memberships table.
             membership_attr = membership.select(self.server.db_session,
                                                 club_name, id_from_token,
                                                 Roles.president)

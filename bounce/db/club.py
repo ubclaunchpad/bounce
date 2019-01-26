@@ -51,7 +51,7 @@ class Club(BASE):
 
 def can_delete(editor_role):
     # Only President can delete club
-    if editor_role == Roles.president:
+    if editor_role == Roles.president.value:
         return True
     else:
         return False
@@ -59,7 +59,7 @@ def can_delete(editor_role):
 
 def can_update(editor_role):
     # President and Admin can update club
-    if editor_role == Roles.president or editor_role == Roles.admin:
+    if editor_role == Roles.president.value or editor_role == Roles.admin.value:
         return True
     else:
         return False
