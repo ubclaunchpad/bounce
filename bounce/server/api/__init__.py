@@ -173,8 +173,6 @@ def verify_token():
             except APIError as err:
                 return response.json({'error': err.message}, status=err.status)
             except Exception as err:
-                import pdb
-                pdb.set_trace()
                 logger.exception(
                     'An error occurred during the hanlding of a request')
                 # Return an error response if an error occurred in

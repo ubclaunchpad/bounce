@@ -6,7 +6,7 @@ from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 
-from . import BASE, ROLE, PermissionError, Roles
+from . import BASE, ROLE, Roles
 
 
 class Membership(BASE):

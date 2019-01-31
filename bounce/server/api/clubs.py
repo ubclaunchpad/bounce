@@ -58,24 +58,22 @@ class ClubEndpoint(Endpoint):
                 instagram_url=body.get('instagram_url', None),
                 twitter_url=body.get('twitter_url', None))
         except PermissionError:
-            import pdb
-            pdb.set_trace()
             raise APIError('Unauthorized', status=403)
         return response.json(updated_club, status=200)
 
     @verify_token()
     @validate(DeleteClubRequest, None)
-    async def delete(self, request, club_name, id_from_token=None):
+    async def delete(self, request, name, id_from_token=None):
         """Handles a DELETE /clubs/<name> request by deleting the club with
         the given name."""
         # Decode the name, since special characters will be URL-encoded
-        club_name = unquote(club_name)
+        name = unquote(name)
         try:
             membership_attr = membership.select(self.server.db_session,
-                                                club_name, id_from_token,
+                                                name, id_from_token,
                                                 Roles.president.value)
             editors_role = membership_attr.get('role')
-            club.delete(self.server.db_session, club_name, editors_role)
+            club.delete(self.server.db_session, name, editors_role)
         except PermissionError:
             raise APIError('Unauthorized', status=403)
         return response.text('', status=204)
@@ -134,7 +132,7 @@ class SearchClubsEndpoint(Endpoint):
             raise APIError('size too low', status=400)
 
         queried_clubs, result_count, total_pages = club.search(
-            self.server.db_session, page, size, query)
+            self.server.db_session, query, page, size)
         if not queried_clubs:
             # Failed to find clubs that match the query
             raise APIError('No clubs match your query', status=404)
@@ -152,13 +150,13 @@ class SearchClubsEndpoint(Endpoint):
 
 
 class ClubImagesEndpoint(Endpoint):
-    """Handles requests to /clubs/<club_name>/images/<image_name>."""
+    """Handles requests to /clubs/<name>/images/<image_name>."""
 
-    __uri__ = '/clubs/<club_name>/images/<image_name>'
+    __uri__ = '/clubs/<name>/images/<image_name>'
 
-    async def get(self, _, club_name, image_name):
+    async def get(self, _, name, image_name):
         """
-        Handles a GET /clubs/<club_name>/images/<image_name> request
+        Handles a GET /clubs/<name>/images/<image_name> request
         by returning the club's image with the given name.
         """
 
@@ -167,14 +165,14 @@ class ClubImagesEndpoint(Endpoint):
         try:
             return await response.file(
                 os.path.join(self.server.config.image_dir,
-                             EntityType.CLUB.value, club_name, image_name))
+                             EntityType.CLUB.value, name, image_name))
         except FileNotFoundError:
             raise APIError('No such image', status=404)
 
     # @verify_token()
-    async def put(self, request, club_name, image_name):
+    async def put(self, request, name, image_name):
         """
-        Handles a PUT /clubs/<club_name>/images/<image_name> request
+        Handles a PUT /clubs/<name>/images/<image_name> request
         by updating the image at the given path.
         """
         # For now, only allow clubs to upload profile pictures
@@ -182,7 +180,7 @@ class ClubImagesEndpoint(Endpoint):
             raise APIError('Invalid image name', status=400)
 
         # Make sure the user is updating an image they own
-        club_info = club.select(self.server.db_session, club_name)
+        club_info = club.select(self.server.db_session, name)
         if not club_info:
             raise APIError('No such image', status=404)
 
@@ -197,26 +195,26 @@ class ClubImagesEndpoint(Endpoint):
         if len(image_upload.body) > IMAGE_SIZE_LIMIT:
             raise APIError('Image too large', status=400)
 
-        image.save(self.server.config.image_dir, EntityType.CLUB, club_name,
+        image.save(self.server.config.image_dir, EntityType.CLUB, name,
                    image_name, image_upload.body)
 
         return response.text('', status=200)
 
     # @verify_token()
-    async def delete(self, _, club_name, image_name):
+    async def delete(self, _, name, image_name):
         """Handles a DETELE by deleting the club's image by the given name."""
 
         if not util.check_image_name(image_name):
             raise APIError('Invalid image name', status=400)
         # Make sure the user is deleting their own image
-        club_info = club.select(self.server.db_session, club_name)
+        club_info = club.select(self.server.db_session, name)
         if not club_info:
             raise APIError('No such image', status=404)
         try:
             image.delete(
                 self.server.config.image_dir,
                 EntityType.CLUB,
-                club_name,
+                name,
                 image_name,
                 must_exist=True)
         except FileNotFoundError:

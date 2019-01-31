@@ -6,7 +6,7 @@ from sanic import response
 from sqlalchemy.exc import IntegrityError
 
 from . import APIError, Endpoint, util, verify_token
-from ...db import PermissionError, Roles, club, membership
+from ...db import Roles, club, membership
 from ..resource import validate
 from ..resource.membership import (
     DeleteMembershipRequest, GetMembershipsRequest, GetMembershipsResponse,
@@ -56,6 +56,8 @@ class MembershipEndpoint(Endpoint):
         """Handles a PUT /memberships/<club_name>
         creating or updating the membership for the given user and club."""
         # Decode the club name
+        import pdb
+        pdb.set_trace()
         club_name = unquote(club_name)
         body = util.strip_whitespace(request.json)
         members_role = body.get('members_role', None)

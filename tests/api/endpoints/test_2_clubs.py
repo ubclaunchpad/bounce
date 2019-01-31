@@ -118,10 +118,7 @@ def test_put_club__failure(server):
             'position': 'Student'
         }),
         headers={'Authorization': token})
-    assert response.status == 201
 
-    import pdb
-    pdb.set_trace()
     # now try editing the club with the Member membership
     token = util.create_jwt(user_id, server.config.secret)
     _, response = server.app.test_client.put(
@@ -148,57 +145,66 @@ def test_get_club__failure(server):
     assert response.status == 404
 
 
-# def test_delete_club__success(server):
-#     # deleting clubs requires Admin or President privileges
-#     # therefore use the user's id retrieved from his/her token and
-#     # use it to check he or she is an Admin or President of the club
+def test_delete_club__success(server):
+    # deleting clubs requires Admin or President privileges
+    # therefore use the user's id retrieved from his/her token and
+    # use it to check he or she is an Admin or President of the club
 
-#     token = util.create_jwt(2, server.config.secret)
-#     # check the user's role given the id from his/her token
-#     id = util.check_jwt(token, server.config.secret)
-#     _, response = server.app.test_client.get('/memberships/newtest?user_id=' +
-#                                              str(id) + '&access=President')
-#     role = response.json[0].get('role')
+    _, response = server.app.test_client.get('/users/test2')
+    editor_id = response.json['id']
+    token = util.create_jwt(editor_id, server.config.secret)
 
-#     _, response = server.app.test_client.delete('/clubs/newtest?access=' +
-#                                                 role)
-#     assert response.status == 204
+    _, response = server.app.test_client.delete(
+        '/clubs/newtest', headers={'Authorization': token})
+    assert response.status == 204
 
 
-# def test_delete_club__failure(server):
-#     _, response = server.app.test_client.delete('/clubs/newtest?access=Member')
-#     assert response.status == 403
+def test_delete_club__failure(server):
+    # get user's id of a Member membership
+    _, response = server.app.test_client.get('/users/mattgin')
+    user_id = response.json['id']
+    token = util.create_jwt(user_id, server.config.secret)
+
+    # fail when a user with a Member membership tries to delete the club
+    _, response = server.app.test_client.delete('/clubs/newtest', headers={'Authorization': token})
+    assert response.status == 403
 
 
-# def test_paginate_clubs__success(server):
-#     # add dummy data to search for in database
-#     club_info = [['UBC Launch Pad', 'software engineering team'],
-#                  ['envision', 'something'], ['UBC biomed', 'something else']]
-#     for name, desc in club_info:
-#         server.app.test_client.post(
-#             '/clubs',
-#             data=json.dumps({
-#                 'name': name,
-#                 'description': desc,
-#                 'website_url': '',
-#                 'twitter_url': '',
-#                 'facebook_url': '',
-#                 'instagram_url': '',
-#             }))
-#     _, response = server.app.test_client.get('/clubs/search?page=0&size=2')
-#     assert response.status == 200
-#     body = response.json
-#     assert body.get('result_count') == 3
-#     assert body.get('page') == 0
-#     assert body.get('total_pages') == 2
+def test_paginate_clubs__success(server):
+    # get user's id to post a club
+    _, response = server.app.test_client.get('/users/test2')
+    user_id = response.json['id']
+    token = util.create_jwt(user_id, server.config.secret)
+
+    # add dummy data to search for in database
+    club_info = [['UBC Launch Pad', 'software engineering team'],
+                 ['envision', 'something'], ['UBC biomed', 'something else']]
+    for name, desc in club_info:
+        server.app.test_client.post(
+            '/clubs',
+            data=json.dumps({
+                'name': name,
+                'description': desc,
+                'website_url': '',
+                'twitter_url': '',
+                'facebook_url': '',
+                'instagram_url': '',
+            }), headers={'Authorization': token})
+    _, response = server.app.test_client.get(
+        '/clubs/search?page=0&size=2')
+    assert response.status == 200
+    body = response.json
+    assert body.get('result_count') == 3
+    assert body.get('page') == 0
+    assert body.get('total_pages') == 2
 
 
-# def test_search_clubs__success(server):
-#     _, response = server.app.test_client.get('/clubs/search?query=UBC')
-#     assert response.status == 200
-#     body = response.json
-#     assert len(body.get('results')) == 2
-#     assert body.get('results')[0]['name'] == 'UBC Launch Pad'
-#     assert body.get('results')[0]['description'] == 'software engineering team'
-#     assert body.get('results')[1]['name'] == 'UBC biomed'
-#     assert body.get('results')[1]['description'] == 'something else'
+def test_search_clubs__success(server):
+    _, response = server.app.test_client.get('/clubs/search?query=UBC')
+    assert response.status == 200
+    body = response.json
+    assert len(body.get('results')) == 2
+    assert body.get('results')[0]['name'] == 'UBC Launch Pad'
+    assert body.get('results')[0]['description'] == 'software engineering team'
+    assert body.get('results')[1]['name'] == 'UBC biomed'
+    assert body.get('results')[1]['description'] == 'something else'
