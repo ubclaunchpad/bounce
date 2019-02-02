@@ -72,13 +72,16 @@ class UserEndpoint(Endpoint):
             #  that we can use to securely
             # verify their password when they log in
             secret = util.hash_password(body['new_password'])
+        elif body.get('bio'):
+            bio = body['bio']
         # Update the user
         updated_user = user.update(
             self.server.db_session,
             username,
             secret=secret,
             full_name=body.get('full_name', None),
-            email=email)
+            email=email,
+	        bio=bio)
         # Returns the updated user info
         return response.json(updated_user.to_dict(), status=200)
 
@@ -122,7 +125,7 @@ class UsersEndpoint(Endpoint):
         # Put the user in the DB
         try:
             user.insert(self.server.db_session, body['full_name'],
-                        body['username'], secret, body['email'])
+                        body['username'], secret, body['bio'], body['email'])
         except IntegrityError:
             raise APIError('User already exists', status=409)
         return response.text('', status=201)

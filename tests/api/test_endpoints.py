@@ -20,6 +20,7 @@ def test_post_users__success(server):
             'username': 'test',
             'full_name': 'Test Guy',
             'email': 'test@test.com',
+	        'bio': 'my name is test. I am a cs major',
             'password': 'Val1dPassword!'
         }))
     assert response.status == 201
@@ -50,6 +51,7 @@ def test_put_user__success(server):
     assert response.json['username'] == username
     assert response.json['full_name'] == 'NewName'
     assert response.json['id'] == 1
+    assert response.json['bio'] == 'my name is test. I am a cs major'
     assert isinstance(response.json['created_at'], int)
 
 
@@ -61,7 +63,7 @@ def test_put_user_update_email__success(server):
         data=json.dumps({
             'full_name': 'New Name',
             'password': 'Val1dPassword!',
-            'email': 'newemail@test.com'
+            'email': 'newemail@test.com',
         }),
         headers={'Authorization': token})
     assert response.status == 200
@@ -464,7 +466,8 @@ def test_put_user_image__success(server):
             'username': 'test',
             'full_name': 'Test Guy',
             'email': 'test@test.com',
-            'password': 'Val1dPassword!'
+            'password': 'Val1dPassword!',
+            'bio': 'my name is test. I am a cs major'
         }))
     token = util.create_jwt(5, server.config.secret)
     data = FormData()
