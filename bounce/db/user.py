@@ -3,6 +3,7 @@
 import math
 
 from sqlalchemy import Column, Integer, String, desc, func
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 
@@ -41,6 +42,16 @@ class User(BASE):
             'created_at': self.created_at,
         }
         return user_info
+
+
+def validate_user(session, user_id):
+    """
+    Checks whether the user ID is a valid ID.
+    Throws an IntegrityError if user does not exist
+    """
+    user = select_by_id(session, user_id)
+    if user is None:
+        raise IntegrityError('User does not exist', None, None)
 
 
 def select(session, username):

@@ -9,14 +9,15 @@ from sqlalchemy.orm import sessionmaker
 
 BASE = declarative_base()
 
-# The mysqlalchemy way of initializing an enum
-# Used to input a enum column to a table
+# postgresql enum used for the memberships role column
 ROLE = ENUM('President', 'Admin', 'Member', name='role')
 
 
-# The pythonic way of intiailizing an enum
-# Used for getting the vaalue of an enum member
 class Roles(Enum):
+    """
+    Python enum used for getting the role of a club's member.
+    Used to determine read/write access to the memberships table.
+    """
     president = ROLE.enums[0]
     admin = ROLE.enums[1]
     member = ROLE.enums[2]

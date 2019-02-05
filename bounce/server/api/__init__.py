@@ -109,7 +109,7 @@ class Endpoint:
     async def handle_request(self, request, *args, **kwargs):
         """Routes requests to other handlers on this Endpoint
         based on their HTTP method.
-        
+
         Args:
             request (Request): the incoming request to route
         """

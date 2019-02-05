@@ -8,8 +8,8 @@ from bounce.server.api import util
 
 
 def test_put_user_image__success(server):
-    # Upload image for user whose name is test2
-    _, response = server.app.test_client.get('/users/test2')
+    # Upload image for user whose name is founder
+    _, response = server.app.test_client.get('/users/founder')
     user_id = response.json['id']
     token = util.create_jwt(user_id, server.config.secret)
     data = FormData()
@@ -57,10 +57,11 @@ def test_put_user_image__failure(server):
 
 
 def test_get_user_image__success(server):
-    # get image for user whose name is test2
-    _, response = server.app.test_client.get('/users/test2')
+    # get image for user whose name is founder
+    _, response = server.app.test_client.get('/users/founder')
     user_id = response.json['id']
-    _, response = server.app.test_client.get('/users/' + str(user_id) + '/images/profile')
+    _, response = server.app.test_client.get('/users/' + str(user_id) +
+                                             '/images/profile')
     assert response.status == 200
 
 
@@ -70,12 +71,13 @@ def test_get_user_image__failure(server):
 
 
 def test_delete_user_image__success(server):
-    # get image for user whose name is test2
-    _, response = server.app.test_client.get('/users/test2')
+    # get image for user whose name is founder
+    _, response = server.app.test_client.get('/users/founder')
     user_id = response.json['id']
     token = util.create_jwt(user_id, server.config.secret)
     _, response = server.app.test_client.delete(
-        '/users/' + str(user_id) + '/images/profile', headers={
+        '/users/' + str(user_id) + '/images/profile',
+        headers={
             'Authorization': token,
         })
     assert response.status == 200

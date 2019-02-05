@@ -8,10 +8,9 @@ class GetMembershipsRequest(metaclass=ResourceMeta):
     __params__ = {
         'type': 'object',
         'additionalProperties': False,
-        'required': ['user_id'],
         'properties': {
             'user_id': {
-                'type': 'integer',
+                'type': 'string',
                 'minimum': 0,
             }
         }
@@ -21,7 +20,7 @@ class GetMembershipsRequest(metaclass=ResourceMeta):
 class GetMembershipsResponse(metaclass=ResourceMeta):
     """Defines the schema for a GET /membership/<club_name> response."""
     __body__ = {
-        'type': 'dictionary',
+        'type': 'array',
         'items': {
             'type':
             'object',
@@ -93,18 +92,7 @@ class DeleteMembershipRequest(metaclass=ResourceMeta):
         'required': ['user_id'],
         'properties': {
             'user_id': {
-                'type': 'integer',
+                'type': 'string',
             },
-        }
-    }
-
-    __body__ = {
-        'type': 'object',
-        'additionalProperties': False,
-        'required': ['role', 'position'],
-        'properties': {
-            'members_role': {
-                'enum': ["President", "Admin", "Member"]
-            }
         }
     }

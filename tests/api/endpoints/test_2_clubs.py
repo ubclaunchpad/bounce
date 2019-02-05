@@ -3,19 +3,21 @@
 import json
 
 from aiohttp import FormData
+
 from bounce.server.api import util
+
 
 def test_post_clubs__success(server):
     # A user is required to create the club
     _, response = server.app.test_client.post(
         '/users',
         data=json.dumps({
-            'username': 'test2',
+            'username': 'founder',
             'full_name': 'Test Guy',
             'email': 'test@test.com',
             'password': 'Val1dPassword!'
         }))
-    _, response = server.app.test_client.get('/users/test2')
+    _, response = server.app.test_client.get('/users/founder')
     user_id = response.json['id']
     token = util.create_jwt(user_id, server.config.secret)
 
@@ -35,8 +37,8 @@ def test_post_clubs__success(server):
 
 
 def test_post_clubs__failure(server):
-    # Get token for creator
-    _, response = server.app.test_client.get('/users/test2')
+    # Get token for founder
+    _, response = server.app.test_client.get('/users/founder')
     user_id = response.json['id']
     token = util.create_jwt(user_id, server.config.secret)
     _, response = server.app.test_client.post(
@@ -57,7 +59,7 @@ def test_post_clubs__failure(server):
 def test_put_club__success(server):
     # updating clubs requires Admin or President privileges
     # therefore we will get the owners id to get access
-    _, response = server.app.test_client.get('/users/test2')
+    _, response = server.app.test_client.get('/users/founder')
     user_id = response.json['id']
     token = util.create_jwt(user_id, server.config.secret)
 
@@ -77,37 +79,40 @@ def test_put_club__success(server):
 
 def test_put_club__failure(server):
     # updating clubs requires Admin or President privileges
-    # therefore we will get the owners id to get access
-    _, response = server.app.test_client.get('/users/test2')
+
+    # bad json data test:
+    # first get the founder's id to get access
+    _, response = server.app.test_client.get('/users/founder')
     user_id = response.json['id']
     token = util.create_jwt(user_id, server.config.secret)
 
     # bad json data
     _, response = server.app.test_client.put(
-        '/clubs/newtest', 
+        '/clubs/newtest',
         data=json.dumps({
             'garbage': True
         }),
         headers={'Authorization': token})
     assert response.status == 400
-    
-    # create user whom we will give a member membership
+
+    # try editing the club with a Member membership
+    # first create user whom we will give a member membership to
     _, response = server.app.test_client.post(
         '/users',
         data=json.dumps({
-            'username': 'mattgin',
+            'username': 'member',
             'full_name': 'Matthew Gin',
             'email': 'matt@gin.com',
             'password': 'Val1dPassword!'
         }))
     # get the owner's id and his membership to get access
     # to add the member to the memberships table
-    _, response = server.app.test_client.get('/users/test2')
+    _, response = server.app.test_client.get('/users/founder')
     editor_id = response.json['id']
     token = util.create_jwt(editor_id, server.config.secret)
-    
+
     # get user's id to add to the memberships table
-    _, response = server.app.test_client.get('/users/mattgin')
+    _, response = server.app.test_client.get('/users/member')
     user_id = response.json['id']
 
     # give user a member membership to the club
@@ -145,12 +150,23 @@ def test_get_club__failure(server):
     assert response.status == 404
 
 
+def test_delete_club__failure(server):
+    # get user's id of a Member membership
+    _, response = server.app.test_client.get('/users/member')
+    user_id = response.json['id']
+    token = util.create_jwt(user_id, server.config.secret)
+
+    # fail when a user with a Member membership tries to delete the club
+    _, response = server.app.test_client.delete(
+        '/clubs/newtest', headers={'Authorization': token})
+    assert response.status == 403
+
+
 def test_delete_club__success(server):
     # deleting clubs requires Admin or President privileges
-    # therefore use the user's id retrieved from his/her token and
-    # use it to check he or she is an Admin or President of the club
+    # therefore use the founder's ID to successfully delete the club
 
-    _, response = server.app.test_client.get('/users/test2')
+    _, response = server.app.test_client.get('/users/founder')
     editor_id = response.json['id']
     token = util.create_jwt(editor_id, server.config.secret)
 
@@ -159,20 +175,9 @@ def test_delete_club__success(server):
     assert response.status == 204
 
 
-def test_delete_club__failure(server):
-    # get user's id of a Member membership
-    _, response = server.app.test_client.get('/users/mattgin')
-    user_id = response.json['id']
-    token = util.create_jwt(user_id, server.config.secret)
-
-    # fail when a user with a Member membership tries to delete the club
-    _, response = server.app.test_client.delete('/clubs/newtest', headers={'Authorization': token})
-    assert response.status == 403
-
-
 def test_paginate_clubs__success(server):
-    # get user's id to post a club
-    _, response = server.app.test_client.get('/users/test2')
+    # get founder's id to post a club
+    _, response = server.app.test_client.get('/users/founder')
     user_id = response.json['id']
     token = util.create_jwt(user_id, server.config.secret)
 
@@ -189,9 +194,9 @@ def test_paginate_clubs__success(server):
                 'twitter_url': '',
                 'facebook_url': '',
                 'instagram_url': '',
-            }), headers={'Authorization': token})
-    _, response = server.app.test_client.get(
-        '/clubs/search?page=0&size=2')
+            }),
+            headers={'Authorization': token})
+    _, response = server.app.test_client.get('/clubs/search?page=0&size=2')
     assert response.status == 200
     body = response.json
     assert body.get('result_count') == 3

@@ -7,6 +7,8 @@ from sqlalchemy.exc import IntegrityError
 
 from . import APIError, Endpoint, util, verify_token
 from ...db import Roles, club, membership
+from ...db.club import validate_club
+from ...db.user import validate_user
 from ..resource import validate
 from ..resource.membership import (
     DeleteMembershipRequest, GetMembershipsRequest, GetMembershipsResponse,
@@ -27,6 +29,7 @@ class MembershipEndpoint(Endpoint):
         given club. If no user ID is given, returns all memberships for the
         given club.
         """
+
         # Decode the club name
         club_name = unquote(club_name)
 
@@ -34,48 +37,63 @@ class MembershipEndpoint(Endpoint):
         club_row = club.select(self.server.db_session, club_name)
         if not club_row:
             raise APIError('No such club', status=404)
-
-        body = util.strip_whitespace(request.json)
-        user_id = body.get('user_id', None)
-
         try:
+            # If not a member, the editors_role is defaulted to None
+            editors_role = None
+            # Otherwise, check his or her membership
             membership_attr = membership.select(
                 self.server.db_session, club_name, id_from_token, Roles.member)
-            editors_role = membership_attr.get('role')
+            if membership_attr:
+                editors_role = membership_attr[0]['role']
             # Fetch the club's memberships
-            membership_info = membership.select(
-                self.server.db_session, club_name, user_id, editors_role)
+            if 'user_id' in request.args:
+                user_id = int(request.args['user_id'])
+                membership_info = membership.select(
+                    self.server.db_session, club_name, user_id, editors_role)
+            else:
+                membership_info = membership.select_all(
+                    self.server.db_session, club_name, editors_role)
         except PermissionError:
             raise APIError('Unauthorized', status=403)
         return response.json(membership_info, status=200)
 
-    # pylint: disable=unused-argument
     @verify_token()
     @validate(PutMembershipRequest, None)
     async def put(self, request, club_name, id_from_token=None):
         """Handles a PUT /memberships/<club_name>
         creating or updating the membership for the given user and club."""
         # Decode the club name
-        import pdb
-        pdb.set_trace()
         club_name = unquote(club_name)
         body = util.strip_whitespace(request.json)
-        members_role = body.get('members_role', None)
         position = body.get('position', None)
+        members_role = body.get('members_role', None)
         try:
-            # get the id of the user we want to add a membership
+            # get the id of the user we want to edit a membership
             user_id = int(request.args.get('user_id')[0])
         except Exception:
-            raise APIError('Invalid user ID', status=400)
+            raise APIError('No user ID provided', status=400)
         try:
-            # get the editors role using his id from token
-            # to see if he has access to insert into the memberships table.
-            membership_attr = membership.select(self.server.db_session,
-                                                club_name, id_from_token,
-                                                Roles.president)
-            editors_role = membership_attr.get('role')
-            membership.insert(self.server.db_session, club_name, user_id,
-                              editors_role, members_role, position)
+            # validate whether the user ID corresponds to an existing user
+            validate_user(self.server.db_session, user_id)
+            # validate whether the club exists
+            validate_club(self.server.db_session, club_name)
+            # get the editors role using id_from_token
+            # to see if the editor has access to insert/update the memberships table.
+            editor_attr = membership.select(self.server.db_session, club_name,
+                                            id_from_token, Roles.president)
+            editors_role = editor_attr[0]['role']
+            membership_attr = membership.select(
+                self.server.db_session, club_name, user_id, Roles.president)
+            # If the membership exists already in the table, update entry
+            if membership_attr:
+                current_members_role = membership_attr[0]['role']
+                membership.update(self.server.db_session, club_name, user_id,
+                                  editors_role, current_members_role, position,
+                                  members_role)
+            # Otherwise, insert new entry
+            else:
+                membership.insert(self.server.db_session, club_name, user_id,
+                                  editors_role, members_role, position)
         except PermissionError:
             raise APIError('Unauthorized', status=403)
         except IntegrityError:
@@ -104,20 +122,26 @@ class MembershipEndpoint(Endpoint):
         if not club_row:
             raise APIError('No such club', status=404)
 
-        # Get members_role from body
-        body = util.strip_whitespace(request.json)
-        members_role = body.get('members_role', None)
-
         try:
-            user_id = int(request.args.get('user_id')[0])
+            # get the id of the user we want to add a membership
+            user_id = int(request.args.get('user_id'))
         except ValueError:
             raise APIError('Invalid user ID', status=400)
 
         try:
-            membership_attr = membership.select(self.server.db_session,
-                                                club_name, id_from_token,
-                                                Roles.president)
-            editors_role = membership_attr.get('role')
+            # validate whether the user ID corresponds to an existing user
+            validate_user(self.server.db_session, user_id)
+            # validate whether the club exists
+            validate_club(self.server.db_session, club_name)
+
+            editor_attr = membership.select(self.server.db_session, club_name,
+                                            id_from_token, Roles.president)
+
+            editors_role = editor_attr[0]['role']
+
+            member_attr = membership.select(self.server.db_session, club_name,
+                                            user_id, Roles.president)
+            members_role = member_attr[0]['role']
             if user_id:
                 membership.delete(self.server.db_session, club_name,
                                   id_from_token, user_id, editors_role,

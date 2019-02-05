@@ -43,10 +43,10 @@ class ClubEndpoint(Endpoint):
         name = unquote(name)
         body = util.strip_whitespace(request.json)
         try:
-            membership_attr = membership.select(self.server.db_session,
-                                                name, id_from_token,
+            membership_attr = membership.select(self.server.db_session, name,
+                                                id_from_token,
                                                 Roles.president.value)
-            editors_role = membership_attr.get('role')
+            editors_role = membership_attr[0]['role']
             updated_club = club.update(
                 self.server.db_session,
                 name,
@@ -69,10 +69,10 @@ class ClubEndpoint(Endpoint):
         # Decode the name, since special characters will be URL-encoded
         name = unquote(name)
         try:
-            membership_attr = membership.select(self.server.db_session,
-                                                name, id_from_token,
+            membership_attr = membership.select(self.server.db_session, name,
+                                                id_from_token,
                                                 Roles.president.value)
-            editors_role = membership_attr.get('role')
+            editors_role = membership_attr[0]['role']
             club.delete(self.server.db_session, name, editors_role)
         except PermissionError:
             raise APIError('Unauthorized', status=403)
@@ -106,8 +106,8 @@ class ClubsEndpoint(Endpoint):
             raise APIError('Club already exists', status=409)
         # Give the creator of the club a President membership
         membership.insert(self.server.db_session, body.get('name', None),
-                            id_from_token, Roles.president.value, Roles.president.value,
-                            'Owner')
+                          id_from_token, Roles.president.value,
+                          Roles.president.value, 'Owner')
         return response.text('', status=201)
 
 

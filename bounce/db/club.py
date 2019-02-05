@@ -5,11 +5,11 @@ Also provides methods to access and edit the DB.
 import math
 
 from sqlalchemy import Column, Integer, String, desc, func
-from sqlalchemy.dialects.postgresql import ENUM
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 
-from . import BASE, ROLE, Roles
+from . import BASE, Roles
 
 # The max and min number of results to return in one page.
 # Used in the search method.
@@ -53,16 +53,26 @@ def can_delete(editor_role):
     # Only President can delete club
     if editor_role == Roles.president.value:
         return True
-    else:
-        return False
+    # Return false if the condition is not met
+    return False
 
 
 def can_update(editor_role):
     # President and Admin can update club
     if editor_role == Roles.president.value or editor_role == Roles.admin.value:
         return True
-    else:
+        # Return false if the condition is not met
         return False
+
+
+def validate_club(session, club_name):
+    """
+    Checks whether the club is an existing club.
+    Throws an IntegrityError if club does not exist.
+    """
+    club = select(session, club_name)
+    if club is None:
+        raise IntegrityError('Club does not exist', None, None)
 
 
 def select(session, name):
