@@ -19,7 +19,7 @@ class MembershipEndpoint(Endpoint):
     __uri__ = "/memberships/<club_name:string>"
 
     @validate(GetMembershipsRequest, GetMembershipsResponse)
-    async def get(self, request, club_name):
+    async def get(self, session, request, club_name):
         """
         Handles a GET /memberships/<club_name>?user_id=<user_id> request
         by returning the membership that associates the given user with the
@@ -31,20 +31,20 @@ class MembershipEndpoint(Endpoint):
         user_id = request.args.get('user_id', None)
 
         # Make sure the club exists
-        club_row = club.select(self.server.db_session, club_name)
+        club_row = club.select(session, club_name)
         if not club_row:
             raise APIError('No such club', status=404)
 
         # Fetch the club's memberships
         results = membership.select(
-            self.server.db_session, club_name, user_id=user_id)
+            session, club_name, user_id=user_id)
         info = {'results': results}
         return response.json(info, status=200)
 
     # pylint: disable=unused-argument
     @verify_token()
     @validate(PutMembershipRequest, None)
-    async def put(self, request, club_name, id_from_token=None):
+    async def put(self, session, request, club_name, id_from_token=None):
         """Handles a PUT /memberships/<club_name>?user_id=<user_id> request by
         creating or updating the membership for the given user and club."""
         # Decode the club name
@@ -54,7 +54,7 @@ class MembershipEndpoint(Endpoint):
         except Exception:
             raise APIError('Invalid user ID', status=400)
         try:
-            membership.insert(self.server.db_session, club_name, user_id)
+            membership.insert(session, club_name, user_id)
         except IntegrityError:
             raise APIError('Invalid user or club ID', status=400)
         return response.text('', status=201)
@@ -63,7 +63,7 @@ class MembershipEndpoint(Endpoint):
 
     @verify_token()
     @validate(DeleteMembershipRequest, None)
-    async def delete(self, request, club_name, id_from_token=None):
+    async def delete(self, session, request, club_name, id_from_token=None):
         """
         Handles a DELETE /memberships/<club_name>?user_id=<user_id> request
         by deleting the membership that associates the given user with the
@@ -85,10 +85,10 @@ class MembershipEndpoint(Endpoint):
             raise APIError('Forbidden', status=403)
 
         # Make sure the club exists
-        club_row = club.select(self.server.db_session, club_name)
+        club_row = club.select(session, club_name)
         if not club_row:
             raise APIError('No such club', status=404)
 
         # Delete the memberships
-        membership.delete(self.server.db_session, club_name, user_id=user_id)
+        membership.delete(session, club_name, user_id=user_id)
         return response.text('', status=204)

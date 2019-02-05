@@ -113,11 +113,14 @@ class Endpoint:
         Args:
             request (Request): the incoming request to route
         """
+        # Create a SQLAlchemy session for handling DB transactions in this
+        # request
+        session = self.server.db_session
         result = None
         try:
             # Call the handler with the same name as the request method
             result = await getattr(self, request.method.lower())(
-                request, *args, **kwargs)
+                session, request, *args, **kwargs)
         except APIError as err:
             # An error was raised by the handler because there was something
             # wrong with the request
@@ -140,6 +143,8 @@ class Endpoint:
                     result.headers, 'Access-Control-Allow-Origin'):
                 result.headers[
                     'Access-Control-Allow-Origin'] = self._allowed_origin
+            # Make sure the session is closed
+            session.close()
 
         return result
 
@@ -156,7 +161,7 @@ def verify_token():
     # pylint: disable=missing-docstring
     def decorator(coro):
         @wraps(coro)
-        async def wrapper(endpoint, request, *args, **kwargs):
+        async def wrapper(endpoint, session, request, *args, **kwargs):
             if not request.token:
                 logger.error('No token provided in request')
                 return response.json({'error': 'Unauthorized'}, status=401)
@@ -169,7 +174,7 @@ def verify_token():
 
             # Call the request handler
             try:
-                return await coro(endpoint, request, *args, **kwargs)
+                return await coro(endpoint, session, request, *args, **kwargs)
             except APIError as err:
                 return response.json({'error': err.message}, status=err.status)
             except Exception:

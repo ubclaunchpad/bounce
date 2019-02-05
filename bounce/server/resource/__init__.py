@@ -106,7 +106,7 @@ def validate(request_cls, response_cls):
     # pylint: disable=missing-docstring
     def decorator(coro):
         @wraps(coro)
-        async def wrapper(endpoint, request, *args, **kwargs):
+        async def wrapper(endpoint, session, request, *args, **kwargs):
             if hasattr(request_cls, '__body__'):
                 # Return a 400 if the request body does not meet the
                 # required schema
@@ -144,7 +144,7 @@ def validate(request_cls, response_cls):
                     return response.json({'error': err}, status=400)
 
             # Call the request handler
-            result = await coro(endpoint, request, *args, **kwargs)
+            result = await coro(endpoint, session, request, *args, **kwargs)
 
             if hasattr(response_cls, '__body__'):
                 # Return a 500 if the response does not meet the required
