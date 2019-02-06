@@ -89,7 +89,6 @@ class DeleteMembershipRequest(metaclass=ResourceMeta):
     __params__ = {
         'type': 'object',
         'additionalProperties': False,
-        'required': ['user_id'],
         'properties': {
             'user_id': {
                 'type': 'string',

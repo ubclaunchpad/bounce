@@ -78,15 +78,12 @@ def can_select(editors_role):
     return True
 
 
-def can_delete_all(editors_role, members_role):
+def can_delete_all(editors_role):
     """
     Determines whether user can delete all memberships from the database
-    Args:
-        editors_role (Role): the role of the member who is deleting the membership
-        members_role (Role): the role of the member who's membership is being deleted
     """
     # Owners can delete all memberships except other presidents
-    if editors_role == Roles.president.value and members_role != Roles.president.value:
+    if editors_role == Roles.president.value:
         return True
     # Return false if the condition is not met
     return False
@@ -181,7 +178,6 @@ def select_all(session, club_name, editors_role):
     Returns all memberships for the given club. If user_id is given, returns
     only the membership for the given user.
     """
-<<<<<<< HEAD
     # All members can read all memberships
     if can_select(editors_role):
         query = f"""
@@ -234,47 +230,22 @@ def select(session, club_name, user_id, editors_role):
         raise PermissionError('Permission denied for selecting membership.')
 
 
-def delete_all(session, club_name, editors_role, members_role):
+def delete_all(session, club_name, editors_role):
     """
     Deletes all memberships except the Presidents for the given club.
     Args:
         club_name: the name of the club memberships are being deleted from
         editors_role (Role): the role of the member who is deleting the membership
         members_role (Role): the role of the member who's membership is being deleted
-=======
-    query = """
-        SELECT users.id AS user_id,
-        memberships.created_at, users.full_name, users.username FROM
-        memberships INNER JOIN users ON (memberships.user_id = users.id)
-        WHERE memberships.club_id IN (
-            SELECT id FROM clubs WHERE name = :club_name
-        )
     """
-    if user_id:
-        query += ' AND user_id = :user_id'
-    result_proxy = session.execute(query, {
-        'user_id': user_id,
-        'club_name': club_name
-    })
-    results = []
-    for row in result_proxy.fetchall():
-        results.append(
-            {key: row[i]
-             for i, key in enumerate(result_proxy.keys())})
-    return results
-
-
-def delete(session, club_name, user_id=None):
->>>>>>> a50ad155656067fe4c87f125bfce01f0133e3d05
-    """
-    if can_delete_all(editors_role, members_role):
+    if can_delete_all(editors_role):
         query = f"""
             DELETE FROM memberships
-            WHERE memberships.club_id IN (
+            WHERE NOT memberships.role = '{Roles.president.value}'
+            AND memberships.club_id IN (
                 SELECT id FROM clubs WHERE name = '{club_name}'
             )
         """
-
         session.execute(query)
         session.commit()
     else:
@@ -292,17 +263,12 @@ def delete(session, club_name, editors_id, members_id, editors_role,
         editors_role (Role): the role of the member who is deleting the membership
         members_role (Role): the role of the member whose membership is being deleted
     """
-<<<<<<< HEAD
     if can_delete_member(editors_id, members_id, editors_role, members_role):
         query = f"""
-=======
-    query = """
->>>>>>> a50ad155656067fe4c87f125bfce01f0133e3d05
         DELETE FROM memberships
         WHERE memberships.club_id IN (
-            SELECT id FROM clubs WHERE name = :club_name
+            SELECT id FROM clubs WHERE name = '{club_name}'
         )
-<<<<<<< HEAD
         AND memberships.user_id = '{members_id}'
         """
 
@@ -310,10 +276,3 @@ def delete(session, club_name, editors_id, members_id, editors_role,
         session.commit()
     else:
         raise PermissionError('Permission denied for deleting user membership')
-=======
-    """
-    if user_id:
-        query += ' AND user_id = :user_id'
-    session.execute(query, {'user_id': user_id, 'club_name': club_name})
-    session.commit()
->>>>>>> a50ad155656067fe4c87f125bfce01f0133e3d05

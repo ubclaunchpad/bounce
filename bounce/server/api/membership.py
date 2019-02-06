@@ -62,8 +62,6 @@ class MembershipEndpoint(Endpoint):
     async def put(self, request, club_name, id_from_token=None):
         """Handles a PUT /memberships/<club_name>
         creating or updating the membership for the given user and club."""
-        import pdb
-        pdb.set_trace()
         # Decode the club name
         club_name = unquote(club_name)
         body = util.strip_whitespace(request.json)
@@ -125,14 +123,6 @@ class MembershipEndpoint(Endpoint):
             raise APIError('No such club', status=404)
 
         try:
-            # get the id of the user we want to add a membership
-            user_id = int(request.args.get('user_id'))
-        except ValueError:
-            raise APIError('Invalid user ID', status=400)
-
-        try:
-            # validate whether the user ID corresponds to an existing user
-            validate_user(self.server.db_session, user_id)
             # validate whether the club exists
             validate_club(self.server.db_session, club_name)
 
@@ -141,16 +131,22 @@ class MembershipEndpoint(Endpoint):
 
             editors_role = editor_attr[0]['role']
 
-            member_attr = membership.select(self.server.db_session, club_name,
-                                            user_id, Roles.president)
-            members_role = member_attr[0]['role']
-            if user_id:
+            if 'user_id' in request.args:
+                user_id = int(request.args['user_id'])
+                # validate whether the user ID corresponds to an existing user
+                validate_user(self.server.db_session, user_id)
+                member_attr = membership.select(self.server.db_session, club_name,
+                                                user_id, Roles.president)
+                members_role = member_attr[0]['role']
+            # Fetch the club's memberships
+            if 'user_id' in request.args:
+                user_id = int(request.args['user_id'])
                 membership.delete(self.server.db_session, club_name,
                                   id_from_token, user_id, editors_role,
                                   members_role)
             else:
                 membership.delete_all(self.server.db_session, club_name,
-                                      editors_role, members_role)
+                                      editors_role)
         except PermissionError:
             raise APIError('Unauthorized', status=403)
         except IntegrityError:

@@ -87,8 +87,6 @@ class ClubsEndpoint(Endpoint):
     @verify_token()
     @validate(PostClubsRequest, None)
     async def post(self, request, id_from_token=None):
-        # import pdb
-        # pdb.set_trace()
         """Handles a POST /clubs request by creating a new club."""
         # Put the club in the DB
         body = util.strip_whitespace(request.json)

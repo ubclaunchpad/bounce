@@ -256,6 +256,12 @@ def test_delete_membership__failure(server):
         headers={'Authorization': token})
     assert response.status == 403
 
+    # Cannot delete all members except presidents if not a president
+    _, response = server.app.test_client.delete(
+        '/memberships/testclub',
+        headers={'Authorization': token})
+    assert response.status == 403
+
     # Invalid ID
     _, response = server.app.test_client.delete(
         '/memberships/testclub?user_id=99', headers={'Authorization': token})
@@ -277,5 +283,11 @@ def test_delete_membership__success(server):
     user_id = response.json['id']
     _, response = server.app.test_client.delete(
         '/memberships/testclub?user_id=' + str(user_id),
+        headers={'Authorization': token})
+    assert response.status == 201
+
+    # Delete all members
+    _, response = server.app.test_client.delete(
+        '/memberships/testclub',
         headers={'Authorization': token})
     assert response.status == 201
