@@ -2,8 +2,6 @@
 
 import json
 
-from aiohttp import FormData
-
 from bounce.server.api import util
 
 
@@ -87,19 +85,87 @@ def test_put_memberships__success(server):
         headers={'Authorization': admin_token})
     assert response.status == 201
 
+    # Add President membership using the founder's id.
+    # Create new user to attempt adding into database
+    _, response = server.app.test_client.post(
+        '/users',
+        data=json.dumps({
+            'username': 'pres2',
+            'full_name': 'admin guy',
+            'email': 'mynewpres@email.com',
+            'password': 'Val1dPassword!'
+        }))
+    # get his id
+    _, response = server.app.test_client.get('/users/pres2')
+    pres2_id = response.json['id']
+    # add President membership
+    _, response = server.app.test_client.put(
+        '/memberships/testclub?user_id=' + str(pres2_id),
+        data=json.dumps({
+            'members_role': 'President',
+            'position': 'tech lead 2'
+        }),
+        headers={'Authorization': founder_token})
+    assert response.status == 201
+
+    # Add another Member and Admin membership to the table for other tests
+    # Create new user to attempt adding into database
+    _, response = server.app.test_client.post(
+        '/users',
+        data=json.dumps({
+            'username': 'member2',
+            'full_name': 'member guy 2',
+            'email': 'mynewmeember@email.com',
+            'password': 'Val1dPassword!'
+        }))
+    # get his id
+    _, response = server.app.test_client.get('/users/member2')
+    member2_id = response.json['id']
+    # add Member membership
+    _, response = server.app.test_client.put(
+        '/memberships/testclub?user_id=' + str(member2_id),
+        data=json.dumps({
+            'members_role': 'Member',
+            'position': 'another member'
+        }),
+        headers={'Authorization': founder_token})
+    assert response.status == 201
+
+    # Create new user to attempt adding into database
+    _, response = server.app.test_client.post(
+        '/users',
+        data=json.dumps({
+            'username': 'admin2',
+            'full_name': 'admin guy 2',
+            'email': 'mynewadmin@email.com',
+            'password': 'Val1dPassword!'
+        }))
+    # get his id
+    _, response = server.app.test_client.get('/users/admin2')
+    admin2_id = response.json['id']
+    # add Member membership
+    _, response = server.app.test_client.put(
+        '/memberships/testclub?user_id=' + str(admin2_id),
+        data=json.dumps({
+            'members_role': 'Admin',
+            'position': 'another admin'
+        }),
+        headers={'Authorization': founder_token})
+    assert response.status == 201
+
 
 def test_put_memberships__failure(server):
     # Club does not exist
     _, response = server.app.test_client.get('/users/founder')
     founder_id = response.json['id']
-    token = util.create_jwt(founder_id, server.config.secret)
+    founder_token = util.create_jwt(founder_id, server.config.secret)
     _, response = server.app.test_client.put(
         '/memberships/doesnotexist?user_id=3',
         data=json.dumps({
             'members_role': 'President',
             'position': 'VP'
         }),
-        headers={'Authorization': token})
+        headers={'Authorization': founder_token})
     assert response.status == 400
 
     # User does not exist
@@ -109,7 +175,17 @@ def test_put_memberships__failure(server):
             'members_role': 'President',
             'position': 'VP'
         }),
-        headers={'Authorization': token})
+        headers={'Authorization': founder_token})
+    assert response.status == 400
+
+    # User id not provided
+    _, response = server.app.test_client.put(
+        '/memberships/testclub',
+        data=json.dumps({
+            'members_role': 'President',
+            'position': 'VP'
+        }),
+        headers={'Authorization': founder_token})
     assert response.status == 400
 
     # Permission denied.  A user with an Admin membership cannot
@@ -121,7 +197,7 @@ def test_put_memberships__failure(server):
         '/memberships/testclub?user_id=' + str(founder_id),
         data=json.dumps({
             'members_role': 'President',
-            'position': 'VP'
+            'position': 'some new position'
         }),
         headers={'Authorization': admin_token})
     assert response.status == 403
@@ -142,7 +218,7 @@ def test_put_memberships__failure(server):
     # get his id
     _, response = server.app.test_client.get('/users/president2')
     president_id = response.json['id']
-    # add President membership
+    # attempt to add President membership
     _, response = server.app.test_client.put(
         '/memberships/testclub?user_id=' + str(president_id),
         data=json.dumps({
@@ -156,21 +232,18 @@ def test_put_memberships__failure(server):
     # edit an Admin membership
     _, response = server.app.test_client.get('/users/member')
     member_id = response.json['id']
-    token = util.create_jwt(member_id, server.config.secret)
+    member_token = util.create_jwt(member_id, server.config.secret)
     _, response = server.app.test_client.put(
         '/memberships/testclub?user_id=' + str(admin_id),
         data=json.dumps({
             'members_role': 'President',
-            'position': 'VP'
+            'position': 'some new position'
         }),
-        headers={'Authorization': token})
+        headers={'Authorization': member_token})
     assert response.status == 403
 
     # Permission denied.  A user with a Membership membership cannot
     # add an Admin membership
-    _, response = server.app.test_client.get('/users/member')
-    member_id = response.json['id']
-    member_token = util.create_jwt(member_id, server.config.secret)
 
     # Create new user to attempt adding into database
     _, response = server.app.test_client.post(
@@ -184,7 +257,7 @@ def test_put_memberships__failure(server):
     # get his id
     _, response = server.app.test_client.get('/users/admin2')
     admin_id = response.json['id']
-    # add Admin membership
+    # attempt to add Admin membership
     _, response = server.app.test_client.put(
         '/memberships/testclub?user_id=' + str(admin_id),
         data=json.dumps({
@@ -192,6 +265,22 @@ def test_put_memberships__failure(server):
             'position': 'tech lead 2'
         }),
         headers={'Authorization': member_token})
+    assert response.status == 403
+
+    # Permission denied.  A user with a President membership cannot
+    # edit another President membership
+
+    # get pres2's id
+    _, response = server.app.test_client.get('/users/pres2')
+    pres2_id = response.json['id']
+
+    _, response = server.app.test_client.put(
+        '/memberships/testclub?user_id=' + str(pres2_id),
+        data=json.dumps({
+            'members_role': 'President',
+            'position': 'former tech lead 2'
+        }),
+        headers={'Authorization': founder_token})
     assert response.status == 403
 
 
@@ -203,8 +292,9 @@ def test_get_memberships__success(server):
     _, response = server.app.test_client.get(
         '/memberships/testclub', headers={'Authorization': token})
     assert response.status == 200
-    # check that the two membership were obtained
-    assert len(response.json) == 3
+    # check that the four memberships were obtained
+    # (founder, admin, member, pres2, admin2, and member2's memberships)
+    assert len(response.json) == 6
 
     # get founder's membership
     _, response = server.app.test_client.get(
@@ -232,9 +322,7 @@ def test_get_membership__failure(server):
         headers={'Authorization': token})
     assert response.status == 404
 
-    # Permission denied
-    _, response = server.app.test_client.get('/users/member')
-    editor_id = response.json['id']
+    # Permission denied for a user not part of the club whose id is 99
     token = util.create_jwt(99, server.config.secret)
     _, response = server.app.test_client.get('/users/founder')
     user_id = response.json['id']
@@ -245,49 +333,88 @@ def test_get_membership__failure(server):
 
 
 def test_delete_membership__failure(server):
-    # Members can't delete other memberships other than their own
-    _, response = server.app.test_client.get('/users/member')
-    editor_id = response.json['id']
-    token = util.create_jwt(editor_id, server.config.secret)
+    # Presidents can't delete President memberships
     _, response = server.app.test_client.get('/users/founder')
-    user_id = response.json['id']
+    founder_id = response.json['id']
+    founder_token = util.create_jwt(founder_id, server.config.secret)
+    _, response = server.app.test_client.get('/users/pres2')
+    pres2_id = response.json['id']
     _, response = server.app.test_client.delete(
-        '/memberships/testclub?user_id=' + str(user_id),
-        headers={'Authorization': token})
+        '/memberships/testclub?user_id=' + str(pres2_id),
+        headers={'Authorization': founder_token})
     assert response.status == 403
 
-    # Cannot delete all members except presidents if not a president
+    # Admins can't delete memberships other than Member memberships
+    _, response = server.app.test_client.get('/users/admin')
+    admin_id = response.json['id']
+    admin_token = util.create_jwt(admin_id, server.config.secret)
     _, response = server.app.test_client.delete(
-        '/memberships/testclub',
-        headers={'Authorization': token})
+        '/memberships/testclub?user_id=' + str(founder_id),
+        headers={'Authorization': admin_token})
+    assert response.status == 403
+
+    # Members can't delete other memberships
+    _, response = server.app.test_client.get('/users/member')
+    member_id = response.json['id']
+    member_token = util.create_jwt(member_id, server.config.secret)
+    _, response = server.app.test_client.get('/users/founder')
+    founder_id = response.json['id']
+    _, response = server.app.test_client.delete(
+        '/memberships/testclub?user_id=' + str(founder_id),
+        headers={'Authorization': member_token})
+    assert response.status == 403
+
+    # a regular member cannot delete all members
+    _, response = server.app.test_client.delete(
+        '/memberships/testclub', headers={'Authorization': member_token})
     assert response.status == 403
 
     # Invalid ID
     _, response = server.app.test_client.delete(
-        '/memberships/testclub?user_id=99', headers={'Authorization': token})
+        '/memberships/testclub?user_id=99',
+        headers={'Authorization': founder_token})
     assert response.status == 400
 
     # Invalid club
     _, response = server.app.test_client.delete(
-        '/memberships/doesnotexist?user_id=' + str(user_id),
-        headers={'Authorization': token})
+        '/memberships/doesnotexist?user_id=' + str(member_id),
+        headers={'Authorization': founder_token})
     assert response.status == 404
 
 
 def test_delete_membership__success(server):
-    # Presidents can delete members
-    _, response = server.app.test_client.get('/users/founder')
-    editor_id = response.json['id']
-    _, response = server.app.test_client.get('/users/member')
-    token = util.create_jwt(editor_id, server.config.secret)
-    user_id = response.json['id']
+    # any member can delete his/her own membership
+    _, response = server.app.test_client.get('/users/member2')
+    member2_id = response.json['id']
+    member2_token = util.create_jwt(member2_id, server.config.secret)
     _, response = server.app.test_client.delete(
-        '/memberships/testclub?user_id=' + str(user_id),
-        headers={'Authorization': token})
+        '/memberships/testclub?user_id=' + str(member2_id),
+        headers={'Authorization': member2_token})
+    assert response.status == 201
+
+    # Admin can delete Member memberships
+    _, response = server.app.test_client.get('/users/admin')
+    admin_id = response.json['id']
+    admin_token = util.create_jwt(admin_id, server.config.secret)
+    _, response = server.app.test_client.get('/users/member')
+    member_id = response.json['id']
+    _, response = server.app.test_client.delete(
+        '/memberships/testclub?user_id=' + str(member_id),
+        headers={'Authorization': admin_token})
+    assert response.status == 201
+
+    # Presidents can delete members that are not Presidents
+    _, response = server.app.test_client.get('/users/founder')
+    founder_id = response.json['id']
+    founder_token = util.create_jwt(founder_id, server.config.secret)
+    _, response = server.app.test_client.get('/users/admin2')
+    admin2_id = response.json['id']
+    _, response = server.app.test_client.delete(
+        '/memberships/testclub?user_id=' + str(admin2_id),
+        headers={'Authorization': founder_token})
     assert response.status == 201
 
     # Delete all members
     _, response = server.app.test_client.delete(
-        '/memberships/testclub',
-        headers={'Authorization': token})
+        '/memberships/testclub', headers={'Authorization': founder_token})
     assert response.status == 201

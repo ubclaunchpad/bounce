@@ -1,5 +1,6 @@
 """Request handlers for the /clubs endpoint."""
 
+import logging
 import os
 from urllib.parse import unquote
 
@@ -43,10 +44,10 @@ class ClubEndpoint(Endpoint):
         name = unquote(name)
         body = util.strip_whitespace(request.json)
         try:
-            membership_attr = membership.select(self.server.db_session, name,
-                                                id_from_token,
-                                                Roles.president.value)
-            editors_role = membership_attr[0]['role']
+            editor_attr = membership.select(self.server.db_session, name,
+                                            id_from_token,
+                                            Roles.president.value)
+            editors_role = editor_attr[0]['role']
             updated_club = club.update(
                 self.server.db_session,
                 name,
@@ -66,7 +67,12 @@ class ClubEndpoint(Endpoint):
     async def delete(self, request, name, id_from_token=None):
         """Handles a DELETE /clubs/<name> request by deleting the club with
         the given name."""
+        # BUG: Request must be utilized by method otherwise the
+        # 'make lint' command will return a warning that it's not used
+        # however, we do not need to use request in this delete method
+        logging.info(request)
         # Decode the name, since special characters will be URL-encoded
+
         name = unquote(name)
         try:
             membership_attr = membership.select(self.server.db_session, name,

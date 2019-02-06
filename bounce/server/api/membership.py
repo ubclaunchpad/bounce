@@ -78,7 +78,8 @@ class MembershipEndpoint(Endpoint):
             # validate whether the club exists
             validate_club(self.server.db_session, club_name)
             # get the editors role using id_from_token
-            # to see if the editor has access to insert/update the memberships table.
+            # to see if the editor has access to insert/update
+            # the memberships table.
             editor_attr = membership.select(self.server.db_session, club_name,
                                             id_from_token, Roles.president)
             editors_role = editor_attr[0]['role']
@@ -110,9 +111,6 @@ class MembershipEndpoint(Endpoint):
         by deleting the membership that associates the given user with the
         given club.
         """
-        # TODO: fix this when we have user roles set up. A user should only be
-        # able to delete their own memberships and memberships on clubs they
-        # are an admin/owner of.
 
         # Decode the club name
         club_name = unquote(club_name)
@@ -123,9 +121,6 @@ class MembershipEndpoint(Endpoint):
             raise APIError('No such club', status=404)
 
         try:
-            # validate whether the club exists
-            validate_club(self.server.db_session, club_name)
-
             editor_attr = membership.select(self.server.db_session, club_name,
                                             id_from_token, Roles.president)
 
@@ -135,8 +130,9 @@ class MembershipEndpoint(Endpoint):
                 user_id = int(request.args['user_id'])
                 # validate whether the user ID corresponds to an existing user
                 validate_user(self.server.db_session, user_id)
-                member_attr = membership.select(self.server.db_session, club_name,
-                                                user_id, Roles.president)
+                member_attr = membership.select(self.server.db_session,
+                                                club_name, user_id,
+                                                Roles.president)
                 members_role = member_attr[0]['role']
             # Fetch the club's memberships
             if 'user_id' in request.args:
@@ -150,5 +146,5 @@ class MembershipEndpoint(Endpoint):
         except PermissionError:
             raise APIError('Unauthorized', status=403)
         except IntegrityError:
-            raise APIError('Invalid user or club ID', status=400)
+            raise APIError('Invalid user ID', status=400)
         return response.text('', status=201)

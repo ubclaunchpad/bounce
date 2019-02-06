@@ -2,8 +2,6 @@
 
 import json
 
-from aiohttp import FormData
-
 from bounce.server.api import util
 
 
@@ -60,8 +58,8 @@ def test_put_club__success(server):
     # updating clubs requires Admin or President privileges
     # therefore we will get the owners id to get access
     _, response = server.app.test_client.get('/users/founder')
-    user_id = response.json['id']
-    token = util.create_jwt(user_id, server.config.secret)
+    founder_id = response.json['id']
+    founder_token = util.create_jwt(founder_id, server.config.secret)
 
     # test if the club is successfully edited by President
     _, response = server.app.test_client.put(
@@ -70,16 +68,51 @@ def test_put_club__success(server):
             'name': 'newtest',
             'description': 'club with a new description',
         }),
-        headers={'Authorization': token})
+        headers={'Authorization': founder_token})
     assert response.status == 200
     assert response.json['description'] == 'club with a new description'
     assert response.json['id'] == 1
     assert isinstance(response.json['created_at'], int)
 
+    # test if the club is successfully edited by an Admin
+    # First, create admin user
+    _, response = server.app.test_client.post(
+        '/users',
+        data=json.dumps({
+            'username': 'adminPerson',
+            'full_name': 'admin Guy',
+            'email': 'test@somethingelse.com',
+            'password': 'Val1dPassword!'
+        }))
+    _, response = server.app.test_client.get('/users/adminPerson')
+    admin_id = response.json['id']
+    admin_token = util.create_jwt(admin_id, server.config.secret)
+
+    # add Admin membership
+    _, response = server.app.test_client.put(
+        '/memberships/newtest?user_id=' + str(admin_id),
+        data=json.dumps({
+            'members_role': 'Admin',
+            'position': 'tech lead'
+        }),
+        headers={'Authorization': founder_token})
+    assert response.status == 201
+
+    # test if the club is successfully edited by Admin
+    _, response = server.app.test_client.put(
+        '/clubs/newtest',
+        data=json.dumps({
+            'name': 'newtest',
+            'description': 'club with a newer description',
+        }),
+        headers={'Authorization': admin_token})
+    assert response.status == 200
+    assert response.json['description'] == 'club with a newer description'
+    assert response.json['id'] == 1
+    assert isinstance(response.json['created_at'], int)
+
 
 def test_put_club__failure(server):
-    # updating clubs requires Admin or President privileges
-
     # bad json data test:
     # first get the founder's id to get access
     _, response = server.app.test_client.get('/users/founder')
@@ -105,17 +138,17 @@ def test_put_club__failure(server):
             'email': 'matt@gin.com',
             'password': 'Val1dPassword!'
         }))
-    # get the owner's id and his membership to get access
-    # to add the member to the memberships table
+    # get the founder's id and his membership to get access
+    # to add the member to the club
     _, response = server.app.test_client.get('/users/founder')
     editor_id = response.json['id']
     token = util.create_jwt(editor_id, server.config.secret)
 
-    # get user's id to add to the memberships table
+    # get user's id to add to the club
     _, response = server.app.test_client.get('/users/member')
     user_id = response.json['id']
 
-    # give user a member membership to the club
+    # give user a Member membership to the club
     _, response = server.app.test_client.put(
         '/memberships/newtest?user_id=' + str(user_id),
         data=json.dumps({
@@ -140,7 +173,7 @@ def test_get_club__success(server):
     _, response = server.app.test_client.get('/clubs/newtest')
     assert response.status == 200
     assert response.json['name'] == 'newtest'
-    assert response.json['description'] == 'club with a new description'
+    assert response.json['description'] == 'club with a newer description'
     assert response.json['id'] == 1
     assert isinstance(response.json['created_at'], int)
 
@@ -163,9 +196,8 @@ def test_delete_club__failure(server):
 
 
 def test_delete_club__success(server):
-    # deleting clubs requires Admin or President privileges
+    # deleting clubs requires President privileges
     # therefore use the founder's ID to successfully delete the club
-
     _, response = server.app.test_client.get('/users/founder')
     editor_id = response.json['id']
     token = util.create_jwt(editor_id, server.config.secret)

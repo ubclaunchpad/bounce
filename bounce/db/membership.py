@@ -52,14 +52,17 @@ def can_insert(editors_role, members_role):
     """
     Determines whether user can insert a membership to the database
     Args:
-        editors_role (Role): the role of the member who is inserting into the membership
-        members_role (Role): the role of the member who's membership is being added
+        editors_role (Role):
+            the role of the member who is inserting into the membership
+        members_role (Role):
+            the role of the member who's membership is being added
     """
     # Presidents can insert any membership
     if editors_role == Roles.president.value:
         return True
     # Admin can only insert Member memberships
-    elif editors_role == Roles.admin.value and members_role == Roles.member.value:
+    elif (editors_role == Roles.admin.value
+          and members_role == Roles.member.value):
         return True
     # Return false if none of the conditions are met
     return False
@@ -69,7 +72,8 @@ def can_select(editors_role):
     """
     Determines whether user can select a membership from the database
     Args:
-        editors_role (Role): the role of the member who is selecting the membership
+        editors_role (Role):
+            the role of the member who is selecting the membership
     """
     # All members can read all memberships
     if editors_role is None:
@@ -82,7 +86,7 @@ def can_delete_all(editors_role):
     """
     Determines whether user can delete all memberships from the database
     """
-    # Owners can delete all memberships except other presidents
+    # Presidents can delete all memberships except other presidents
     if editors_role == Roles.president.value:
         return True
     # Return false if the condition is not met
@@ -95,17 +99,21 @@ def can_delete_member(editors_id, members_id, editors_role, members_role):
     Args:
         editors_id: the id of the member who is deleting the membership
         members_id: the id of the member whose membership is being deleted
-        editors_role (Role): the role of the member who is deleting the membership
-        members_role (Role): the role of the member whose membership is being deleted
+        editors_role (Role):
+            the role of the member who is deleting the membership
+        members_role (Role):
+            the role of the member whose membership is being deleted
     """
     # Anyone can delete their own membership
     if editors_id == members_id:
         return True
-    # Presidents can delete all memberships
-    elif editors_role == Roles.president.value and members_role != Roles.president.value:
+    # Presidents can delete members that are not Presidents
+    elif (editors_role == Roles.president.value
+          and members_role != Roles.president.value):
         return True
-    # Admins can only delete Member memberships or themselves
-    elif editors_role == Roles.admin.value and members_role == Roles.member.value:
+    # Admins can only delete Member memberships
+    elif (editors_role == Roles.admin.value
+          and members_role == Roles.member.value):
         return True
     # Return false if none of the conditions are met
     return False
@@ -115,14 +123,18 @@ def can_update(editors_role, members_role):
     """
     Determines whether user can update a membership from the database
     Args:
-        editors_role (Role): the role of the member who is updating the membership
-        members_role (Role): the role of the member whose membership is being updated
+        editors_role (Role):
+            the role of the member who is updating the membership
+        members_role (Role):
+            the role of the member whose membership is being updated
     """
     # President can update any memberships except for other presidents
-    if editors_role == Roles.president.value and members_role != Roles.president.value:
+    if (editors_role == Roles.president.value
+            and members_role != Roles.president.value):
         return True
     # Admins can only update members membership
-    elif editors_role == Roles.admin.value and members_role == Roles.member.value:
+    elif (editors_role == Roles.admin.value
+          and members_role == Roles.member.value):
         return True
     # Return false if none of the conditions are met
     return False
@@ -134,13 +146,13 @@ def update(session, club_name, user_id, editors_role, members_role,
     Updates membership that asscociates the give user with the given
     club.
     """
-
     if can_update(editors_role, members_role):
         query = f"""
             UPDATE memberships
             SET role = '{new_role}', position = '{new_position}'
             WHERE memberships.user_id = '{user_id}'
-            AND memberships.club_id = (SELECT id FROM clubs WHERE name = '{club_name}')
+            AND memberships.club_id =
+                (SELECT id FROM clubs WHERE name = '{club_name}')
         """
         session.execute(query)
         session.commit()
@@ -154,8 +166,10 @@ def insert(session, club_name, user_id, editors_role, members_role, position):
     club.
 
     Args:
-        editors_role (Role): the role of the member who is deleting the membership
-        members_role (Role): the role of the member who's membership is being added
+        editors_role (Role):
+            the role of the member who is deleting the membership
+        members_role (Role):
+            the role of the member who's membership is being added
     """
     if can_insert(editors_role, members_role):
         query = f"""
@@ -183,8 +197,10 @@ def select_all(session, club_name, editors_role):
         query = f"""
             SELECT users.id AS user_id,
             memberships.created_at, memberships.position,
-            memberships.role, users.full_name, users.username 
-            FROM memberships INNER JOIN users ON (memberships.user_id = users.id)
+            memberships.role, users.full_name, users.username
+            FROM memberships INNER JOIN users ON (
+                memberships.user_id = users.id
+            )
             WHERE memberships.club_id IN (
                 SELECT id FROM clubs WHERE name = '{club_name}'
             )
@@ -210,8 +226,10 @@ def select(session, club_name, user_id, editors_role):
         query = f"""
             SELECT users.id AS user_id,
             memberships.created_at, memberships.position,
-            memberships.role, users.full_name, users.username 
-            FROM memberships INNER JOIN users ON (memberships.user_id = users.id)
+            memberships.role, users.full_name, users.username
+            FROM memberships INNER JOIN users ON (
+                memberships.user_id = users.id
+            )
             WHERE memberships.club_id IN (
                 SELECT id FROM clubs WHERE name = '{club_name}'
             )
@@ -235,8 +253,10 @@ def delete_all(session, club_name, editors_role):
     Deletes all memberships except the Presidents for the given club.
     Args:
         club_name: the name of the club memberships are being deleted from
-        editors_role (Role): the role of the member who is deleting the membership
-        members_role (Role): the role of the member who's membership is being deleted
+        editors_role (Role):
+            the role of the member who is deleting the membership
+        members_role (Role):
+            the role of the member who's membership is being deleted
     """
     if can_delete_all(editors_role):
         query = f"""
@@ -259,9 +279,12 @@ def delete(session, club_name, editors_id, members_id, editors_role,
     Deletes a specific users' membership for the given club.
     Args:
         editors_id (user_id): the id of the member deleting the membership
-        members_id (user_id): the id of the member whose membership is being deleted
-        editors_role (Role): the role of the member who is deleting the membership
-        members_role (Role): the role of the member whose membership is being deleted
+        members_id (user_id):
+            the id of the member whose membership is being deleted
+        editors_role (Role):
+            the role of the member who is deleting the membership
+        members_role (Role):
+            the role of the member whose membership is being deleted
     """
     if can_delete_member(editors_id, members_id, editors_role, members_role):
         query = f"""

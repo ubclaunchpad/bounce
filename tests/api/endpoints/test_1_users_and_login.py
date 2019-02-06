@@ -2,8 +2,6 @@
 
 import json
 
-from aiohttp import FormData
-
 from bounce.server.api import util
 
 

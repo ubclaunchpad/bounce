@@ -1,7 +1,5 @@
 """Tests the Bounce API."""
 
-import json
-
 from aiohttp import FormData
 
 from bounce.server.api import util
