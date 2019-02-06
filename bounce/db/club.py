@@ -50,10 +50,6 @@ class Club(BASE):
 
 
 def can_delete(editor_role):
-    """
-    Determines whether a member can delete a club
-    given his role
-    """
     # Only President can delete club
     if editor_role == Roles.president.value:
         return True
@@ -62,15 +58,11 @@ def can_delete(editor_role):
 
 
 def can_update(editor_role):
-    """
-    Determines whether a member can update a club
-    given his role
-    """
     # President and Admin can update club
     if editor_role == Roles.president.value or editor_role == Roles.admin.value:
         return True
         # Return false if the condition is not met
-    return False
+        return False
 
 
 def validate_club(session, club_name):
