@@ -143,7 +143,7 @@ def update(session, club_name, user_id, editors_role, members_role,
             UPDATE memberships
             SET role = '{new_role}', position = '{new_position}'
             WHERE memberships.user_id = '{user_id}'
-            AND clubs.name = '{club_name}'
+            AND memberships.club_id = (SELECT id FROM clubs WHERE name = '{club_name}')
         """
         session.execute(query)
         session.commit()

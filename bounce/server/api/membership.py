@@ -62,6 +62,8 @@ class MembershipEndpoint(Endpoint):
     async def put(self, request, club_name, id_from_token=None):
         """Handles a PUT /memberships/<club_name>
         creating or updating the membership for the given user and club."""
+        import pdb
+        pdb.set_trace()
         # Decode the club name
         club_name = unquote(club_name)
         body = util.strip_whitespace(request.json)

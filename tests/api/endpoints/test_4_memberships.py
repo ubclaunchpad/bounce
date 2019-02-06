@@ -53,14 +53,14 @@ def test_put_memberships__success(server):
     assert response.status == 201
 
     # edit same Admin membership
-    # _, response = server.app.test_client.put(
-    #     '/memberships/testclub?user_id=' + str(admin_id),
-    #     data=json.dumps({
-    #         'members_role': 'Admin',
-    #         'position': 'former tech lead'
-    #     }),
-    #     headers={'Authorization': founder_token})
-    # assert response.status == 201
+    _, response = server.app.test_client.put(
+        '/memberships/testclub?user_id=' + str(admin_id),
+        data=json.dumps({
+            'members_role': 'Admin',
+            'position': 'former tech lead'
+        }),
+        headers={'Authorization': founder_token})
+    assert response.status == 201
 
     # add a Member membership to another user.
     # use the Admin membership to put entry into the memberships table
@@ -78,14 +78,14 @@ def test_put_memberships__success(server):
     assert response.status == 201
 
     # edit the same Member membership
-    # _, response = server.app.test_client.put(
-    #     '/memberships/testclub?user_id=' + str(member_id),
-    #     data=json.dumps({
-    #         'members_role': 'Member',
-    #         'position': 'former club member'
-    #     }),
-    #     headers={'Authorization': admin_token})
-    # assert response.status == 201
+    _, response = server.app.test_client.put(
+        '/memberships/testclub?user_id=' + str(member_id),
+        data=json.dumps({
+            'members_role': 'Member',
+            'position': 'former club member'
+        }),
+        headers={'Authorization': admin_token})
+    assert response.status == 201
 
 
 def test_put_memberships__failure(server):
