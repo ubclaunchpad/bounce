@@ -135,7 +135,6 @@ def update(session, club_name, user_id, editors_role, members_role, position,
 
 def insert(session, club_name, user_id, editors_role, members_role, position):
     """Creates a new membership that associates the given user with the given
-<<<<<<< HEAD
     club.
 
     Args:
@@ -156,20 +155,6 @@ def insert(session, club_name, user_id, editors_role, members_role, position):
         session.commit()
     else:
         raise PermissionError('Permission denied for inserting membership.')
-=======
-    club. """
-    # For now we do nothing on conflict, but when we have roles on these
-    # memberships we need to update on conflict.
-    query = """
-        INSERT INTO memberships (user_id, club_id) VALUES (
-            :user_id,
-            (SELECT id FROM clubs WHERE name = :club_name)
-        )
-        ON CONFLICT DO NOTHING
-    """
-    session.execute(query, {'user_id': user_id, 'club_name': club_name})
-    session.commit()
->>>>>>> a50ad155656067fe4c87f125bfce01f0133e3d05
 
 
 def select(session, club_name, user_id, editors_role):
