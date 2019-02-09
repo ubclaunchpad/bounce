@@ -33,11 +33,14 @@ class UserEndpoint(Endpoint):
     @verify_token()
     @validate(PutUserRequest, GetUserResponse)
     async def put(self, request, username, id_from_token=None):
+        #import pdb 
+        #pdb.set_trace()
         """Handles a PUT /users/<username> request by updating the user with
         the given username and returning the updated user info. """
         body = util.strip_whitespace(request.json)
         secret = None
         email = None
+        bio= None
         # Make sure the ID from the token is for the user we're updating
         user_row = user.select(self.server.db_session, username)
         if not user_row:
@@ -125,7 +128,7 @@ class UsersEndpoint(Endpoint):
         # Put the user in the DB
         try:
             user.insert(self.server.db_session, body['full_name'],
-                        body['username'], secret, body['bio'], body['email'])
+                        body['username'], secret, body['email'],body['bio'])
         except IntegrityError:
             raise APIError('User already exists', status=409)
         return response.text('', status=201)

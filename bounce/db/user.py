@@ -44,7 +44,6 @@ class User(BASE):
         }
         return user_info
 
-
 def select(session, username):
     """
     Returns the user with the given username or None if
