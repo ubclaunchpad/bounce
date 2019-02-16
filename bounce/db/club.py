@@ -54,10 +54,7 @@ def can_delete(editor_role):
     Determines whether a user can delete a club given his or her role
     """
     # Only President can delete club
-    if editor_role == Roles.president.value:
-        return True
-    # Return false if the condition is not met
-    return False
+    return editor_role == Roles.president.value
 
 
 def can_update(editor_role):
@@ -65,21 +62,7 @@ def can_update(editor_role):
     Determines whether a user can update a club given his or her role
     """
     # President and Admin can update club
-    if (editor_role == Roles.president.value
-            or editor_role == Roles.admin.value):
-        return True
-    # Return false if the condition is not met
-    return False
-
-
-def validate_club(session, club_name):
-    """
-    Checks whether the club is an existing club.
-    Throws an IntegrityError if club does not exist.
-    """
-    club = select(session, club_name)
-    if club is None:
-        raise IntegrityError('Club does not exist', None, None)
+    return editor_role in [Roles.president.value, Roles.admin.value]
 
 
 def select(session, name):
@@ -134,31 +117,30 @@ def update(session, name, editors_role, new_name, description, website_url,
     """Updates an existing club in the Clubs table and returns the
     updated club."""
     # Only Presidents and Admins can update
-    if can_update(editors_role):
-        club = session.query(Club).filter(Club.name == name).first()
-        if new_name:
-            club.name = new_name
-        if description:
-            club.description = description
-        if website_url:
-            club.website_url = website_url
-        if facebook_url:
-            club.facebook_url = facebook_url
-        if instagram_url:
-            club.instagram_url = instagram_url
-        if twitter_url:
-            club.twitter_url = twitter_url
-        session.commit()
-        return club.to_dict()
-    else:
+    if not can_update(editors_role):
         raise PermissionError("Permission denied for updating the club.")
+    club = session.query(Club).filter(Club.name == name).first()
+    if new_name:
+        club.name = new_name
+    if description:
+        club.description = description
+    if website_url:
+        club.website_url = website_url
+    if facebook_url:
+        club.facebook_url = facebook_url
+    if instagram_url:
+        club.instagram_url = instagram_url
+    if twitter_url:
+        club.twitter_url = twitter_url
+    session.commit()
+    return club.to_dict()
 
 
 def delete(session, name, editors_role):
     """Deletes the club with the given name."""
     # Only Presidents can delete
-    if can_delete(editors_role):
-        session.query(Club).filter(Club.name == name).delete()
-        session.commit()
-    else:
+    if not can_delete(editors_role):
         raise PermissionError("Permission denied for deleting the club.")
+
+    session.query(Club).filter(Club.name == name).delete()
+    session.commit()
