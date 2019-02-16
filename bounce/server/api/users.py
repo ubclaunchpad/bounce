@@ -33,14 +33,11 @@ class UserEndpoint(Endpoint):
     @verify_token()
     @validate(PutUserRequest, GetUserResponse)
     async def put(self, request, username, id_from_token=None):
-        #import pdb 
-        #pdb.set_trace()
         """Handles a PUT /users/<username> request by updating the user with
         the given username and returning the updated user info. """
         body = util.strip_whitespace(request.json)
         secret = None
         email = None
-        bio= None
         # Make sure the ID from the token is for the user we're updating
         user_row = user.select(self.server.db_session, username)
         if not user_row:
@@ -75,8 +72,6 @@ class UserEndpoint(Endpoint):
             #  that we can use to securely
             # verify their password when they log in
             secret = util.hash_password(body['new_password'])
-        elif body.get('bio'):
-            bio = body['bio']
         # Update the user
         updated_user = user.update(
             self.server.db_session,
@@ -84,7 +79,7 @@ class UserEndpoint(Endpoint):
             secret=secret,
             full_name=body.get('full_name', None),
             email=email,
-	        bio=bio)
+	        bio=body.get('bio', None))
         # Returns the updated user info
         return response.json(updated_user.to_dict(), status=200)
 
