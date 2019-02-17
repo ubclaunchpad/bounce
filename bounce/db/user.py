@@ -39,10 +39,11 @@ class User(BASE):
             'full_name': self.full_name,
             'username': self.username,
             'email': self.email,
-	        'bio': self.bio,
+            'bio': self.bio,
             'created_at': self.created_at,
         }
         return user_info
+
 
 def select(session, username):
     """
@@ -88,12 +89,21 @@ def search(session, query=None, page=0, size=MAX_SIZE):
 def insert(session, full_name, username, secret, email, bio):
     """Insert a new user into the Users table."""
     user = User(
-        full_name=full_name, username=username, secret=secret, email=email, bio=bio)
+        full_name=full_name,
+        username=username,
+        secret=secret,
+        email=email,
+        bio=bio)
     session.add(user)
     session.commit()
 
 
-def update(session, username, secret=None, full_name=None, email=None, bio=None):
+def update(session,
+           username,
+           secret=None,
+           full_name=None,
+           email=None,
+           bio=None):
     """Updates an existing user in the Users table and returns the
     updated user."""
     user = session.query(User).filter(User.username == username).first()
@@ -113,6 +123,3 @@ def delete(session, username):
     """Deletes the user with the given username."""
     session.query(User).filter(User.username == username).delete()
     session.commit()
-
-
-
