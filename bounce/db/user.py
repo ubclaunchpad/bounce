@@ -26,6 +26,7 @@ class User(BASE):
     username = Column('username', String, nullable=False)
     secret = Column('secret', String, nullable=False)
     email = Column('email', String, nullable=False)
+    bio = Column('bio', String, nullable=False)
     created_at = Column(
         'created_at', TIMESTAMP, nullable=False, server_default=func.now())
     clubs = relationship('Membership', back_populates='member')
@@ -38,6 +39,7 @@ class User(BASE):
             'full_name': self.full_name,
             'username': self.username,
             'email': self.email,
+            'bio': self.bio,
             'created_at': self.created_at,
         }
         return user_info
@@ -48,6 +50,7 @@ def select(session, username):
     Returns the user with the given username or None if
     there is no such user.
     """
+
     return session.query(User).filter(User.username == username).first()
 
 
@@ -83,15 +86,24 @@ def search(session, query=None, page=0, size=MAX_SIZE):
     return users, result_count, total_pages
 
 
-def insert(session, full_name, username, secret, email):
+def insert(session, full_name, username, secret, email, bio):
     """Insert a new user into the Users table."""
     user = User(
-        full_name=full_name, username=username, secret=secret, email=email)
+        full_name=full_name,
+        username=username,
+        secret=secret,
+        email=email,
+        bio=bio)
     session.add(user)
     session.commit()
 
 
-def update(session, username, secret=None, full_name=None, email=None):
+def update(session,
+           username,
+           secret=None,
+           full_name=None,
+           email=None,
+           bio=None):
     """Updates an existing user in the Users table and returns the
     updated user."""
     user = session.query(User).filter(User.username == username).first()
@@ -101,6 +113,8 @@ def update(session, username, secret=None, full_name=None, email=None):
         user.email = email
     if secret:
         user.secret = secret
+    if bio:
+        user.bio = bio
     session.commit()
     return user
 

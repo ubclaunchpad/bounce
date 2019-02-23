@@ -8,7 +8,7 @@ from sqlalchemy import Column, Integer, String, desc, func
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 
-from . import BASE
+from . import BASE, Roles
 
 # The max and min number of results to return in one page.
 # Used in the search method.
@@ -48,12 +48,29 @@ class Club(BASE):
         }
 
 
-def select(session, identifier): 
+def can_delete(editor_role):
+    """
+    Determines whether a user can delete a club given his or her role
+    """
+    # Only President can delete club
+    return editor_role == Roles.president.value
+
+
+def can_update(editor_role):
+    """
+    Determines whether a user can update a club given his or her role
+    """
+    # President and Admin can update club
+    return editor_role in [Roles.president.value, Roles.admin.value]
+
+
+def select(session, name):
     """
     Returns the club with the given identifier or None if
     there is no such club.
     """
-    club = session.query(Club).filter(Club.identifier == identifier).first()
+    # Anyone should be able to read info on the club (including non-members)
+    club = session.query(Club).filter(Club.name == name).first()
     return None if club is None else club.to_dict()
 
 
@@ -81,7 +98,8 @@ def search(session, query=None, page=0, size=MAX_SIZE):
 
 def insert(session, name, description, website_url, facebook_url,
            instagram_url, twitter_url):
-    """Insert a new club into the Clubs table."""
+    """Insert a new club into the Clubs table.
+    Any user should have the permission to insert"""
     club = Club(
         name=name,
         description=description,
@@ -93,11 +111,14 @@ def insert(session, name, description, website_url, facebook_url,
     session.commit()
 
 
-def update(session, identifier, new_name, description, website_url, facebook_url,
-           instagram_url, twitter_url):
+def update(session, name, editors_role, new_name, description, website_url,
+           facebook_url, instagram_url, twitter_url):
     """Updates an existing club in the Clubs table and returns the
     updated club."""
-    club = session.query(Club).filter(Club.identifier == identifier).first()
+    # Only Presidents and Admins can update
+    if not can_update(editors_role):
+        raise PermissionError("Permission denied for updating the club.")
+    club = session.query(Club).filter(Club.name == name).first()
     if new_name:
         club.name = new_name
     if description:
@@ -114,7 +135,11 @@ def update(session, identifier, new_name, description, website_url, facebook_url
     return club.to_dict()
 
 
-def delete(session, identifier):
-    """Deletes the club with the given identifier."""
-    session.query(Club).filter(Club.identifier == identifier).delete()
+def delete(session, name, editors_role):
+    """Deletes the club with the given name."""
+    # Only Presidents can delete
+    if not can_delete(editors_role):
+        raise PermissionError("Permission denied for deleting the club.")
+
+    session.query(Club).filter(Club.name == name).delete()
     session.commit()

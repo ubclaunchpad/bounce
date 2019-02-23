@@ -78,7 +78,8 @@ class UserEndpoint(Endpoint):
             username,
             secret=secret,
             full_name=body.get('full_name', None),
-            email=email)
+            email=email,
+            bio=body.get('bio', None))
         # Returns the updated user info
         return response.json(updated_user.to_dict(), status=200)
 
@@ -122,7 +123,7 @@ class UsersEndpoint(Endpoint):
         # Put the user in the DB
         try:
             user.insert(self.server.db_session, body['full_name'],
-                        body['username'], secret, body['email'])
+                        body['username'], secret, body['email'], body['bio'])
         except IntegrityError:
             raise APIError('User already exists', status=409)
         return response.text('', status=201)
