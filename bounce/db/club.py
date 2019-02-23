@@ -85,10 +85,10 @@ def insert(session, name, description, website_url, facebook_url,
     club = Club(
         name=name,
         description=description,
-        website_url=website_url,
-        facebook_url=facebook_url,
-        instagram_url=instagram_url,
-        twitter_url=twitter_url)
+        website_url=(website_url, None),
+        facebook_url=(facebook_url,None),
+        instagram_url=(instagram_url,None),
+        twitter_url=(twitter_url,None))
     session.add(club)
     session.commit()
 
