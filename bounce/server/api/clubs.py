@@ -6,12 +6,13 @@ from urllib.parse import unquote
 from sanic import response
 from sqlalchemy.exc import IntegrityError
 
-from . import IMAGE_SIZE_LIMIT, APIError, Endpoint, util
-from ...db import club, image
+from . import IMAGE_SIZE_LIMIT, APIError, Endpoint, util, verify_token
+from ...db import Roles, club, image, membership
 from ...db.club import MAX_SIZE, MIN_SIZE
 from ...db.image import EntityType
 from ..resource import validate
-from ..resource.club import (GetClubResponse, PostClubsRequest, PutClubRequest,
+from ..resource.club import (DeleteClubRequest, GetClubResponse,
+                             PostClubsRequest, PutClubRequest,
                              SearchClubsRequest, SearchClubsResponse)
 
 
@@ -33,30 +34,49 @@ class ClubEndpoint(Endpoint):
             raise APIError('No such club', status=404)
         return response.json(club_data, status=200)
 
+    @verify_token()
     @validate(PutClubRequest, GetClubResponse)
-    async def put(self, request, name):
+    async def put(self, request, name, id_from_token=None):
         """Handles a PUT /clubs/<name> request by updating the club with
         the given name and returning the updated club info."""
         # Decode the name, since special characters will be URL-encoded
         name = unquote(name)
         body = util.strip_whitespace(request.json)
-        updated_club = club.update(
-            self.server.db_session,
-            name,
-            new_name=body.get('name', None),
-            description=body.get('description', None),
-            website_url=body.get('website_url', None),
-            facebook_url=body.get('facebook_url', None),
-            instagram_url=body.get('instagram_url', None),
-            twitter_url=body.get('twitter_url', None))
+        try:
+            editor_attr = membership.select(self.server.db_session, name,
+                                            id_from_token,
+                                            Roles.president.value)
+            editors_role = editor_attr[0]['role']
+            updated_club = club.update(
+                self.server.db_session,
+                name,
+                editors_role,
+                new_name=body.get('name', None),
+                description=body.get('description', None),
+                website_url=body.get('website_url', None),
+                facebook_url=body.get('facebook_url', None),
+                instagram_url=body.get('instagram_url', None),
+                twitter_url=body.get('twitter_url', None))
+        except PermissionError:
+            raise APIError('Forbidden', status=403)
         return response.json(updated_club, status=200)
 
-    async def delete(self, _, name):
+    @verify_token()
+    @validate(DeleteClubRequest, None)
+    async def delete(self, _, name, id_from_token=None):
         """Handles a DELETE /clubs/<name> request by deleting the club with
-        the given name. """
+        the given name."""
         # Decode the name, since special characters will be URL-encoded
+
         name = unquote(name)
-        club.delete(self.server.db_session, name)
+        try:
+            membership_attr = membership.select(self.server.db_session, name,
+                                                id_from_token,
+                                                Roles.president.value)
+            editors_role = membership_attr[0]['role']
+            club.delete(self.server.db_session, name, editors_role)
+        except PermissionError:
+            raise APIError('Forbidden', status=403)
         return response.text('', status=204)
 
 
@@ -65,19 +85,27 @@ class ClubsEndpoint(Endpoint):
 
     __uri__ = '/clubs'
 
+    @verify_token()
     @validate(PostClubsRequest, None)
-    async def post(self, request):
+    async def post(self, request, id_from_token=None):
         """Handles a POST /clubs request by creating a new club."""
         # Put the club in the DB
         body = util.strip_whitespace(request.json)
         try:
             club.insert(
-                self.server.db_session, body['name'].strip(),
-                body['description'].strip(), body['website_url'].strip(),
-                body['facebook_url'].strip(), body['instagram_url'].strip(),
-                body['twitter_url'].strip())
+                self.server.db_session,
+                name=body.get('name', None),
+                description=body.get('description', None),
+                website_url=body.get('website_url', None),
+                facebook_url=body.get('facebook_url', None),
+                instagram_url=body.get('instagram_url', None),
+                twitter_url=body.get('twitter_url', None))
         except IntegrityError:
             raise APIError('Club already exists', status=409)
+        # Give the creator of the club a President membership
+        membership.insert(self.server.db_session, body.get('name', None),
+                          id_from_token, Roles.president.value,
+                          Roles.president.value, 'Owner')
         return response.text('', status=201)
 
 
@@ -120,13 +148,13 @@ class SearchClubsEndpoint(Endpoint):
 
 
 class ClubImagesEndpoint(Endpoint):
-    """Handles requests to /clubs/<club_name>/images/<image_name>."""
+    """Handles requests to /clubs/<name>/images/<image_name>."""
 
-    __uri__ = '/clubs/<club_name>/images/<image_name>'
+    __uri__ = '/clubs/<name>/images/<image_name>'
 
-    async def get(self, _, club_name, image_name):
+    async def get(self, _, name, image_name):
         """
-        Handles a GET /clubs/<club_name>/images/<image_name> request
+        Handles a GET /clubs/<name>/images/<image_name> request
         by returning the club's image with the given name.
         """
 
@@ -135,14 +163,14 @@ class ClubImagesEndpoint(Endpoint):
         try:
             return await response.file(
                 os.path.join(self.server.config.image_dir,
-                             EntityType.CLUB.value, club_name, image_name))
+                             EntityType.CLUB.value, name, image_name))
         except FileNotFoundError:
             raise APIError('No such image', status=404)
 
     # @verify_token()
-    async def put(self, request, club_name, image_name):
+    async def put(self, request, name, image_name):
         """
-        Handles a PUT /clubs/<club_name>/images/<image_name> request
+        Handles a PUT /clubs/<name>/images/<image_name> request
         by updating the image at the given path.
         """
         # For now, only allow clubs to upload profile pictures
@@ -150,7 +178,7 @@ class ClubImagesEndpoint(Endpoint):
             raise APIError('Invalid image name', status=400)
 
         # Make sure the user is updating an image they own
-        club_info = club.select(self.server.db_session, club_name)
+        club_info = club.select(self.server.db_session, name)
         if not club_info:
             raise APIError('No such image', status=404)
 
@@ -165,26 +193,26 @@ class ClubImagesEndpoint(Endpoint):
         if len(image_upload.body) > IMAGE_SIZE_LIMIT:
             raise APIError('Image too large', status=400)
 
-        image.save(self.server.config.image_dir, EntityType.CLUB, club_name,
+        image.save(self.server.config.image_dir, EntityType.CLUB, name,
                    image_name, image_upload.body)
 
         return response.text('', status=200)
 
     # @verify_token()
-    async def delete(self, _, club_name, image_name):
+    async def delete(self, _, name, image_name):
         """Handles a DETELE by deleting the club's image by the given name."""
 
         if not util.check_image_name(image_name):
             raise APIError('Invalid image name', status=400)
         # Make sure the user is deleting their own image
-        club_info = club.select(self.server.db_session, club_name)
+        club_info = club.select(self.server.db_session, name)
         if not club_info:
             raise APIError('No such image', status=404)
         try:
             image.delete(
                 self.server.config.image_dir,
                 EntityType.CLUB,
-                club_name,
+                name,
                 image_name,
                 must_exist=True)
         except FileNotFoundError:

@@ -168,22 +168,7 @@ def verify_token():
             kwargs['id_from_token'] = user_id
 
             # Call the request handler
-            try:
-                return await coro(endpoint, request, *args, **kwargs)
-            except APIError as err:
-                return response.json({'error': err.message}, status=err.status)
-            except Exception:
-                logger.exception(
-                    'An error occurred during the hanlding of a request')
-                # Return an error response if an error occurred in
-                # the request handler
-                logger.exception(
-                    'An error occurred during the handling of a %s '
-                    'request to %s', request.method, request.url)
-                return response.json(
-                    {
-                        'error': 'Internal server error'
-                    }, status=500)
+            return await coro(endpoint, request, *args, **kwargs)
 
         return wrapper
 

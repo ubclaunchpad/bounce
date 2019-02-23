@@ -7,11 +7,11 @@ class PostUsersRequest(metaclass=ResourceMeta):
     """Defines the schema for a POST /users request."""
     __body__ = {
         'type': 'object',
-        'required': ['full_name', 'username', 'password', 'email'],
+        'required': ['full_name', 'username', 'password', 'email', 'bio'],
         'additionalProperties': False,
         'properties': {
             'full_name': {
-                'type': 'string'
+                'type': 'string',
             },
             'username': {
                 'type': 'string',
@@ -60,7 +60,14 @@ class GetUserResponse(metaclass=ResourceMeta):
     """Defines the schema for a GET /users/<username> response."""
     __body__ = {
         'type': 'object',
-        'required': ['full_name', 'username', 'email', 'id', 'created_at'],
+        'required': [
+            'full_name',
+            'username',
+            'email',
+            'bio',
+            'id',
+            'created_at'
+        ],
         'additionalProperties': False,
         'properties': {
             'full_name': {
