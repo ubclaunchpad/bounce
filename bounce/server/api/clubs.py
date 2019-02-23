@@ -16,34 +16,38 @@ from ..resource.club import (GetClubResponse, PostClubsRequest, PutClubRequest,
 
 
 class ClubEndpoint(Endpoint):
-    """Handles requests to /clubs/<name>."""
+    """Handles requests to /clubs/<identifier>."""
 
-    __uri__ = "/clubs/<name:string>"
+    __uri__ = "/clubs/<identifier:string>"
 
     @validate(None, GetClubResponse)
-    async def get(self, _, name):
-        """Handles a GET /clubs/<name> request by returning the club with
-        the given name."""
-        # Decode the name, since special characters will be URL-encoded
-        name = unquote(name)
+    async def get(self, _, identifier):
+        """Handles a GET /clubs/<identifier> request by returning the club with
+        the given identifier."""
+        # Decode the identifier, since special characters will be URL-encoded
+        import pdb
+        pdb.set_trace()
+        identifier = unquote(identifier) #it no like this? 
+        print(identifier)
         # Fetch club data from DB
-        club_data = club.select(self.server.db_session, name)
+        club_data = club.select(self.server.db_session, identifier) # or dis?
+        print(club_data)
         if not club_data:
             # Failed to find a club with that name
             raise APIError('No such club', status=404)
         return response.json(club_data, status=200)
 
     @validate(PutClubRequest, GetClubResponse)
-    async def put(self, request, name):
-        """Handles a PUT /clubs/<name> request by updating the club with
-        the given name and returning the updated club info."""
-        # Decode the name, since special characters will be URL-encoded
-        name = unquote(name)
+    async def put(self, request, identifier):
+        """Handles a PUT /clubs/<identifier> request by updating the club with
+        the given identifier and returning the updated club info."""
+        # Decode the identifier, since special characters will be URL-encoded
+        identifier = unquote(identifier)
         body = util.strip_whitespace(request.json)
         updated_club = club.update(
             self.server.db_session,
             name,
-            new_name=body.get('name', None),
+            new_name=body.get('name', None), # 'name' is not defined -> test put club success; clubs.id = 'doesnotexist'
             description=body.get('description', None),
             website_url=body.get('website_url', None),
             facebook_url=body.get('facebook_url', None),
@@ -51,12 +55,12 @@ class ClubEndpoint(Endpoint):
             twitter_url=body.get('twitter_url', None))
         return response.json(updated_club, status=200)
 
-    async def delete(self, _, name):
-        """Handles a DELETE /clubs/<name> request by deleting the club with
-        the given name. """
-        # Decode the name, since special characters will be URL-encoded
-        name = unquote(name)
-        club.delete(self.server.db_session, name)
+    async def delete(self, _, identifier):
+        """Handles a DELETE /clubs/<identifier> request by deleting the club with
+        the given identifier. """
+        # Decode the identifier, since special characters will be URL-encoded
+        identifier = unquote(identifier)
+        club.delete(self.server.db_session, identifier)
         return response.text('', status=204)
 
 
@@ -71,6 +75,8 @@ class ClubsEndpoint(Endpoint):
         # Put the club in the DB
         body = util.strip_whitespace(request.json)
         try:
+            #BUG: if no website_url, facebook_url, instagram_url, or twitter_url,
+            # this method will fail.  Fix such that urls are not required.
             club.insert(
                 self.server.db_session, body['name'].strip(),
                 body['description'].strip(), body['website_url'].strip(),

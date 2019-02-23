@@ -48,12 +48,12 @@ class Club(BASE):
         }
 
 
-def select(session, name):
+def select(session, identifier): 
     """
-    Returns the club with the given name or None if
+    Returns the club with the given identifier or None if
     there is no such club.
     """
-    club = session.query(Club).filter(Club.name == name).first()
+    club = session.query(Club).filter(Club.identifier == identifier).first()
     return None if club is None else club.to_dict()
 
 
@@ -93,11 +93,11 @@ def insert(session, name, description, website_url, facebook_url,
     session.commit()
 
 
-def update(session, name, new_name, description, website_url, facebook_url,
+def update(session, identifier, new_name, description, website_url, facebook_url,
            instagram_url, twitter_url):
     """Updates an existing club in the Clubs table and returns the
     updated club."""
-    club = session.query(Club).filter(Club.name == name).first()
+    club = session.query(Club).filter(Club.identifier == identifier).first()
     if new_name:
         club.name = new_name
     if description:
@@ -114,7 +114,7 @@ def update(session, name, new_name, description, website_url, facebook_url,
     return club.to_dict()
 
 
-def delete(session, name):
-    """Deletes the club with the given name."""
-    session.query(Club).filter(Club.name == name).delete()
+def delete(session, identifier):
+    """Deletes the club with the given identifier."""
+    session.query(Club).filter(Club.identifier == identifier).delete()
     session.commit()
