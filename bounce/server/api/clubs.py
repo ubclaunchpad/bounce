@@ -1,6 +1,5 @@
 """Request handlers for the /clubs endpoint."""
 
-import logging
 import os
 from urllib.parse import unquote
 
@@ -59,18 +58,14 @@ class ClubEndpoint(Endpoint):
                 instagram_url=body.get('instagram_url', None),
                 twitter_url=body.get('twitter_url', None))
         except PermissionError:
-            raise APIError('Unauthorized', status=403)
+            raise APIError('Forbidden', status=403)
         return response.json(updated_club, status=200)
 
     @verify_token()
     @validate(DeleteClubRequest, None)
-    async def delete(self, request, name, id_from_token=None):
+    async def delete(self, _, name, id_from_token=None):
         """Handles a DELETE /clubs/<name> request by deleting the club with
         the given name."""
-        # BUG: Request must be utilized by method otherwise the
-        # 'make lint' command will return a warning that it's not used
-        # however, we do not need to use request in this delete method
-        logging.info(request)
         # Decode the name, since special characters will be URL-encoded
 
         name = unquote(name)
@@ -81,7 +76,7 @@ class ClubEndpoint(Endpoint):
             editors_role = membership_attr[0]['role']
             club.delete(self.server.db_session, name, editors_role)
         except PermissionError:
-            raise APIError('Unauthorized', status=403)
+            raise APIError('Forbidden', status=403)
         return response.text('', status=204)
 
 
@@ -105,7 +100,6 @@ class ClubsEndpoint(Endpoint):
                 facebook_url=body.get('facebook_url', None),
                 instagram_url=body.get('instagram_url', None),
                 twitter_url=body.get('twitter_url', None))
-
         except IntegrityError:
             raise APIError('Club already exists', status=409)
         # Give the creator of the club a President membership

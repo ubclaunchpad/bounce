@@ -5,7 +5,6 @@ Also provides methods to access and edit the DB.
 import math
 
 from sqlalchemy import Column, Integer, String, desc, func
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 

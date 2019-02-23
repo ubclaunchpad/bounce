@@ -61,10 +61,10 @@ def can_insert(editors_role, members_role):
     # Admin can only insert Member memberships
     return editors_role == Roles.president.value or \
         (editors_role == Roles.admin.value and
-            members_role == Roles.member.value)
+         members_role == Roles.member.value)
 
 
-def can_select(editors_role):
+def can_select(_):
     """
     Determines whether user can select a membership from the database
     Args:
@@ -96,12 +96,16 @@ def can_delete_member(editors_id, members_id, editors_role, members_role):
     """
     # Anyone can delete their own membership
     # Admins can only delete Member memberships
-    return editors_id == members_id or \
-        (editors_role == Roles.president.value and
-            members_role != Roles.president.value)
+    if editors_id == members_id:
+        return True
+    elif editors_role == Roles.president.value:
+        return members_role != Roles.president.value
+    elif editors_role == Roles.admin.value:
+        return members_role == Roles.member.value
+    return False
 
 
-def can_update(editors_role, members_role):
+def can_update(editors_role, members_role, new_role):
     """
     Determines whether user can update a membership from the database
     Args:
@@ -109,12 +113,17 @@ def can_update(editors_role, members_role):
             the role of the member who is updating the membership
         members_role (Role):
             the role of the member whose membership is being updated
+        new_role (Role):
+            the new role of the member
     """
     # President can update any memberships except for other presidents
     # Admins can only update members membership
-    return editors_role == Roles.president.value or \
-        (editors_role == Roles.admin.value and
-            members_role == Roles.member.value)
+    if editors_role == Roles.president.value:
+        return members_role != Roles.president.value
+    elif editors_role == Roles.admin.value:
+        return members_role == Roles.member.value and \
+            new_role != Roles.president.value
+    return False
 
 
 def update(session, club_name, user_id, editors_role, members_role,
@@ -123,17 +132,23 @@ def update(session, club_name, user_id, editors_role, members_role,
     Updates membership that asscociates the give user with the given
     club.
     """
-    if not can_update(editors_role, members_role):
+    if not can_update(editors_role, members_role, new_role):
         raise PermissionError("Permission denied for updating membership")
 
     query = f"""
         UPDATE memberships
-        SET role = '{new_role}', position = '{new_position}'
-        WHERE memberships.user_id = '{user_id}'
+        SET role = :new_role, position = :new_position
+        WHERE memberships.user_id = :user_id
         AND memberships.club_id =
-            (SELECT id FROM clubs WHERE name = '{club_name}')
+            (SELECT id FROM clubs WHERE name = :club_name)
     """
-    session.execute(query)
+    session.execute(
+        query, {
+            'new_role': new_role,
+            'new_position': new_position,
+            'user_id': user_id,
+            'club_name': club_name,
+        })
     session.commit()
 
 
@@ -152,14 +167,20 @@ def insert(session, club_name, user_id, editors_role, members_role, position):
 
     query = f"""
         INSERT INTO memberships (user_id, club_id, role, position) VALUES (
-            '{user_id}',
-            (SELECT id FROM clubs WHERE name = '{club_name}'),
-            '{members_role}',
-            '{position}'
+            :user_id,
+            (SELECT id FROM clubs WHERE name = :club_name),
+            :members_role,
+            :position
         )
         ON CONFLICT DO NOTHING
     """
-    session.execute(query)
+    session.execute(
+        query, {
+            'user_id': user_id,
+            'club_name': club_name,
+            'members_role': members_role,
+            'position': position,
+        })
     session.commit()
 
 
@@ -180,10 +201,10 @@ def select_all(session, club_name, editors_role):
             memberships.user_id = users.id
         )
         WHERE memberships.club_id IN (
-            SELECT id FROM clubs WHERE name = '{club_name}'
+            SELECT id FROM clubs WHERE name = :club_name
         )
     """
-    result_proxy = session.execute(query)
+    result_proxy = session.execute(query, {'club_name': club_name})
     results = []
     for row in result_proxy.fetchall():
         member_info = {}
@@ -209,11 +230,14 @@ def select(session, club_name, user_id, editors_role):
             memberships.user_id = users.id
         )
         WHERE memberships.club_id IN (
-            SELECT id FROM clubs WHERE name = '{club_name}'
+            SELECT id FROM clubs WHERE name = :club_name
         )
-        AND user_id = '{user_id}'
+        AND user_id = :user_id
     """
-    result_proxy = session.execute(query)
+    result_proxy = session.execute(query, {
+        'club_name': club_name,
+        'user_id': user_id,
+    })
     results = []
     for row in result_proxy.fetchall():
         member_info = {}
@@ -240,12 +264,15 @@ def delete_all(session, club_name, editors_role):
 
     query = f"""
         DELETE FROM memberships
-        WHERE NOT memberships.role = '{Roles.president.value}'
+        WHERE NOT memberships.role = :role
         AND memberships.club_id IN (
-            SELECT id FROM clubs WHERE name = '{club_name}'
+            SELECT id FROM clubs WHERE name = :club_name
         )
     """
-    session.execute(query)
+    session.execute(query, {
+        'role': Roles.president.value,
+        'club_name': club_name,
+    })
     session.commit()
 
 
@@ -262,17 +289,20 @@ def delete(session, club_name, editors_id, members_id, editors_role,
         members_role (Role):
             the role of the member whose membership is being deleted
     """
-    if not can_delete_member(
-            editors_id, members_id, editors_role, members_role):
+    if not can_delete_member(editors_id, members_id, editors_role,
+                             members_role):
         raise PermissionError('Permission denied for deleting user membership')
 
     query = f"""
     DELETE FROM memberships
     WHERE memberships.club_id IN (
-        SELECT id FROM clubs WHERE name = '{club_name}'
+        SELECT id FROM clubs WHERE name = :club_name
     )
-    AND memberships.user_id = '{members_id}'
+    AND memberships.user_id = :members_id
     """
 
-    session.execute(query)
+    session.execute(query, {
+        'club_name': club_name,
+        'members_id': members_id,
+    })
     session.commit()

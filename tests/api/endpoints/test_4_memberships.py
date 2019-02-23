@@ -322,15 +322,6 @@ def test_get_membership__failure(server):
         headers={'Authorization': token})
     assert response.status == 404
 
-    # Permission denied for a user not part of the club whose id is 99
-    token = util.create_jwt(99, server.config.secret)
-    _, response = server.app.test_client.get('/users/founder')
-    user_id = response.json['id']
-    _, response = server.app.test_client.get(
-        '/memberships/testclub?user_id=' + str(user_id),
-        headers={'Authorization': token})
-    assert response.status == 403
-
 
 def test_delete_membership__failure(server):
     # Presidents can't delete President memberships
