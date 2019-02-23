@@ -34,6 +34,7 @@ def test_put_memberships__success(server):
         data=json.dumps({
             'username': 'admin',
             'full_name': 'admin guy',
+            'bio': 'I am an eng student, rip',
             'email': 'my@name.com',
             'password': 'Val1dPassword!'
         }))
@@ -92,6 +93,7 @@ def test_put_memberships__success(server):
         data=json.dumps({
             'username': 'pres2',
             'full_name': 'admin guy',
+            'bio': 'I am a president, rip',
             'email': 'mynewpres@email.com',
             'password': 'Val1dPassword!'
         }))
@@ -115,12 +117,15 @@ def test_put_memberships__success(server):
         data=json.dumps({
             'username': 'member2',
             'full_name': 'member guy 2',
+            'bio': 'I am an admin, rip',
             'email': 'mynewmeember@email.com',
             'password': 'Val1dPassword!'
         }))
+    assert response.status == 201
     # get his id
     _, response = server.app.test_client.get('/users/member2')
     member2_id = response.json['id']
+
     # add Member membership
     _, response = server.app.test_client.put(
         '/memberships/testclub?user_id=' + str(member2_id),
@@ -137,6 +142,7 @@ def test_put_memberships__success(server):
         data=json.dumps({
             'username': 'admin2',
             'full_name': 'admin guy 2',
+            'bio': 'I am admin2, rip',
             'email': 'mynewadmin@email.com',
             'password': 'Val1dPassword!'
         }))
@@ -211,6 +217,7 @@ def test_put_memberships__failure(server):
         data=json.dumps({
             'username': 'president2',
             'full_name': 'president guy',
+            'bio': 'I am president2, rip',
             'email': 'new@email.com',
             'password': 'Val1dPassword!'
         }))
@@ -251,6 +258,7 @@ def test_put_memberships__failure(server):
         data=json.dumps({
             'username': 'admin2',
             'full_name': 'admin guy',
+            'bio': 'I am admin2, rip',
             'email': 'mynew@email.com',
             'password': 'Val1dPassword!'
         }))
@@ -301,7 +309,7 @@ def test_get_memberships__success(server):
         '/memberships/testclub?user_id=' + str(user_id),
         headers={'Authorization': token})
     membership = response.json[0]
-    assert membership['user_id'] == 2
+    assert membership['user_id'] == user_id
     assert membership['full_name'] == 'Test Guy'
     assert membership['username'] == 'founder'
     assert isinstance(membership['created_at'], int)

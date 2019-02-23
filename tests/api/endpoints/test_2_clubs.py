@@ -12,10 +12,13 @@ def test_post_clubs__success(server):
         data=json.dumps({
             'username': 'founder',
             'full_name': 'Test Guy',
+            'bio': 'Yeet!',
             'email': 'test@test.com',
             'password': 'Val1dPassword!'
         }))
+    assert response.status == 201
     _, response = server.app.test_client.get('/users/founder')
+    assert response.status == 200
     user_id = response.json['id']
     token = util.create_jwt(user_id, server.config.secret)
 
@@ -81,6 +84,7 @@ def test_put_club__success(server):
         data=json.dumps({
             'username': 'adminPerson',
             'full_name': 'admin Guy',
+            'bio': 'Ayyy I\'m an admin',
             'email': 'test@somethingelse.com',
             'password': 'Val1dPassword!'
         }))
@@ -135,6 +139,7 @@ def test_put_club__failure(server):
         data=json.dumps({
             'username': 'member',
             'full_name': 'Matthew Gin',
+            'bio': 'Ayyy I\'m a member',
             'email': 'matt@gin.com',
             'password': 'Val1dPassword!'
         }))

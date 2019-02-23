@@ -65,10 +65,11 @@ class MembershipEndpoint(Endpoint):
         body = util.strip_whitespace(request.json)
         position = body.get('position', None)
         members_role = body.get('members_role', None)
+
         try:
             # get the id of the user we want to edit a membership
-            user_id = int(request.args.get('user_id')[0])
-        except Exception:
+            user_id = int(request.args['user_id'])
+        except KeyError:
             raise APIError('No user ID provided', status=400)
 
         # get the editors role using id_from_token

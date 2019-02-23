@@ -75,7 +75,7 @@ class PutMembershipRequest(metaclass=ResourceMeta):
         'required': ['members_role', 'position'],
         'properties': {
             'members_role': {
-                'enum': ["President", "Admin", "Member"]
+                'enum': ['President', 'Admin', 'Member']
             },
             'position': {
                 'type': 'string'
