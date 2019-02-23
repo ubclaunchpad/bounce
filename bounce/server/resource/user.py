@@ -23,6 +23,9 @@ class PostUsersRequest(metaclass=ResourceMeta):
                 'type': 'string',
                 'format': 'email',
             },
+            'bio': {
+                'type': 'string',
+            }
         }
     }
 
@@ -45,6 +48,9 @@ class PutUserRequest(metaclass=ResourceMeta):
             'email': {
                 'type': 'string',
                 'format': 'email'
+            },
+            'bio': {
+                'type': 'string',
             }
         }
     }
@@ -74,6 +80,9 @@ class GetUserResponse(metaclass=ResourceMeta):
             'created_at': {
                 'type': 'integer',
             },
+            'bio': {
+                'type': 'string',
+            }
         }
     }
 
@@ -106,7 +115,7 @@ class SearchUsersResponse(metaclass=ResourceMeta):
                 'type':
                 'object',
                 'required':
-                ['full_name', 'username', 'email', 'id', 'created_at'],
+                ['full_name', 'username', 'email', 'id', 'created_at', 'bio'],
                 'additionalProperties':
                 False,
                 'properties': {
@@ -127,6 +136,9 @@ class SearchUsersResponse(metaclass=ResourceMeta):
                     'created_at': {
                         'type': 'integer',
                     },
+                    'bio': {
+                        'type': 'string',
+                    }
                 }
             }
         },

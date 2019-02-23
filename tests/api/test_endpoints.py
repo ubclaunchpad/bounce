@@ -20,6 +20,7 @@ def test_post_users__success(server):
             'username': 'test',
             'full_name': 'Test Guy',
             'email': 'test@test.com',
+            'bio': 'my name is test. I am a cs major',
             'password': 'Val1dPassword!'
         }))
     assert response.status == 201
@@ -50,6 +51,8 @@ def test_put_user__success(server):
     assert response.json['username'] == username
     assert response.json['full_name'] == 'NewName'
     assert response.json['id'] == 1
+    assert response.json['email'] == 'test@test.com'
+    assert response.json['bio'] == 'my name is test. I am a cs major'
     assert isinstance(response.json['created_at'], int)
 
 
@@ -61,7 +64,7 @@ def test_put_user_update_email__success(server):
         data=json.dumps({
             'full_name': 'New Name',
             'password': 'Val1dPassword!',
-            'email': 'newemail@test.com'
+            'email': 'newemail@test.com',
         }),
         headers={'Authorization': token})
     assert response.status == 200
@@ -115,17 +118,19 @@ def test_paginate_users__success(server):
     # add 3 dummy data entries to search for in database.
     # In total there's 4 with one coming from previous tests.
     user_info = [('matt gin', 'ginsstaahh', 'matthewgin10@gmail.com',
-                  'Val1dPassword!'),
+                  'Val1dPassword!', 'ginsstaahs bio'),
                  ('gin', 'ginsstaahh221', 'matt.gin@hotmail.com',
-                  'Val1dPassword!'), ('bruno', 'bfcbachman', 'bruno@gmail.com',
-                                      'Val1dPassword!')]
-    for full_name, username, email, password in user_info:
+                  'Val1dPassword!', 'my second bio'),
+                 ('bruno', 'bfcbachman', 'bruno@gmail.com', 'Val1dPassword!',
+                  'brunos bio')]
+    for full_name, username, email, password, bio in user_info:
         server.app.test_client.post(
             '/users',
             data=json.dumps({
                 'full_name': full_name,
                 'username': username,
                 'email': email,
+                'bio': bio,
                 'password': password,
             }))
     _, response = server.app.test_client.get('/users/search?size=2')
@@ -464,7 +469,8 @@ def test_put_user_image__success(server):
             'username': 'test',
             'full_name': 'Test Guy',
             'email': 'test@test.com',
-            'password': 'Val1dPassword!'
+            'password': 'Val1dPassword!',
+            'bio': 'my name is test. I am a cs major'
         }))
     token = util.create_jwt(5, server.config.secret)
     data = FormData()
@@ -550,7 +556,8 @@ def test_put_memberships__success(server):
             'username': 'mrguy',
             'full_name': 'Hello WOrld',
             'email': 'something@anotherthing.com',
-            'password': 'Val1dPassword!'
+            'password': 'Val1dPassword!',
+            'bio': 'I am an eng student, rip'
         }))
     assert response.status == 201
     token = util.create_jwt(2, server.config.secret)
