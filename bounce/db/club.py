@@ -64,9 +64,19 @@ def can_update(editor_role):
     return editor_role in [Roles.president.value, Roles.admin.value]
 
 
-def select(session, name):
+def select_by_club_id(session, identifier):
     """
     Returns the club with the given identifier or None if
+    there is no such club.
+    """
+    # Anyone should be able to read info on the club (including non-members)
+    club = session.query(Club).filter(Club.identifier == identifier).first()
+    return None if club is None else club.to_dict()
+
+
+def select(session, name):
+    """
+    Returns the club with the given name or None if
     there is no such club.
     """
     # Anyone should be able to read info on the club (including non-members)
@@ -109,16 +119,17 @@ def insert(session, name, description, website_url, facebook_url,
         twitter_url=twitter_url)
     session.add(club)
     session.commit()
+    return club
 
 
-def update(session, name, editors_role, new_name, description, website_url,
-           facebook_url, instagram_url, twitter_url):
+def update(session, identifier, editors_role, new_name, description,
+           website_url, facebook_url, instagram_url, twitter_url):
     """Updates an existing club in the Clubs table and returns the
     updated club."""
     # Only Presidents and Admins can update
     if not can_update(editors_role):
         raise PermissionError("Permission denied for updating the club.")
-    club = session.query(Club).filter(Club.name == name).first()
+    club = session.query(Club).filter(Club.identifier == identifier).first()
     if new_name:
         club.name = new_name
     if description:
@@ -135,11 +146,11 @@ def update(session, name, editors_role, new_name, description, website_url,
     return club.to_dict()
 
 
-def delete(session, name, editors_role):
-    """Deletes the club with the given name."""
+def delete(session, identifier, editors_role):
+    """Deletes the club with the given identifier."""
     # Only Presidents can delete
     if not can_delete(editors_role):
         raise PermissionError("Permission denied for deleting the club.")
 
-    session.query(Club).filter(Club.name == name).delete()
+    session.query(Club).filter(Club.identifier == identifier).delete()
     session.commit()

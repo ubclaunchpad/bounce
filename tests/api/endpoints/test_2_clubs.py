@@ -4,6 +4,8 @@ import json
 
 from bounce.server.api import util
 
+test_post_clubs__success_club_identifier = None
+
 
 def test_post_clubs__success(server):
     # A user is required to create the club
@@ -63,10 +65,9 @@ def test_put_club__success(server):
     _, response = server.app.test_client.get('/users/founder')
     founder_id = response.json['id']
     founder_token = util.create_jwt(founder_id, server.config.secret)
-
     # test if the club is successfully edited by President
     _, response = server.app.test_client.put(
-        '/clubs/test',
+        '/clubs/1',
         data=json.dumps({
             'name': 'newtest',
             'description': 'club with a new description',
@@ -104,7 +105,7 @@ def test_put_club__success(server):
 
     # test if the club is successfully edited by Admin
     _, response = server.app.test_client.put(
-        '/clubs/newtest',
+        '/clubs/1',
         data=json.dumps({
             'name': 'newtest',
             'description': 'club with a newer description',
@@ -122,10 +123,9 @@ def test_put_club__failure(server):
     _, response = server.app.test_client.get('/users/founder')
     user_id = response.json['id']
     token = util.create_jwt(user_id, server.config.secret)
-
     # bad json data
     _, response = server.app.test_client.put(
-        '/clubs/newtest',
+        '/clubs/1',
         data=json.dumps({
             'garbage': True
         }),
@@ -165,7 +165,7 @@ def test_put_club__failure(server):
     # now try editing the club with the Member membership
     token = util.create_jwt(user_id, server.config.secret)
     _, response = server.app.test_client.put(
-        '/clubs/newtest',
+        '/clubs/1',
         data=json.dumps({
             'name': 'newtest',
             'description': 'new description',
@@ -175,7 +175,7 @@ def test_put_club__failure(server):
 
 
 def test_get_club__success(server):
-    _, response = server.app.test_client.get('/clubs/newtest')
+    _, response = server.app.test_client.get('/clubs/1')
     assert response.status == 200
     assert response.json['name'] == 'newtest'
     assert response.json['description'] == 'club with a newer description'
@@ -184,7 +184,8 @@ def test_get_club__success(server):
 
 
 def test_get_club__failure(server):
-    _, response = server.app.test_client.get('/clubs/doesnotexist')
+    # use id that isn't in the club at this point
+    _, response = server.app.test_client.get('/clubs/9478')
     assert response.status == 404
 
 
@@ -196,7 +197,7 @@ def test_delete_club__failure(server):
 
     # fail when a user with a Member membership tries to delete the club
     _, response = server.app.test_client.delete(
-        '/clubs/newtest', headers={'Authorization': token})
+        '/clubs/1', headers={'Authorization': token})
     assert response.status == 403
 
 
@@ -208,7 +209,7 @@ def test_delete_club__success(server):
     token = util.create_jwt(editor_id, server.config.secret)
 
     _, response = server.app.test_client.delete(
-        '/clubs/newtest', headers={'Authorization': token})
+        '/clubs/1', headers={'Authorization': token})
     assert response.status == 204
 
 

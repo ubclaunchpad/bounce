@@ -214,6 +214,40 @@ def select_all(session, club_name, editors_role):
     return results
 
 
+def select_by_club_id(session, club_id, user_id, editors_role):
+    """
+    Returns returns the membership for the given user of the specified club.
+    """
+    # All members can read all memberships
+    if not can_select(editors_role):
+        raise PermissionError('Permission denied for selecting membership.')
+
+    query = f"""
+        SELECT users.id AS user_id,
+        memberships.created_at, memberships.position,
+        memberships.role, users.full_name, users.username
+        FROM memberships INNER JOIN users ON (
+            memberships.user_id = users.id
+        )
+        WHERE memberships.club_id IN (
+            SELECT id FROM clubs WHERE id = :club_id
+        )
+        AND user_id = :user_id
+    """
+    result_proxy = session.execute(query, {
+        'club_id': club_id,
+        'user_id': user_id,
+    })
+    results = []
+    for row in result_proxy.fetchall():
+        member_info = {}
+        for i, key in enumerate(result_proxy.keys()):
+            # for i, key in row:
+            member_info[key] = row[i]
+        results.append(member_info)
+    return results
+
+
 def select(session, club_name, user_id, editors_role):
     """
     Returns returns the membership for the given user of the specified club.
