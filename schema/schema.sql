@@ -37,7 +37,6 @@ CREATE TABLE memberships (
 
 DROP TABLE IF EXISTS interests;
 CREATE TABLE interests (
-    interest_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    interest_name TEXT NOT NULL UNIQUE,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT (now() at time zone 'utc')
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    interest_name TEXT NOT NULL UNIQUE
 );
