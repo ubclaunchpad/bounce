@@ -39,12 +39,10 @@ def update_interest(session, interest_name):
         Interest.interest_name == interest_name).first()
 
     interest.interest_name = interest_name
-    
+
 def remove_interest(session, interest_name):
     """Removed an interest from the interests table"""
     session.query(Interest).filter(
         Interest.interest_name == interest_name).delete()
     session.commit()
-
-
-
+    
