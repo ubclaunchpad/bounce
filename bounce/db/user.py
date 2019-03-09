@@ -5,6 +5,7 @@ import math
 from sqlalchemy import Column, Integer, String, desc, func
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
+# from sqlachemy import or
 
 from . import BASE
 
@@ -62,23 +63,45 @@ def select_by_id(session, user_id):
     return session.query(User).filter(User.identifier == user_id).first()
 
 
-def search(session, query=None, page=0, size=MAX_SIZE):
-    """Returns a list of clubs that contain content from the user's query"""
+def search(session, fullname=None, username=None, id=None, 
+          email=None, created_at=None, page=0, size=MAX_SIZE):
+    """Returns a list of users that contain content from the user's query""" 
     # number used for offset is the
     # page number multiplied by the size of each page
     offset_num = page * size
     users = session.query(User)
 
-    if query:
-        # show clubs that have a name that matches the query
-        users = users.filter(User.full_name.ilike(f'%{query}%'))
+    query = Book.query
+    not_null_filters = []
+
+    triggered = false
+    if fullname or username or email or id or created_at:
+        triggered = true;
+
+    if fullname:
+        not_null_filters.append(User.full_name.ilike(f'%{fullname}%'))
+    if username:
+        not_null_filters.append(User.username.ilike(f'%{username}%'))
+        # users = users.filter(User.username.ilike(f'%{username}%'))
+    if email:
+        # users = users.filter(User.email.ilike(f'%{email}%'))
+        not_null_filters.append(User.email.ilike(f'%{email}%'))
+    if id: 
+        # users = users.filter(User.id.ilike(f'%{id}%'))
+        not_null_filters.append(User.id.ilike(f'%{id}%'))
+    if created_at:
+        # users = users.filter(User.created_at.ilike(f'%{created_at}%'))
+        not_null_filters.append(User.id.ilike(f'%{id}%'))
+
         # TODO: implement search_vector functionality:
         # users = users.filter(User.search_vector.match(query))
         # Currently search_vector column isn't working properly
-
-    else:
-        # show clubs ordered by most recently created
+        
+    if triggered is false:
+        # show users ordered by most recently created
         users = users.order_by(desc(User.created_at))
+    else:
+         users = users.filter(or_(*not_null_filters))
 
     result_count = users.count()
     total_pages = math.ceil(result_count / size)
