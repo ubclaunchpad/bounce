@@ -5,7 +5,7 @@ import math
 from sqlalchemy import Column, Integer, String, desc, func
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
-# from sqlachemy import or
+from sqlalchemy import or_
 
 from . import BASE
 
@@ -71,33 +71,27 @@ def search(session, fullname=None, username=None, id=None,
     offset_num = page * size
     users = session.query(User)
 
-    query = Book.query
     not_null_filters = []
 
-    triggered = false
+    triggered = False
     if fullname or username or email or id or created_at:
-        triggered = true;
-
+        triggered = True
     if fullname:
         not_null_filters.append(User.full_name.ilike(f'%{fullname}%'))
     if username:
         not_null_filters.append(User.username.ilike(f'%{username}%'))
-        # users = users.filter(User.username.ilike(f'%{username}%'))
     if email:
-        # users = users.filter(User.email.ilike(f'%{email}%'))
         not_null_filters.append(User.email.ilike(f'%{email}%'))
     if id: 
-        # users = users.filter(User.id.ilike(f'%{id}%'))
         not_null_filters.append(User.id.ilike(f'%{id}%'))
     if created_at:
-        # users = users.filter(User.created_at.ilike(f'%{created_at}%'))
         not_null_filters.append(User.id.ilike(f'%{id}%'))
 
         # TODO: implement search_vector functionality:
         # users = users.filter(User.search_vector.match(query))
         # Currently search_vector column isn't working properly
         
-    if triggered is false:
+    if triggered is False:
         # show users ordered by most recently created
         users = users.order_by(desc(User.created_at))
     else:

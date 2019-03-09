@@ -98,7 +98,7 @@ def test_paginate_users__failure(server):
 
 
 def test_search_users__success(server):
-    _, response = server.app.test_client.get('/users/search?query=gin')
+    _, response = server.app.test_client.get('/users/search?username=gin&full_name=gin')
     assert response.status == 200
     body = response.json
     assert len(body.get('results')) == 2
