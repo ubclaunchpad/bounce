@@ -216,7 +216,7 @@ class SearchUsersEndpoint(Endpoint):
         """Handles a GET /club/search request by returning
         users that contain content from the query."""
 
-        # eslint-disable too-many-locals
+        # pylint: disable=too-many-locals
         full_name = None
         username = None
         email = None
@@ -224,7 +224,7 @@ class SearchUsersEndpoint(Endpoint):
         created_at = None
 
         if 'full_name' in request.args:
-            full_name = request.args.get('full_name')
+            full_name = request.args['full_name']
         if 'username' in request.args:
             username = request.args['username']
         if 'email' in request.args:
@@ -233,6 +233,7 @@ class SearchUsersEndpoint(Endpoint):
             identifier = request.args['id']
         if 'created_at' in request.args:
             created_at = request.args['created at']
+        # pylint: enable=too-many-locals
 
         page = int(request.args['page'])
 
@@ -259,4 +260,3 @@ class SearchUsersEndpoint(Endpoint):
         }
 
         return response.json(info, status=200)
-        #eslint-disable too-many-locals

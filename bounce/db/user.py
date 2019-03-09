@@ -73,7 +73,6 @@ def search(session,
     """Returns a list of users that contain content from the user's query"""
     # number used for offset is the
     # page number multiplied by the size of each page
-    # eslint-disable too-many-locals
 
     offset_num = page * size
     users = session.query(User)
