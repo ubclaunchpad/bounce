@@ -97,30 +97,31 @@ class GetUserResponse(metaclass=ResourceMeta):
 class SearchUsersRequest(metaclass=ResourceMeta):
     """Defines the schema for a GET /users/search request."""
     __params__ = {
-        'fullname': {
-            'type': 'string',
-        },
-        'id': {
-            'type': 'string',
-        },
-        'email': {
-            'type': 'string',
-        },
-        'username': {
-            'type': 'string',
-        },
-        'created_at': {
-            'type': 'string',
-        },
-        'page': {
-            'type': 'string',
-            'default': '0',
-            'minimum': '0',
-        },
-        'size': {
-            'type': 'string',
-            'default': '20',
-            'minimum': '1',
+        'type': 'object',
+        'properties': {
+            'fullname': {
+                'type': 'string',
+            },
+            'id': {
+                'type': 'string',
+            },
+            'email': {
+                'type': 'string',
+            },
+            'username': {
+                'type': 'string',
+            },
+            'created_at': {
+                'type': 'string',
+            },
+            'page': {
+                'type': 'string',
+                'default': '0',
+            },
+            'size': {
+                'type': 'string',
+                'default': '20',
+            }
         }
     }
 
