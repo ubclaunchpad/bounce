@@ -95,12 +95,20 @@ def validate(request_cls, response_cls):
             if value == 'array':
                 sub_schema = schema['items']['properties']
                 # get the items in the array
-                items = info[parent_key]
-                for item in items:
-                    item = set_defaults(sub_schema, item, parent_key,
-                                        sub_schema)
-                # add updated items to info
-                info[parent_key] = items
+                if parent_key:
+                    items = info[parent_key]
+                    for item in items:
+                        item = set_defaults(sub_schema, item, parent_key,
+                                            sub_schema)
+                    # add updated items to info
+                    info[parent_key] = items
+                else:
+                    items = info
+                    for item in items:
+                        item = set_defaults(sub_schema, item, parent_key,
+                                            sub_schema)
+                    # add updated items to info
+                    info = items
         return info
 
     # pylint: disable=missing-docstring

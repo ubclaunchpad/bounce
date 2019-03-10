@@ -78,7 +78,8 @@ class UserEndpoint(Endpoint):
             username,
             secret=secret,
             full_name=body.get('full_name', None),
-            email=email)
+            email=email,
+            bio=body.get('bio', None))
         # Returns the updated user info
         return response.json(updated_user.to_dict(), status=200)
 
@@ -121,8 +122,8 @@ class UsersEndpoint(Endpoint):
         secret = util.hash_password(body['password'])
         # Put the user in the DB
         try:
-            user.insert(session, body['full_name'],
-                        body['username'], secret, body['email'])
+            user.insert(session, body['full_name'], body['username'], secret,
+                        body['email'], body['bio'])
         except IntegrityError:
             raise APIError('User already exists', status=409)
         return response.text('', status=201)
@@ -148,7 +149,12 @@ class UserImagesEndpoint(Endpoint):
             raise APIError('No such image', status=404)
 
     @verify_token()
-    async def put(self, session, request, user_id, image_name, id_from_token=None):
+    async def put(self,
+                  session,
+                  request,
+                  user_id,
+                  image_name,
+                  id_from_token=None):
         """
         Handles a PUT /users/<user_id>/images/<image_name> request
         by updating the image at the given path.
@@ -183,7 +189,8 @@ class UserImagesEndpoint(Endpoint):
         return response.text('', status=200)
 
     @verify_token()
-    async def delete(self, session, _, user_id, image_name, id_from_token=None):
+    async def delete(self, session, _, user_id, image_name,
+                     id_from_token=None):
         """Handles a DETELE by deleting the user's image by the given name."""
         if not util.check_image_name(image_name):
             raise APIError('Invalid image name', status=400)

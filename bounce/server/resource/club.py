@@ -177,3 +177,8 @@ class SearchClubsResponse(metaclass=ResourceMeta):
             'minimum': 0,
         }
     }
+
+
+class DeleteClubRequest(metaclass=ResourceMeta):
+    """Defines the schema for a GET /clubs/<name> request."""
+    __body__ = {'editor_role': {'enum': ['President', 'Admin', 'Member']}}
