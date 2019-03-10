@@ -14,13 +14,13 @@ class LoginEndpoint(Endpoint):
     __uri__ = '/auth/login'
 
     @validate(AuthenticateUserRequest, AuthenticateUserResponse)
-    async def post(self, request):
+    async def post(self, session, request):
         """Handles a POST /auth/login request by validating the user's
         credentials and issuing them a JSON Web Token."""
         body = request.json
 
         # Fetch the user's info from the DB
-        user_row = user.select(self.server.db_session, body['username'])
+        user_row = user.select(session, body['username'])
         if not user_row:
             raise APIError('Unauthorized', status=401)
 
