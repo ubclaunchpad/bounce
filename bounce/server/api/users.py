@@ -134,6 +134,7 @@ class UserImagesEndpoint(Endpoint):
 
     __uri__ = '/users/<user_id>/images/<image_name>'
 
+    # pylint: disable=unused-argument
     async def get(self, session, _, user_id, image_name):
         """
         Handles a GET /users/<user_id>/images/<image_name> request
@@ -147,6 +148,8 @@ class UserImagesEndpoint(Endpoint):
                              EntityType.USER.value, user_id, image_name))
         except FileNotFoundError:
             raise APIError('No such image', status=404)
+
+    # pylint: enable=unused-argument
 
     @verify_token()
     async def put(self,

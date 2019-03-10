@@ -150,6 +150,7 @@ class ClubImagesEndpoint(Endpoint):
 
     __uri__ = '/clubs/<name>/images/<image_name>'
 
+    # pylint: disable=unused-argument
     async def get(self, session, _, name, image_name):
         """
         Handles a GET /clubs/<name>/images/<image_name> request
@@ -164,6 +165,8 @@ class ClubImagesEndpoint(Endpoint):
                              EntityType.CLUB.value, name, image_name))
         except FileNotFoundError:
             raise APIError('No such image', status=404)
+
+    # pylint: enable=unused-argument
 
     # @verify_token()
     async def put(self, session, request, name, image_name):
