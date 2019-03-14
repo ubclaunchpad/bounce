@@ -242,7 +242,7 @@ def test_paginate_clubs__success(server):
 
 
 def test_search_clubs__success(server):
-    _, response = server.app.test_client.get('/clubs/search?query=UBC')
+    _, response = server.app.test_client.get('/clubs/search?name=UBC')
     assert response.status == 200
     body = response.json
     assert len(body.get('results')) == 2

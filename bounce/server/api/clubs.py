@@ -119,9 +119,13 @@ class SearchClubsEndpoint(Endpoint):
         """Handles a GET /club/search request by returning
         clubs that contain content from the query."""
 
-        query = None
-        if 'query' in request.args:
-            query = request.args['query']
+        name = None
+        description = None
+        if 'name' in request.args:
+            name = request.args['name']
+        if 'description' in request.args:
+            description = request.args['description']
+
         page = int(request.args['page'])
         size = int(request.args['size'])
         if size > MAX_SIZE:
@@ -130,7 +134,7 @@ class SearchClubsEndpoint(Endpoint):
             raise APIError('size too low', status=400)
 
         queried_clubs, result_count, total_pages = club.search(
-            self.server.db_session, query, page, size)
+            self.server.db_session, name, description, page, size)
         if not queried_clubs:
             # Failed to find clubs that match the query
             raise APIError('No clubs match your query', status=404)
