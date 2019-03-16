@@ -85,15 +85,12 @@ def search(session, name=None, description=None, page=0, size=MAX_SIZE):
 
     not_null_filters = []
 
-    triggered = False
-    if name or description:
-        triggered = True
     if name:
         not_null_filters.append(Club.name.ilike(f'%{name}%'))
     if description:
         not_null_filters.append(Club.description.ilike(f'%{description}%'))
 
-    if triggered is False:
+    if not not_null_filters:
         # show clubs ordered by most recently created
         clubs = clubs.order_by(desc(Club.created_at))
     else:
