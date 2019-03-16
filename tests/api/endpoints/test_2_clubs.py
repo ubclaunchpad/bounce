@@ -4,7 +4,6 @@ import json
 
 from bounce.server.api import util
 
-test_post_clubs__success_club_identifier = None
 
 
 def test_post_clubs__success(server):
