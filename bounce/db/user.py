@@ -79,9 +79,6 @@ def search(session,
 
     not_null_filters = []
 
-    triggered = False
-    if fullname or username or email or identifier or created_at:
-        triggered = True
     if fullname:
         not_null_filters.append(User.full_name.ilike(f'%{fullname}%'))
     if username:
@@ -97,7 +94,7 @@ def search(session,
         # users = users.filter(User.search_vector.match(query))
         # Currently search_vector column isn't working properly
 
-    if triggered is False:
+    if not not_null_filters:
         # show users ordered by most recently created
         users = users.order_by(desc(User.created_at))
     else:
