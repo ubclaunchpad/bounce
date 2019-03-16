@@ -216,7 +216,7 @@ def select_all(session, club_name, editors_role):
 
 def select_by_club_id(session, club_id, user_id, editors_role):
     """
-    Returns returns the membership for the given user of the specified club.
+    Returns the membership for the given user of the specified club.
     """
     # All members can read all memberships
     if not can_select(editors_role):
