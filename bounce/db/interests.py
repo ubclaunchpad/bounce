@@ -37,8 +37,8 @@ def update_interest(session, interest_name):
     """Update an interest in the interest"""
     interest = session.query(Interest).filter(
         Interest.interest_name == interest_name).first()
-
     interest.interest_name = interest_name
+    session.commit()
 
 def remove_interest(session, interest_name):
     """Removed an interest from the interests table"""
