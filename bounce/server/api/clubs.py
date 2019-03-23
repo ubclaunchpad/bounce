@@ -44,8 +44,7 @@ class ClubEndpoint(Endpoint):
         body = util.strip_whitespace(request.json)
         try:
             editor_attr = membership.select_by_club_id(
-                session, identifier, id_from_token,
-                Roles.president.value)
+                session, identifier, id_from_token, Roles.president.value)
             editors_role = editor_attr[0]['role']
             updated_club = club.update(
                 session,
@@ -70,8 +69,7 @@ class ClubEndpoint(Endpoint):
         identifier = unquote(identifier)
         try:
             membership_attr = membership.select_by_club_id(
-                session, identifier, id_from_token,
-                Roles.president.value)
+                session, identifier, id_from_token, Roles.president.value)
             editors_role = membership_attr[0]['role']
             club.delete(session, identifier, editors_role)
         except PermissionError:
@@ -102,9 +100,9 @@ class ClubsEndpoint(Endpoint):
         except IntegrityError:
             raise APIError('Club already exists', status=409)
         # Give the creator of the club a President membership
-        membership.insert(session, body.get('name', None),
-                          id_from_token, Roles.president.value,
-                          Roles.president.value, 'Owner')
+        membership.insert(session, body.get('name', None), id_from_token,
+                          Roles.president.value, Roles.president.value,
+                          'Owner')
         return response.json(club_row.to_dict(), status=201)
 
 

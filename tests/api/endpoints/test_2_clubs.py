@@ -5,7 +5,6 @@ import json
 from bounce.server.api import util
 
 
-
 def test_post_clubs__success(server):
     # A user is required to create the club
     _, response = server.app.test_client.post(
