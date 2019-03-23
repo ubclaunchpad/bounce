@@ -132,7 +132,7 @@ class SearchClubsEndpoint(Endpoint):
             raise APIError('size too low', status=400)
 
         queried_clubs, result_count, total_pages = club.search(
-            self.server.db_session, name, description, page, size)
+            session, name, description, page, size)
 
         if not queried_clubs:
             # Failed to find clubs that match the query
