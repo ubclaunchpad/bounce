@@ -2,7 +2,7 @@
 
 import math
 
-from sqlalchemy import Column, Integer, String, desc, func
+from sqlalchemy import Column, Integer, String, desc, func, or_
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 # from sqlachemy import or
@@ -70,13 +70,11 @@ def search(session, fullname=None, username=None, id=None,
     # page number multiplied by the size of each page
     offset_num = page * size
     users = session.query(User)
-
-    query = Book.query
     not_null_filters = []
 
-    triggered = false
+    triggered = False
     if fullname or username or email or id or created_at:
-        triggered = true;
+        triggered = True
 
     if fullname:
         not_null_filters.append(User.full_name.ilike(f'%{fullname}%'))
@@ -97,11 +95,11 @@ def search(session, fullname=None, username=None, id=None,
         # users = users.filter(User.search_vector.match(query))
         # Currently search_vector column isn't working properly
 
-    if triggered is false:
+    if not triggered:
         # show users ordered by most recently created
         users = users.order_by(desc(User.created_at))
     else:
-         users = users.filter(or_(*not_null_filters))
+        users = users.filter(or_(*not_null_filters))
 
     result_count = users.count()
     total_pages = math.ceil(result_count / size)

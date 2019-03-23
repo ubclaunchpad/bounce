@@ -225,14 +225,14 @@ class SearchUsersEndpoint(Endpoint):
         """Handles a GET /club/search request by returning
         users that contain content from the query."""
 
-        fullname = None
+        full_name = None
         username = None
         email = None
         id = None
         created_at = None
 
-        if 'fullname' in request.args:
-            fullname = request.args.get('fullname', None)
+        if 'full_name' in request.args:
+            full_name = request.args.get('full_name', None)
         if 'username' in request.args:
             username = request.args['username']
         if 'email' in request.args:
@@ -251,7 +251,7 @@ class SearchUsersEndpoint(Endpoint):
             raise APIError('size too low', status=400)
 
         queried_users, result_count, total_pages = user.search(
-            session, fullname, email, id, username, created_at, page, size)
+            session, full_name, email, id, username, created_at, page, size)
         if not queried_users:
             # Failed to find users that match the query
             raise APIError('No users match your query', status=404)

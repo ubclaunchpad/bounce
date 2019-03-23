@@ -93,7 +93,7 @@ class SearchUsersRequest(metaclass=ResourceMeta):
     __params__ = {
         'type': 'object',
         'properties': {
-            'fullname': {
+            'full_name': {
                 'type': 'string',
             },
             'id': {
