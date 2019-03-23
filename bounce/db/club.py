@@ -4,7 +4,7 @@ Also provides methods to access and edit the DB.
 """
 import math
 
-from sqlalchemy import Column, Integer, String, desc, func
+from sqlalchemy import Column, Integer, String, desc, func, or_
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 
@@ -74,7 +74,7 @@ def select(session, name):
     return None if club is None else club.to_dict()
 
 
-def search(session, query=None, page=0, size=MAX_SIZE):
+def search(session, name=None, description=None, page=0, size=MAX_SIZE):
     # TODO: does query, page and size need default values if it's
     # already being set using the JSON schema?
     """Returns a list of clubs that contain content from the user's query"""
@@ -83,12 +83,18 @@ def search(session, query=None, page=0, size=MAX_SIZE):
     offset_num = page * size
     clubs = session.query(Club)
 
-    if query:
-        # show clubs that have a name that matches the query
-        clubs = clubs.filter(Club.name.ilike(f'%{query}%'))
-    else:
+    not_null_filters = []
+
+    if name:
+        not_null_filters.append(Club.name.ilike(f'%{name}%'))
+    if description:
+        not_null_filters.append(Club.description.ilike(f'%{description}%'))
+
+    if not not_null_filters:
         # show clubs ordered by most recently created
         clubs = clubs.order_by(desc(Club.created_at))
+    else:
+        clubs = clubs.filter(or_(*not_null_filters))
 
     result_count = clubs.count()
     total_pages = math.ceil(result_count / size)
