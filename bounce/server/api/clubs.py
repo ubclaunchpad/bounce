@@ -22,13 +22,13 @@ class ClubEndpoint(Endpoint):
     __uri__ = "/clubs/<identifier:string>"
 
     @validate(None, GetClubResponse)
-    async def get(self, _, identifier):
+    async def get(self, session, _, identifier):
         """Handles a GET /clubs/<identifier> request by returning the club with
         the given identifier."""
         # Decode the identifier, since special characters will be URL-encoded
         identifier = unquote(identifier)
         # Fetch club data from DB
-        club_data = club.select_by_club_id(self.server.db_session, identifier)
+        club_data = club.select_by_club_id(session, identifier)
         if not club_data:
             # Failed to find a club with that name
             raise APIError('No such club', status=404)
@@ -36,7 +36,7 @@ class ClubEndpoint(Endpoint):
 
     @verify_token()
     @validate(PutClubRequest, GetClubResponse)
-    async def put(self, request, identifier, id_from_token=None):
+    async def put(self, session, request, identifier, id_from_token=None):
         """Handles a PUT /clubs/<identifier> request by updating the club with
         the given name and returning the updated club info."""
         # Decode the identifier, since special characters will be URL-encoded
@@ -44,11 +44,11 @@ class ClubEndpoint(Endpoint):
         body = util.strip_whitespace(request.json)
         try:
             editor_attr = membership.select_by_club_id(
-                self.server.db_session, identifier, id_from_token,
+                session, identifier, id_from_token,
                 Roles.president.value)
             editors_role = editor_attr[0]['role']
             updated_club = club.update(
-                self.server.db_session,
+                session,
                 identifier,
                 editors_role,
                 new_name=body.get('name', None),
@@ -63,17 +63,17 @@ class ClubEndpoint(Endpoint):
 
     @verify_token()
     @validate(DeleteClubRequest, None)
-    async def delete(self, _, identifier, id_from_token=None):
+    async def delete(self, session, _, identifier, id_from_token=None):
         """Handles a DELETE /clubs/<identifier> request by deleting the club with
         the given identifier."""
         # Decode the identifier, since special characters will be URL-encoded
         identifier = unquote(identifier)
         try:
             membership_attr = membership.select_by_club_id(
-                self.server.db_session, identifier, id_from_token,
+                session, identifier, id_from_token,
                 Roles.president.value)
             editors_role = membership_attr[0]['role']
-            club.delete(self.server.db_session, identifier, editors_role)
+            club.delete(session, identifier, editors_role)
         except PermissionError:
             raise APIError('Forbidden', status=403)
         return response.text('', status=204)
@@ -86,16 +86,13 @@ class ClubsEndpoint(Endpoint):
 
     @verify_token()
     @validate(PostClubsRequest, GetClubResponse)
-    async def post(self, request, id_from_token=None):
+    async def post(self, session, request, id_from_token=None):
         """Handles a POST /clubs request by creating a new club."""
         # Put the club in the DB
         body = util.strip_whitespace(request.json)
         try:
-            # BUG:
-            # if no website_url, facebook_url, instagram_url, or twitter_url,
-            # this method will fail.  Fix such that urls are not required.
             club_row = club.insert(
-                self.server.db_session,
+                session,
                 name=body.get('name', None),
                 description=body.get('description', None),
                 website_url=body.get('website_url', None),
@@ -105,7 +102,7 @@ class ClubsEndpoint(Endpoint):
         except IntegrityError:
             raise APIError('Club already exists', status=409)
         # Give the creator of the club a President membership
-        membership.insert(self.server.db_session, body.get('name', None),
+        membership.insert(session, body.get('name', None),
                           id_from_token, Roles.president.value,
                           Roles.president.value, 'Owner')
         return response.json(club_row.to_dict(), status=201)
@@ -117,13 +114,17 @@ class SearchClubsEndpoint(Endpoint):
     __uri__ = '/clubs/search'
 
     @validate(SearchClubsRequest, SearchClubsResponse)
-    async def get(self, request):
+    async def get(self, session, request):
         """Handles a GET /club/search request by returning
         clubs that contain content from the query."""
 
-        query = None
-        if 'query' in request.args:
-            query = request.args['query']
+        name = None
+        description = None
+        if 'name' in request.args:
+            name = request.args['name']
+        if 'description' in request.args:
+            description = request.args['description']
+
         page = int(request.args['page'])
         size = int(request.args['size'])
         if size > MAX_SIZE:
@@ -132,7 +133,8 @@ class SearchClubsEndpoint(Endpoint):
             raise APIError('size too low', status=400)
 
         queried_clubs, result_count, total_pages = club.search(
-            self.server.db_session, query, page, size)
+            session, name, description, page, size)
+
         if not queried_clubs:
             # Failed to find clubs that match the query
             raise APIError('No clubs match your query', status=404)
@@ -154,7 +156,8 @@ class ClubImagesEndpoint(Endpoint):
 
     __uri__ = '/clubs/<name>/images/<image_name>'
 
-    async def get(self, _, name, image_name):
+    # pylint: disable=unused-argument
+    async def get(self, session, _, name, image_name):
         """
         Handles a GET /clubs/<name>/images/<image_name> request
         by returning the club's image with the given name.
@@ -169,8 +172,10 @@ class ClubImagesEndpoint(Endpoint):
         except FileNotFoundError:
             raise APIError('No such image', status=404)
 
+    # pylint: enable=unused-argument
+
     # @verify_token()
-    async def put(self, request, name, image_name):
+    async def put(self, session, request, name, image_name):
         """
         Handles a PUT /clubs/<name>/images/<image_name> request
         by updating the image at the given path.
@@ -180,7 +185,7 @@ class ClubImagesEndpoint(Endpoint):
             raise APIError('Invalid image name', status=400)
 
         # Make sure the user is updating an image they own
-        club_info = club.select(self.server.db_session, name)
+        club_info = club.select(session, name)
         if not club_info:
             raise APIError('No such image', status=404)
 
@@ -201,13 +206,13 @@ class ClubImagesEndpoint(Endpoint):
         return response.text('', status=200)
 
     # @verify_token()
-    async def delete(self, _, name, image_name):
+    async def delete(self, session, _, name, image_name):
         """Handles a DETELE by deleting the club's image by the given name."""
 
         if not util.check_image_name(image_name):
             raise APIError('Invalid image name', status=400)
         # Make sure the user is deleting their own image
-        club_info = club.select(self.server.db_session, name)
+        club_info = club.select(session, name)
         if not club_info:
             raise APIError('No such image', status=404)
         try:
