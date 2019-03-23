@@ -225,22 +225,24 @@ class SearchUsersEndpoint(Endpoint):
         """Handles a GET /club/search request by returning
         users that contain content from the query."""
 
+        # pylint: disable=too-many-locals
         full_name = None
         username = None
         email = None
-        id = None
+        identifier = None
         created_at = None
 
         if 'full_name' in request.args:
-            full_name = request.args.get('full_name', None)
+            full_name = request.args['full_name']
         if 'username' in request.args:
             username = request.args['username']
         if 'email' in request.args:
             email = request.args['email']
         if 'id' in request.args:
-            id = request.args['id']
+            identifier = request.args['id']
         if 'created_at' in request.args:
             created_at = request.args['created at']
+        # pylint: enable=too-many-locals
 
         page = int(request.args['page'])
 
@@ -251,7 +253,8 @@ class SearchUsersEndpoint(Endpoint):
             raise APIError('size too low', status=400)
 
         queried_users, result_count, total_pages = user.search(
-            session, full_name, email, id, username, created_at, page, size)
+            session, full_name, email, identifier, username,
+            created_at, page, size)
         if not queried_users:
             # Failed to find users that match the query
             raise APIError('No users match your query', status=404)

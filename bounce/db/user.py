@@ -5,7 +5,6 @@ import math
 from sqlalchemy import Column, Integer, String, desc, func, or_
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
-# from sqlachemy import or
 
 from . import BASE
 
@@ -63,39 +62,39 @@ def select_by_id(session, user_id):
     return session.query(User).filter(User.identifier == user_id).first()
 
 
-def search(session, fullname=None, username=None, id=None,
-          email=None, created_at=None, page=0, size=MAX_SIZE):
+def search(session,
+           full_name=None,
+           username=None,
+           identifier=None,
+           email=None,
+           created_at=None,
+           page=0,
+           size=MAX_SIZE):
     """Returns a list of users that contain content from the user's query"""
     # number used for offset is the
     # page number multiplied by the size of each page
+
     offset_num = page * size
     users = session.query(User)
+
     not_null_filters = []
 
-    triggered = False
-    if fullname or username or email or id or created_at:
-        triggered = True
-
-    if fullname:
-        not_null_filters.append(User.full_name.ilike(f'%{fullname}%'))
+    if full_name:
+        not_null_filters.append(User.full_name.ilike(f'%{full_name}%'))
     if username:
         not_null_filters.append(User.username.ilike(f'%{username}%'))
-        # users = users.filter(User.username.ilike(f'%{username}%'))
     if email:
-        # users = users.filter(User.email.ilike(f'%{email}%'))
         not_null_filters.append(User.email.ilike(f'%{email}%'))
-    if id:
-        # users = users.filter(User.id.ilike(f'%{id}%'))
-        not_null_filters.append(User.id == int(id))
+    if identifier:
+        not_null_filters.append(User.id.ilike(f'%{identifier}%'))
     if created_at:
-        # users = users.filter(User.created_at.ilike(f'%{created_at}%'))
-        not_null_filters.append(User.id.ilike(f'%{id}%'))
+        not_null_filters.append(User.id.ilike(f'%{created_at}%'))
 
         # TODO: implement search_vector functionality:
         # users = users.filter(User.search_vector.match(query))
         # Currently search_vector column isn't working properly
 
-    if not triggered:
+    if not not_null_filters:
         # show users ordered by most recently created
         users = users.order_by(desc(User.created_at))
     else:
