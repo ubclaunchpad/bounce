@@ -2,7 +2,7 @@
 
 import math
 
-from sqlalchemy import Column, Integer, String, desc, func
+from sqlalchemy import Column, Integer, String, desc, func, or_
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 
@@ -62,23 +62,43 @@ def select_by_id(session, user_id):
     return session.query(User).filter(User.identifier == user_id).first()
 
 
-def search(session, query=None, page=0, size=MAX_SIZE):
-    """Returns a list of clubs that contain content from the user's query"""
+def search(session,
+           full_name=None,
+           username=None,
+           identifier=None,
+           email=None,
+           created_at=None,
+           page=0,
+           size=MAX_SIZE):
+    """Returns a list of users that contain content from the user's query"""
     # number used for offset is the
     # page number multiplied by the size of each page
+
     offset_num = page * size
     users = session.query(User)
 
-    if query:
-        # show clubs that have a name that matches the query
-        users = users.filter(User.full_name.ilike(f'%{query}%'))
+    not_null_filters = []
+
+    if full_name:
+        not_null_filters.append(User.full_name.ilike(f'%{full_name}%'))
+    if username:
+        not_null_filters.append(User.username.ilike(f'%{username}%'))
+    if email:
+        not_null_filters.append(User.email.ilike(f'%{email}%'))
+    if identifier:
+        not_null_filters.append(User.id.ilike(f'%{identifier}%'))
+    if created_at:
+        not_null_filters.append(User.id.ilike(f'%{created_at}%'))
+
         # TODO: implement search_vector functionality:
         # users = users.filter(User.search_vector.match(query))
         # Currently search_vector column isn't working properly
 
-    else:
-        # show clubs ordered by most recently created
+    if not not_null_filters:
+        # show users ordered by most recently created
         users = users.order_by(desc(User.created_at))
+    else:
+        users = users.filter(or_(*not_null_filters))
 
     result_count = users.count()
     total_pages = math.ceil(result_count / size)
