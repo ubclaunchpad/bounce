@@ -60,14 +60,8 @@ class GetUserResponse(metaclass=ResourceMeta):
     """Defines the schema for a GET /users/<username> response."""
     __body__ = {
         'type': 'object',
-        'required': [
-            'full_name',
-            'username',
-            'email',
-            'bio',
-            'id',
-            'created_at'
-        ],
+        'required':
+        ['full_name', 'username', 'email', 'bio', 'id', 'created_at'],
         'additionalProperties': False,
         'properties': {
             'full_name': {

@@ -20,7 +20,7 @@ class MembershipEndpoint(Endpoint):
 
     @verify_token()
     @validate(GetMembershipsRequest, GetMembershipsResponse)
-    async def get(self, request, club_name, id_from_token=None):
+    async def get(self, session, request, club_name, id_from_token=None):
         """
         Handles a GET /memberships/<club_name> request
         by returning the membership that associates the given user with the
@@ -32,7 +32,7 @@ class MembershipEndpoint(Endpoint):
         club_name = unquote(club_name)
 
         # Make sure the club exists
-        club_row = club.select(self.server.db_session, club_name)
+        club_row = club.select(session, club_name)
         if not club_row:
             raise APIError('No such club', status=404)
         try:
@@ -57,8 +57,8 @@ class MembershipEndpoint(Endpoint):
 
     @verify_token()
     @validate(PutMembershipRequest, None)
-    async def put(self, request, club_name, id_from_token=None):
-        """Handles a PUT /memberships/<club_name>
+    async def put(self, session, request, club_name, id_from_token=None):
+        """Handles a PUT /memberships/<club_name>?user_id=<user_id> request by
         creating or updating the membership for the given user and club."""
         # Decode the club name
         club_name = unquote(club_name)
@@ -75,39 +75,36 @@ class MembershipEndpoint(Endpoint):
         # get the editors role using id_from_token
         # to see if the editor has access to insert/update
         # the memberships table.
-        editor_attr = membership.select(self.server.db_session, club_name,
-                                        id_from_token, Roles.president)
+        editor_attr = membership.select(session, club_name, id_from_token,
+                                        Roles.president)
         if not editor_attr:
             # Either the club doesn't exist, or the user is not a member of
             # the club
             raise APIError('Bad request', status=400)
 
         editors_role = editor_attr[0]['role']
-        membership_attr = membership.select(self.server.db_session, club_name,
-                                            user_id, Roles.president)
+        membership_attr = membership.select(session, club_name, user_id,
+                                            Roles.president)
 
         try:
             # If the membership exists already in the table, update entry
             if membership_attr:
                 current_members_role = membership_attr[0]['role']
-                membership.update(self.server.db_session, club_name, user_id,
-                                  editors_role, current_members_role, position,
-                                  members_role)
+                membership.update(session, club_name, user_id, editors_role,
+                                  current_members_role, position, members_role)
             # Otherwise, insert new entry
             else:
-                membership.insert(self.server.db_session, club_name, user_id,
-                                  editors_role, members_role, position)
+                membership.insert(session, club_name, user_id, editors_role,
+                                  members_role, position)
         except PermissionError:
             raise APIError('Forbidden', status=403)
         except IntegrityError:
             raise APIError('Bad request', status=400)
         return response.text('', status=201)
 
-    # pylint: enable=unused-argument
-
     @verify_token()
     @validate(DeleteMembershipRequest, None)
-    async def delete(self, request, club_name, id_from_token=None):
+    async def delete(self, session, request, club_name, id_from_token=None):
         """
         Handles a DELETE /memberships/<club_name> request
         by deleting the membership that associates the given user with the
@@ -118,31 +115,28 @@ class MembershipEndpoint(Endpoint):
         club_name = unquote(club_name)
 
         # Make sure the club exists
-        club_row = club.select(self.server.db_session, club_name)
+        club_row = club.select(session, club_name)
         if not club_row:
             raise APIError('No such club', status=404)
 
         try:
-            editor_attr = membership.select(self.server.db_session, club_name,
-                                            id_from_token, Roles.president)
+            editor_attr = membership.select(session, club_name, id_from_token,
+                                            Roles.president)
 
             editors_role = editor_attr[0]['role']
 
             if 'user_id' in request.args:
                 user_id = int(request.args['user_id'])
-                member_attr = membership.select(self.server.db_session,
-                                                club_name, user_id,
+                member_attr = membership.select(session, club_name, user_id,
                                                 Roles.president)
                 if not member_attr:
                     raise APIError('Bad request', status=400)
 
                 members_role = member_attr[0]['role']
-                membership.delete(self.server.db_session, club_name,
-                                  id_from_token, user_id, editors_role,
-                                  members_role)
+                membership.delete(session, club_name, id_from_token, user_id,
+                                  editors_role, members_role)
             else:
-                membership.delete_all(self.server.db_session, club_name,
-                                      editors_role)
+                membership.delete_all(session, club_name, editors_role)
         except PermissionError:
             raise APIError('Forbidden', status=403)
         return response.text('', status=201)

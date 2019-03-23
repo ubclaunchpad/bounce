@@ -63,9 +63,9 @@ def select_by_id(session, user_id):
     return session.query(User).filter(User.identifier == user_id).first()
 
 
-def search(session, fullname=None, username=None, id=None, 
+def search(session, fullname=None, username=None, id=None,
           email=None, created_at=None, page=0, size=MAX_SIZE):
-    """Returns a list of users that contain content from the user's query""" 
+    """Returns a list of users that contain content from the user's query"""
     # number used for offset is the
     # page number multiplied by the size of each page
     offset_num = page * size
@@ -86,9 +86,9 @@ def search(session, fullname=None, username=None, id=None,
     if email:
         # users = users.filter(User.email.ilike(f'%{email}%'))
         not_null_filters.append(User.email.ilike(f'%{email}%'))
-    if id: 
+    if id:
         # users = users.filter(User.id.ilike(f'%{id}%'))
-        not_null_filters.append(User.id.ilike(f'%{id}%'))
+        not_null_filters.append(User.id == int(id))
     if created_at:
         # users = users.filter(User.created_at.ilike(f'%{created_at}%'))
         not_null_filters.append(User.id.ilike(f'%{id}%'))
@@ -96,7 +96,7 @@ def search(session, fullname=None, username=None, id=None,
         # TODO: implement search_vector functionality:
         # users = users.filter(User.search_vector.match(query))
         # Currently search_vector column isn't working properly
-        
+
     if triggered is false:
         # show users ordered by most recently created
         users = users.order_by(desc(User.created_at))
