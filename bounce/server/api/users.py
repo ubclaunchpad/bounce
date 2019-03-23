@@ -253,8 +253,8 @@ class SearchUsersEndpoint(Endpoint):
             raise APIError('size too low', status=400)
 
         queried_users, result_count, total_pages = user.search(
-            session, full_name, email, identifier, username,
-            created_at, page, size)
+            session, full_name, email, identifier, username, created_at, page,
+            size)
         if not queried_users:
             # Failed to find users that match the query
             raise APIError('No users match your query', status=404)
