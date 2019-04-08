@@ -4,6 +4,9 @@
 [![Coverage Status](https://coveralls.io/repos/github/ubclaunchpad/bounce/badge.svg)](https://coveralls.io/github/ubclaunchpad/bounce)
 
 The backend for our application that brings people together based on common interests.
+The frontend repository can be found [here](https://github.com/ubclaunchpad/bounce-front-end).
+
+![frontend screenshot](https://github.com/ubclaunchpad/bounce-front-end/blob/master/.static/bounce-frontend.png?raw=true)
 
 ## Installation
 
