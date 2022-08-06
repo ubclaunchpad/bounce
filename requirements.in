@@ -1,4 +1,4 @@
-sanic==0.7.0
+sanic==20.12.7
 click==6.7
 sqlalchemy==1.2.8
 psycopg2==2.7.4
